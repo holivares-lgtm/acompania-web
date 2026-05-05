@@ -1,0 +1,2126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACOMPAÑÍA — Plataforma de Compañía Exclusiva</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0804;--bg2:#111009;--bg3:#181510;--bg4:#201c16;--bg5:#281f18;
+  --gold:#c4a66e;--gold2:#d4b880;--gold3:#a08040;--gold4:#8a6830;
+  --gold-dim:rgba(196,166,110,.10);--gold-border:rgba(196,166,110,.16);--gold-border2:rgba(196,166,110,.35);
+  --text:#f0e8d4;--text2:#b8a888;--text3:#706050;--text4:#3a3028;--text5:#241e16;
+  --danger:#c44;--success:#4a9;--warn:#c84;--info:#6090c8;
+  --serif:'Cormorant Garamond',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;
+  --r:6px;--r-lg:12px;--t:.2s cubic-bezier(.4,0,.2,1);
+}
+html{font-size:16px}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.35}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--gold4);border-radius:2px}
+
+/* PAGE SYSTEM */
+.page{display:none;animation:fadeUp .28s ease}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+#page-login.active,#page-register.active,#page-verify-otp.active{display:flex}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:100;background:rgba(10,8,4,.94);backdrop-filter:blur(18px);border-bottom:1px solid var(--gold-border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-logo{font-family:var(--serif);font-size:1.25rem;font-weight:500;color:var(--gold);letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+.nav-links{display:flex;gap:1.75rem;align-items:center}
+.nav-link{font-size:.71rem;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:color var(--t);background:none;border:none;padding-bottom:2px}
+.nav-link:hover,.nav-link.active{color:var(--gold)}
+.nav-link.active{border-bottom:1px solid var(--gold)}
+.nav-actions{display:flex;gap:.75rem;align-items:center}
+.nav-notif{position:relative;cursor:pointer;color:var(--text3);transition:color var(--t);background:none;border:none;padding:4px}
+.nav-notif:hover{color:var(--gold)}
+.notif-dot{position:absolute;top:2px;right:2px;width:7px;height:7px;background:var(--gold);border-radius:50%;border:1.5px solid var(--bg);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+/* PROMO BANNER */
+.promo-banner{background:linear-gradient(90deg,rgba(196,166,110,.12),rgba(196,166,110,.06));border-bottom:1px solid var(--gold-border);padding:.6rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.promo-banner.hidden{display:none}
+.promo-pill{background:var(--gold-dim);border:1px solid var(--gold-border2);border-radius:2px;padding:.15rem .5rem;font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;padding:.6rem 1.4rem;font-family:var(--sans);font-size:.74rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;border-radius:var(--r);border:none;cursor:pointer;transition:all var(--t);white-space:nowrap}
+.btn-gold{background:var(--gold);color:var(--bg)}.btn-gold:hover{background:var(--gold2);transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--gold);border:1px solid var(--gold-border2)}.btn-outline:hover{background:var(--gold-dim)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--text4)}.btn-ghost:hover{border-color:var(--text3);color:var(--text)}
+.btn-danger{background:transparent;color:var(--danger);border:1px solid rgba(204,68,68,.3)}.btn-danger:hover{background:rgba(204,68,68,.08)}
+.btn-google{background:var(--bg3);color:var(--text);border:1px solid var(--gold-border);width:100%;gap:.65rem;padding:.75rem}.btn-google:hover{border-color:var(--gold-border2);background:var(--bg4)}
+.btn-phone{background:var(--bg3);color:var(--text);border:1px solid var(--gold-border);width:100%;gap:.65rem;padding:.75rem}.btn-phone:hover{border-color:var(--gold-border2);background:var(--bg4)}
+.btn-sm{padding:.38rem .85rem;font-size:.67rem}
+.btn-lg{padding:.85rem 2rem;font-size:.8rem}
+.btn-xl{padding:1rem 2.5rem;font-size:.85rem}
+
+/* INPUTS */
+.input-wrap{display:flex;flex-direction:column;gap:.38rem}
+.input-label{font-size:.67rem;font-weight:500;color:var(--text3);letter-spacing:.1em;text-transform:uppercase}
+.input{background:var(--bg3);border:1px solid var(--gold-border);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:.875rem;padding:.62rem .9rem;width:100%;transition:border-color var(--t);outline:none}
+.input:focus{border-color:var(--gold)}
+.input::placeholder{color:var(--text4)}
+select.input{cursor:pointer}
+textarea.input{resize:vertical;min-height:80px}
+.input-icon-wrap{position:relative}
+.input-icon-wrap .input{padding-left:2.6rem}
+.input-icon{position:absolute;left:.85rem;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+.input-hint{font-size:.67rem;color:var(--text4);margin-top:.25rem}
+.input-error{font-size:.67rem;color:var(--danger);margin-top:.25rem}
+
+/* OTP INPUTS */
+.otp-group{display:flex;gap:.6rem;justify-content:center;margin:1.25rem 0}
+.otp-input{width:48px;height:56px;text-align:center;font-family:var(--serif);font-size:1.6rem;font-weight:300;color:var(--gold);background:var(--bg3);border:1px solid var(--gold-border);border-radius:var(--r);outline:none;transition:border-color var(--t)}
+.otp-input:focus{border-color:var(--gold);background:var(--bg4)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:.3rem;padding:.18rem .6rem;font-size:.63rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;border-radius:2px}
+.badge-gold{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border2)}
+.badge-green{background:rgba(74,153,102,.12);color:#4a9;border:1px solid rgba(74,153,102,.25)}
+.badge-red{background:rgba(204,68,68,.1);color:#c66;border:1px solid rgba(204,68,68,.2)}
+.badge-gray{background:var(--bg4);color:var(--text3);border:1px solid var(--text4)}
+.badge-warn{background:rgba(204,136,68,.12);color:#c84;border:1px solid rgba(204,136,68,.25)}
+.badge-info{background:rgba(96,144,200,.1);color:var(--info);border:1px solid rgba(96,144,200,.2)}
+.badge-verified{background:linear-gradient(90deg,rgba(196,166,110,.15),rgba(196,166,110,.08));color:var(--gold);border:1px solid var(--gold-border2);font-size:.62rem;display:inline-flex;align-items:center;gap:.3rem}
+
+/* AVATAR */
+.avatar{border-radius:50%;background:var(--bg4);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:500;color:var(--gold);flex-shrink:0;overflow:hidden;position:relative}
+.avatar-sm{width:36px;height:36px;font-size:.85rem}
+.avatar-md{width:48px;height:48px;font-size:1.1rem}
+.avatar-lg{width:72px;height:72px;font-size:1.6rem}
+.avatar-xl{width:96px;height:96px;font-size:2rem}
+.avatar-verified-ring{border:2px solid var(--gold)!important;box-shadow:0 0 0 3px rgba(196,166,110,.2)}
+
+/* UTILS */
+.divider{height:1px;background:var(--gold-border);margin:1.25rem 0}
+.stars{color:var(--gold);letter-spacing:1px}
+.stars-input{display:flex;gap:.3rem}
+.star-btn{background:none;border:none;cursor:pointer;font-size:1.4rem;color:var(--text4);transition:color var(--t)}
+.star-btn.active,.star-btn:hover{color:var(--gold)}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.status-available{background:#4a9;box-shadow:0 0 0 3px rgba(74,153,102,.15)}
+.status-busy{background:#c84;box-shadow:0 0 0 3px rgba(204,136,68,.15)}
+.section-eyebrow{font-size:.64rem;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;margin-bottom:.5rem}
+.section-title{font-family:var(--serif);font-size:2rem;font-weight:400;color:var(--text);line-height:1.15}
+.section-title em{font-style:italic;color:var(--gold)}
+.page-container{max-width:1240px;margin:0 auto;padding:2.5rem 2rem}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:1.25rem}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:.85rem}
+.flex-between{display:flex;align-items:center;justify-content:space-between}
+.flex-gap{display:flex;align-items:center;gap:.75rem}
+.ornament{display:flex;align-items:center;gap:1rem;margin:1.25rem 0}
+.ornament::before,.ornament::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold-border),transparent)}
+.ornament span{font-family:var(--serif);font-size:1rem;color:var(--gold3);flex-shrink:0}
+
+/* NOTIF PANEL */
+.notif-panel{position:fixed;top:68px;right:1.5rem;z-index:200;width:340px;background:var(--bg2);border:1px solid var(--gold-border2);border-radius:var(--r-lg);box-shadow:0 20px 60px rgba(0,0,0,.65);display:none;animation:slideDown .2s ease}
+.notif-panel.open{display:block}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.notif-header{padding:1rem 1.25rem;border-bottom:1px solid var(--gold-border);display:flex;justify-content:space-between;align-items:center}
+.notif-title{font-family:var(--serif);font-size:1rem;color:var(--gold)}
+.notif-item{padding:.85rem 1.25rem;border-bottom:1px solid var(--gold-border);cursor:pointer;transition:background var(--t)}
+.notif-item:hover{background:var(--bg3)}
+.notif-item:last-child{border-bottom:none}
+.notif-item-title{font-size:.8rem;font-weight:500;color:var(--text);margin-bottom:.2rem}
+.notif-item-desc{font-size:.72rem;color:var(--text3);line-height:1.4}
+.notif-item-time{font-size:.64rem;color:var(--text4);margin-top:.25rem}
+
+/* TOAST */
+.toast{position:fixed;bottom:2rem;right:2rem;z-index:9998;background:var(--bg3);border:1px solid var(--gold-border2);border-radius:var(--r);padding:.9rem 1.4rem;min-width:280px;display:none;animation:toastIn .3s ease;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.toast.show{display:block}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.toast-title{font-size:.8rem;font-weight:500;color:var(--gold);margin-bottom:.2rem}
+.toast-msg{font-size:.75rem;color:var(--text2)}
+
+/* MODAL */
+.modal-backdrop{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.82);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:2rem}
+.modal-backdrop.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--gold-border2);border-radius:var(--r-lg);width:100%;max-width:560px;max-height:90vh;overflow-y:auto;animation:modalIn .25s ease}
+.modal-lg{max-width:720px}
+@keyframes modalIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.modal-header{padding:1.4rem 1.75rem 1rem;border-bottom:1px solid var(--gold-border);display:flex;justify-content:space-between;align-items:flex-start}
+.modal-title{font-family:var(--serif);font-size:1.5rem;color:var(--text)}
+.modal-close{background:none;border:none;color:var(--text3);font-size:1.2rem;cursor:pointer;transition:color var(--t)}.modal-close:hover{color:var(--gold)}
+.modal-body{padding:1.5rem 1.75rem}
+.modal-footer{padding:1rem 1.75rem 1.5rem;display:flex;gap:.75rem;justify-content:flex-end;border-top:1px solid var(--gold-border)}
+
+/* SIDEBAR */
+.sidebar-layout{display:grid;grid-template-columns:248px 1fr;gap:0;min-height:calc(100vh - 60px)}
+.sidebar{background:var(--bg2);border-right:1px solid var(--gold-border);padding:1.5rem 0;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto}
+.sidebar-item{display:flex;align-items:center;gap:.7rem;padding:.7rem 1.4rem;font-size:.78rem;color:var(--text3);cursor:pointer;transition:all var(--t);border-left:2px solid transparent;background:none;border-right:none;border-top:none;border-bottom:none;width:100%;text-align:left}
+.sidebar-item:hover{color:var(--text2);background:var(--bg3)}
+.sidebar-item.active{color:var(--gold);border-left-color:var(--gold);background:var(--gold-dim)}
+.sidebar-section-label{padding:1.25rem 1.4rem .4rem;font-size:.59rem;font-weight:500;color:var(--text4);letter-spacing:.15em;text-transform:uppercase}
+.main-content{background:var(--bg);padding:2.25rem 2rem;min-height:calc(100vh - 60px)}
+
+/* STAT CARD */
+.stat-card{background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r-lg);padding:1.4rem;position:relative;overflow:hidden}
+.stat-card::after{content:'';position:absolute;top:0;right:0;width:36px;height:36px;background:var(--gold-dim);border-radius:0 var(--r-lg) 0 36px}
+.stat-label{font-size:.63rem;font-weight:500;color:var(--text3);letter-spacing:.11em;text-transform:uppercase;margin-bottom:.55rem}
+.stat-value{font-family:var(--serif);font-size:1.9rem;font-weight:300;color:var(--text);line-height:1}
+.stat-sub{font-size:.7rem;color:var(--text3);margin-top:.35rem}
+.stat-up{color:var(--success)}.stat-down{color:var(--danger)}
+
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead tr{border-bottom:1px solid var(--gold-border)}
+th{font-size:.63rem;font-weight:500;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;padding:.6rem .9rem;text-align:left;white-space:nowrap}
+td{padding:.8rem .9rem;font-size:.81rem;color:var(--text2);border-bottom:1px solid var(--text5);vertical-align:middle}
+tbody tr:hover{background:var(--bg3)}
+tbody tr:last-child td{border-bottom:none}
+
+/* TABS */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--gold-border);margin-bottom:1.75rem;overflow-x:auto}
+.tab{padding:.7rem 1.4rem;font-size:.73rem;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all var(--t);background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap}
+.tab:hover{color:var(--text2)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* TOGGLE */
+.toggle{position:relative;display:inline-block;width:42px;height:24px;cursor:pointer;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:var(--bg4);border:1px solid var(--gold-border);border-radius:12px;transition:all var(--t)}
+.toggle-slider::before{content:'';position:absolute;left:3px;top:50%;transform:translateY(-50%);width:16px;height:16px;background:var(--text3);border-radius:50%;transition:all var(--t)}
+.toggle input:checked + .toggle-slider{background:var(--gold-dim);border-color:var(--gold)}
+.toggle input:checked + .toggle-slider::before{transform:translateX(18px) translateY(-50%);background:var(--gold)}
+
+/* FORM */
+.form-section{margin-bottom:1.75rem}
+.form-section-title{font-family:var(--serif);font-size:1.1rem;color:var(--gold);margin-bottom:.85rem;padding-bottom:.45rem;border-bottom:1px solid var(--gold-border)}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:1rem}
+.service-checkbox{display:flex;align-items:center;gap:.55rem;cursor:pointer}
+.service-checkbox input{appearance:none;width:16px;height:16px;border:1px solid var(--gold-border);border-radius:3px;background:var(--bg3);cursor:pointer;flex-shrink:0;position:relative;transition:all var(--t)}
+.service-checkbox input:checked{background:var(--gold-dim);border-color:var(--gold)}
+.service-checkbox input:checked::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:9px;color:var(--gold)}
+.service-checkbox span{font-size:.81rem;color:var(--text2)}
+
+/* COMPANION CARD */
+.companion-card{background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;transition:all var(--t)}
+.companion-card:hover{border-color:var(--gold-border2);transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.companion-card-img{height:160px;background:linear-gradient(135deg,var(--bg3),var(--bg4));position:relative;display:flex;align-items:center;justify-content:center}
+.companion-card-avail{position:absolute;top:8px;right:8px;display:flex;align-items:center;gap:.3rem;background:rgba(10,8,4,.82);border:1px solid var(--gold-border);border-radius:3px;padding:.25rem .55rem;font-size:.6rem;color:var(--gold)}
+.companion-card-body{padding:1.1rem}
+.companion-card-name{font-family:var(--serif);font-size:1.2rem;color:var(--text);margin-bottom:.15rem;display:flex;align-items:center;gap:.45rem}
+.companion-card-loc{font-size:.7rem;color:var(--text3);margin-bottom:.65rem;display:flex;align-items:center;gap:.3rem}
+.companion-card-tags{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.8rem}
+.companion-card-tag{background:var(--bg4);color:var(--text3);font-size:.63rem;padding:.18rem .5rem;border-radius:2px}
+.companion-card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:.7rem;border-top:1px solid var(--gold-border)}
+.companion-card-price{font-family:var(--serif);font-size:1.05rem;color:var(--gold)}
+.companion-card-price span{font-size:.68rem;font-family:var(--sans);color:var(--text3)}
+
+/* REQUEST CARD */
+.request-card{background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r-lg);padding:1.4rem;margin-bottom:.9rem;transition:border-color var(--t)}
+.request-card:hover{border-color:var(--gold-border2)}
+.request-card-title{font-family:var(--serif);font-size:1.1rem;color:var(--text);margin-bottom:.2rem}
+.request-card-meta{font-size:.7rem;color:var(--text3);display:flex;gap:1rem;flex-wrap:wrap;margin-top:.2rem}
+.applicant-row{display:flex;align-items:center;gap:.7rem;padding:.55rem 0;border-bottom:1px solid var(--gold-border)}
+.applicant-row:last-child{border-bottom:none}
+
+/* APPT CARD */
+.appt-card{background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r-lg);padding:1.4rem;display:flex;gap:1.4rem;align-items:flex-start;margin-bottom:.9rem;transition:border-color var(--t)}
+.appt-card:hover{border-color:var(--gold-border2)}
+.appt-date-box{background:var(--bg3);border:1px solid var(--gold-border);border-radius:var(--r);padding:.7rem .9rem;text-align:center;min-width:60px;flex-shrink:0}
+.appt-date-day{font-family:var(--serif);font-size:1.75rem;font-weight:300;color:var(--gold);line-height:1}
+.appt-date-month{font-size:.58rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
+
+/* PRICE PREVIEW */
+.price-preview{background:var(--bg3);border:1px solid var(--gold-border2);border-radius:var(--r-lg);padding:1.4rem;position:sticky;top:80px}
+.price-preview-title{font-family:var(--serif);font-size:1.1rem;color:var(--gold);margin-bottom:.9rem}
+.price-line{display:flex;justify-content:space-between;align-items:center;padding:.45rem 0;border-bottom:1px solid var(--gold-border)}
+.price-line:last-child{border-bottom:none}
+.price-line-label{font-size:.76rem;color:var(--text3)}
+.price-line-value{font-size:.8rem;color:var(--text2)}
+.price-total{font-family:var(--serif);font-size:1.35rem;color:var(--gold)}
+
+/* REVIEW CARD */
+.review-card{background:var(--bg3);border:1px solid var(--gold-border);border-radius:var(--r-lg);padding:1.25rem;margin-bottom:.75rem;transition:border-color var(--t)}
+.review-card:hover{border-color:var(--gold-border2)}
+.review-author-info{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem}
+.review-author-name{font-size:.85rem;font-weight:500;color:var(--text)}
+.review-author-role{font-size:.68rem;color:var(--text3)}
+.review-text{font-family:var(--serif);font-size:.95rem;font-style:italic;color:var(--text2);line-height:1.7}
+.review-aspects{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.65rem}
+.review-aspect{background:var(--bg4);color:var(--text3);font-size:.63rem;padding:.2rem .55rem;border-radius:2px}
+
+/* AVAILABILITY */
+.availability-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:.4rem}
+.avail-day{text-align:center}
+.avail-day-label{font-size:.6rem;color:var(--text3);letter-spacing:.05em;text-transform:uppercase;margin-bottom:.35rem}
+.avail-slot{height:30px;border-radius:3px;border:1px solid var(--gold-border);background:var(--bg3);cursor:pointer;transition:all var(--t);display:flex;align-items:center;justify-content:center;font-size:.62rem;color:var(--text4);margin-bottom:3px}
+.avail-slot.available{background:rgba(74,153,102,.12);border-color:rgba(74,153,102,.3);color:#4a9}
+.avail-slot.busy{background:rgba(196,166,110,.1);border-color:rgba(196,166,110,.25);color:var(--gold3)}
+
+/* HERO */
+.hero-banner{background:linear-gradient(135deg,var(--bg2) 0%,var(--bg) 60%);border:1px solid var(--gold-border);border-radius:var(--r-lg);padding:2.25rem 2.75rem;margin-bottom:2.5rem;position:relative;overflow:hidden}
+.hero-banner::before{content:'';position:absolute;top:-60px;right:-60px;width:280px;height:280px;background:radial-gradient(circle,rgba(196,166,110,.07) 0%,transparent 70%);pointer-events:none}
+.hero-banner-label{font-size:.63rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold3);margin-bottom:.7rem}
+.hero-banner-title{font-family:var(--serif);font-size:2.3rem;font-weight:300;line-height:1.15;color:var(--text);margin-bottom:.7rem}
+.hero-banner-title em{font-style:italic;color:var(--gold)}
+.hero-banner-sub{font-size:.84rem;color:var(--text3);line-height:1.6;margin-bottom:1.6rem;max-width:480px}
+
+/* PHOTO GRID */
+.photo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.45rem}
+.photo-thumb{aspect-ratio:1;background:var(--bg3);border:1px solid var(--gold-border);border-radius:var(--r);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color var(--t)}
+.photo-thumb:hover{border-color:var(--gold)}
+.photo-thumb.add-photo{border-style:dashed;font-size:1.4rem;color:var(--text4)}
+
+/* WIZARD */
+.wizard-steps{display:flex;align-items:center;margin-bottom:2.25rem}
+.wizard-step{display:flex;flex-direction:column;align-items:center;gap:.35rem;flex:1;position:relative}
+.wizard-step::before{content:'';position:absolute;top:15px;left:50%;right:-50%;height:1px;background:var(--gold-border);z-index:0}
+.wizard-step:last-child::before{display:none}
+.wizard-step-circle{width:30px;height:30px;border-radius:50%;border:1px solid var(--gold-border);background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:.72rem;color:var(--text3);z-index:1;transition:all var(--t)}
+.wizard-step.done .wizard-step-circle{background:var(--gold-dim);border-color:var(--gold);color:var(--gold)}
+.wizard-step.active .wizard-step-circle{background:var(--gold);color:var(--bg)}
+.wizard-step-label{font-size:.62rem;color:var(--text3);letter-spacing:.05em;text-transform:uppercase;text-align:center}
+.wizard-step.active .wizard-step-label,.wizard-step.done .wizard-step-label{color:var(--gold)}
+
+/* SMART PROMO */
+.smart-promo{position:fixed;bottom:5.5rem;right:2rem;z-index:400;width:300px;background:var(--bg3);border:1px solid var(--gold-border2);border-radius:var(--r-lg);padding:1.1rem 1.25rem;box-shadow:0 16px 48px rgba(0,0,0,.6);animation:promoSlide .35s ease;display:none}
+.smart-promo.show{display:block}
+@keyframes promoSlide{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+/* PROFILE PAGE */
+.profile-cover{height:180px;background:linear-gradient(135deg,var(--bg3),var(--bg4),var(--bg2));position:relative;border-bottom:1px solid var(--gold-border)}
+.profile-cover-pattern{position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(196,166,110,.03) 0,rgba(196,166,110,.03) 1px,transparent 0,transparent 50%);background-size:20px 20px}
+.profile-avatar-wrap{position:absolute;bottom:-44px;left:2.5rem}
+.profile-avatar-wrap .avatar{border:3px solid var(--bg)}
+.profile-info-bar{background:var(--bg2);border-bottom:1px solid var(--gold-border);padding:3.25rem 2.5rem 1.25rem;display:flex;align-items:flex-end;justify-content:space-between;gap:1.5rem;flex-wrap:wrap}
+.profile-name-block{}
+.profile-name{font-family:var(--serif);font-size:2rem;font-weight:300;color:var(--text);margin-bottom:.25rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+.profile-meta-row{display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;font-size:.75rem;color:var(--text3)}
+.profile-meta-item{display:flex;align-items:center;gap:.35rem}
+
+/* VERIFICATION FLOW */
+.verif-step{background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r-lg);padding:1.5rem;margin-bottom:1rem;transition:border-color var(--t)}
+.verif-step.active{border-color:var(--gold-border2)}
+.verif-step.done{border-color:rgba(74,153,102,.35);background:rgba(74,153,102,.04)}
+.verif-step-header{display:flex;align-items:center;gap:.9rem}
+.verif-step-num{width:32px;height:32px;border-radius:50%;border:1px solid var(--gold-border);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--text3);flex-shrink:0}
+.verif-step.active .verif-step-num{border-color:var(--gold);background:var(--gold-dim);color:var(--gold)}
+.verif-step.done .verif-step-num{border-color:var(--success);background:rgba(74,153,102,.15);color:var(--success)}
+.verif-step-title{font-size:.88rem;font-weight:500;color:var(--text)}
+.verif-step-sub{font-size:.73rem;color:var(--text3);margin-top:.1rem}
+.verif-step-body{margin-top:1.1rem;padding-top:1.1rem;border-top:1px solid var(--gold-border)}
+
+/* ID UPLOAD ZONE */
+.id-upload-zone{border:1.5px dashed var(--gold-border2);border-radius:var(--r-lg);padding:2rem;text-align:center;cursor:pointer;transition:all var(--t);background:var(--bg3)}
+.id-upload-zone:hover{border-color:var(--gold);background:var(--bg4)}
+.id-upload-zone-icon{font-size:2rem;margin-bottom:.6rem}
+.id-upload-zone-title{font-size:.85rem;color:var(--text);margin-bottom:.25rem}
+.id-upload-zone-sub{font-size:.72rem;color:var(--text3)}
+
+/* SELFIE AREA */
+.selfie-area{background:var(--bg3);border:1px solid var(--gold-border);border-radius:var(--r-lg);padding:1.5rem;text-align:center}
+.camera-frame{width:180px;height:180px;border-radius:50%;border:2px solid var(--gold-border2);background:var(--bg4);margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative;overflow:hidden}
+.camera-scanning{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent);animation:scan 1.8s ease-in-out infinite}
+@keyframes scan{0%{top:0;opacity:1}100%{top:100%;opacity:0}}
+
+/* LOGIN SPECIFIC */
+#page-login{min-height:100vh}
+.login-split{display:flex;min-height:100vh}
+.login-left{flex:1;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:3rem;position:relative;overflow:hidden}
+.login-left::before{content:'';position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(196,166,110,.055) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%)}
+.login-form-box{position:relative;z-index:1;max-width:420px;width:100%}
+.login-logo{font-family:var(--serif);font-size:1.4rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:2.75rem}
+.login-tagline{font-family:var(--serif);font-size:2.7rem;line-height:1.1;font-weight:300;color:var(--text);margin-bottom:.9rem}
+.login-tagline em{font-style:italic;color:var(--gold)}
+.login-sub{font-size:.84rem;color:var(--text3);line-height:1.7;margin-bottom:2rem}
+.auth-divider{display:flex;align-items:center;gap:.9rem;margin:.5rem 0}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--gold-border)}
+.auth-divider span{font-size:.68rem;color:var(--text4);white-space:nowrap}
+.login-right{width:380px;background:var(--bg2);border-left:1px solid var(--gold-border);padding:2.75rem 2.25rem;display:flex;flex-direction:column;justify-content:center;gap:1.75rem}
+.login-testimonial{padding:1.4rem;background:var(--bg3);border:1px solid var(--gold-border);border-radius:var(--r-lg)}
+.login-stat{text-align:center;padding:.9rem;background:var(--bg3);border:1px solid var(--gold-border);border-radius:var(--r)}
+.login-stat-val{font-family:var(--serif);font-size:1.7rem;font-weight:300;color:var(--gold)}
+.login-stat-label{font-size:.62rem;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-top:.2rem}
+
+/* AUTH PAGE VARIANTS */
+#page-register{min-height:100vh;align-items:center;justify-content:center;background:var(--bg);padding:2rem}
+#page-verify-otp{min-height:100vh;align-items:center;justify-content:center;background:var(--bg);padding:2rem}
+.auth-box{background:var(--bg2);border:1px solid var(--gold-border2);border-radius:var(--r-lg);padding:2.5rem;width:100%;max-width:440px;position:relative;overflow:hidden}
+.auth-box::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(196,166,110,.06) 0%,transparent 70%);pointer-events:none}
+.auth-logo{font-family:var(--serif);font-size:1.25rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:1.75rem}
+.auth-title{font-family:var(--serif);font-size:1.7rem;font-weight:300;color:var(--text);margin-bottom:.4rem}
+.auth-sub{font-size:.8rem;color:var(--text3);line-height:1.6;margin-bottom:1.75rem}
+.role-selector{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1.5rem}
+.role-card{padding:.85rem;border:1px solid var(--gold-border);border-radius:var(--r);cursor:pointer;text-align:center;transition:all var(--t);background:var(--bg3)}
+.role-card:hover{border-color:var(--gold-border2)}
+.role-card.active{border-color:var(--gold);background:var(--gold-dim)}
+.role-card-icon{font-size:1.5rem;margin-bottom:.35rem}
+.role-card-title{font-size:.78rem;font-weight:500;color:var(--text);margin-bottom:.15rem}
+.role-card-desc{font-size:.67rem;color:var(--text3);line-height:1.4}
+.role-card.active .role-card-title{color:var(--gold)}
+
+/* PASSWORD STRENGTH */
+.pw-strength{margin-top:.35rem}
+.pw-strength-bar{height:3px;border-radius:2px;background:var(--bg4);overflow:hidden;margin-bottom:.25rem}
+.pw-strength-fill{height:100%;border-radius:2px;transition:all .3s ease}
+.pw-strength-label{font-size:.64rem;color:var(--text3)}
+
+/* RESPONSIVE */
+@media(max-width:900px){.sidebar-layout{grid-template-columns:1fr}.sidebar{display:none}.grid-4{grid-template-columns:repeat(2,1fr)}.login-right{display:none}.login-split{flex-direction:column}}
+@media(max-width:600px){.grid-2,.grid-3,.grid-4,.grid-5{grid-template-columns:1fr}.nav-links{display:none}.hero-banner{padding:1.4rem}.hero-banner-title{font-size:1.75rem}.auth-box{padding:1.75rem}}
+</style>
+</head>
+<body>
+
+<!-- ────────────────────────────────────────
+  GLOBAL UI: NOTIF, TOAST, SMART-PROMO
+──────────────────────────────────────── -->
+<div class="notif-panel" id="notif-panel">
+  <div class="notif-header"><span class="notif-title">Notificaciones</span><span style="font-size:.7rem;color:var(--text3)">3 nuevas</span></div>
+  <div class="notif-item"><div class="notif-item-title">4 postulaciones recibidas</div><div class="notif-item-desc">Valentina M. y 3 más postularon a tu solicitud del viernes</div><div class="notif-item-time">Hace 8 min</div></div>
+  <div class="notif-item"><div class="notif-item-title">Cita confirmada</div><div class="notif-item-desc">Tu cita con Sofía C. está confirmada para el sábado</div><div class="notif-item-time">Hace 2 hrs</div></div>
+  <div class="notif-item"><div class="notif-item-title">Identidad verificada ✦</div><div class="notif-item-desc">Tu verificación de identidad fue aprobada. Ahora eres un usuario verificado.</div><div class="notif-item-time">Ayer</div></div>
+</div>
+
+<div class="toast" id="toast"><div class="toast-title" id="toast-title"></div><div class="toast-msg" id="toast-msg"></div></div>
+
+<div class="smart-promo" id="smart-promo">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.55rem">
+    <div style="font-family:var(--serif);font-size:.95rem;color:var(--gold)">✦ Oferta para ti</div>
+    <button style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:.9rem" onclick="document.getElementById('smart-promo').classList.remove('show')">✕</button>
+  </div>
+  <div style="font-size:.78rem;color:var(--text2);line-height:1.55;margin-bottom:.85rem" id="smart-promo-body">Completa tu solicitud ahora con 20% de descuento en el fee de servicio.</div>
+  <div style="display:flex;align-items:center;gap:.5rem;background:var(--bg4);border:1px solid var(--gold-border);border-radius:var(--r);padding:.4rem .75rem;margin-bottom:.85rem">
+    <span style="font-family:var(--serif);font-size:1.1rem;color:var(--gold);flex:1;letter-spacing:.1em" id="smart-promo-code">RETOMA20</span>
+    <button class="btn btn-gold btn-sm" onclick="applyPromo()">Aplicar</button>
+  </div>
+  <div style="font-size:.68rem;color:var(--text3)">Válido por <span id="smart-promo-timer">23:47:12</span></div>
+</div>
+
+<!-- ────────────────────────────────────────
+  MODALS
+──────────────────────────────────────── -->
+
+<!-- Modal: confirm appointment -->
+<div class="modal-backdrop" id="modal-confirm">
+  <div class="modal">
+    <div class="modal-header"><div><div class="modal-title">Confirmar selección</div></div><button class="modal-close" onclick="closeModal('modal-confirm')">✕</button></div>
+    <div class="modal-body">
+      <div class="flex-gap" style="margin-bottom:1.25rem">
+        <div class="avatar avatar-lg avatar-verified-ring">VM</div>
+        <div>
+          <div style="font-family:var(--serif);font-size:1.25rem;color:var(--text);display:flex;align-items:center;gap:.5rem">Valentina Morales <span class="badge-verified badge">✦ Verificada</span></div>
+          <div style="font-size:.73rem;color:var(--text3);margin-top:.15rem">Las Condes · Cenas, Eventos</div>
+          <div style="color:var(--gold);font-size:.73rem;margin-top:.25rem">★★★★★ 4.9 (48 citas)</div>
+        </div>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--gold-border2);border-radius:var(--r-lg);padding:1.25rem">
+        <div style="font-family:var(--serif);font-size:.95rem;color:var(--gold);margin-bottom:.8rem">Resumen de cobro</div>
+        <div class="price-line"><span class="price-line-label">Valor base (3 hrs × $25.000)</span><span class="price-line-value">$75.000</span></div>
+        <div class="price-line"><span class="price-line-label">Fee de servicio (5%)</span><span class="price-line-value">$3.750</span></div>
+        <div class="price-line"><span class="price-line-label">Descuento GOLD10</span><span style="color:var(--success);font-size:.8rem">−$3.750</span></div>
+        <div class="price-line"><span style="font-weight:500;color:var(--text);font-size:.8rem">Total</span><span class="price-total">$75.000</span></div>
+        <div style="margin-top:.75rem;font-size:.7rem;color:var(--text3);padding:.6rem;background:var(--bg4);border-radius:var(--r);border-left:2px solid var(--gold3)">Pagos habilitados en Etapa 2. Actualmente en modo gratuito.</div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-confirm')">Cancelar</button><button class="btn btn-gold" onclick="confirmApplicant()">Confirmar cita</button></div>
+  </div>
+</div>
+
+<!-- Modal: request published -->
+<div class="modal-backdrop" id="modal-request-ok">
+  <div class="modal">
+    <div class="modal-header"><div><div class="modal-title">Solicitud publicada</div></div><button class="modal-close" onclick="closeModal('modal-request-ok')">✕</button></div>
+    <div class="modal-body" style="text-align:center;padding:2rem 1.75rem">
+      <div style="font-family:var(--serif);font-size:3rem;color:var(--gold);margin-bottom:1rem">✦</div>
+      <div style="font-family:var(--serif);font-size:1.5rem;color:var(--text);margin-bottom:.7rem">Tu solicitud fue publicada</div>
+      <div style="font-size:.82rem;color:var(--text3);line-height:1.7;margin-bottom:1.4rem">Buscando acompañantes compatibles. Te notificaremos cuando lleguen postulaciones.</div>
+      <div class="badge badge-gold">Buscando candidatas…</div>
+    </div>
+    <div class="modal-footer" style="justify-content:center"><button class="btn btn-gold" onclick="closeModal('modal-request-ok');navigateTo('client-requests')">Ver mis solicitudes</button></div>
+  </div>
+</div>
+
+<!-- Modal: leave review -->
+<div class="modal-backdrop" id="modal-review">
+  <div class="modal">
+    <div class="modal-header"><div><div class="modal-title">Escribir reseña</div><div style="font-size:.76rem;color:var(--text3);margin-top:.2rem">Comparte tu experiencia con la comunidad</div></div><button class="modal-close" onclick="closeModal('modal-review')">✕</button></div>
+    <div class="modal-body">
+      <div class="flex-gap" style="margin-bottom:1.25rem">
+        <div class="avatar avatar-md avatar-verified-ring" id="review-target-avatar">VM</div>
+        <div><div style="font-family:var(--serif);font-size:1.1rem;color:var(--text)" id="review-target-name">Valentina Morales</div><div style="font-size:.72rem;color:var(--text3)">Cita del 24 Mayo 2025</div></div>
+      </div>
+      <div style="margin-bottom:1.1rem">
+        <div style="font-size:.7rem;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.6rem">Calificación general</div>
+        <div class="stars-input" id="star-rating">
+          <button class="star-btn active" data-v="1" onclick="setStars(1)">★</button>
+          <button class="star-btn active" data-v="2" onclick="setStars(2)">★</button>
+          <button class="star-btn active" data-v="3" onclick="setStars(3)">★</button>
+          <button class="star-btn active" data-v="4" onclick="setStars(4)">★</button>
+          <button class="star-btn" data-v="5" onclick="setStars(5)">★</button>
+        </div>
+      </div>
+      <div class="input-wrap" style="margin-bottom:1rem">
+        <label class="input-label">Comentario</label>
+        <textarea class="input" id="review-text" placeholder="Describe tu experiencia de manera honesta y respetuosa…" style="min-height:90px"></textarea>
+      </div>
+      <div style="margin-bottom:.5rem">
+        <div style="font-size:.7rem;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.6rem">Aspectos destacados (opcional)</div>
+        <div style="display:flex;flex-wrap:wrap;gap:.4rem" id="aspect-selector">
+          <span class="aspect-chip" onclick="toggleAspect(this)">Puntualidad</span>
+          <span class="aspect-chip" onclick="toggleAspect(this)">Presentación</span>
+          <span class="aspect-chip" onclick="toggleAspect(this)">Conversación</span>
+          <span class="aspect-chip" onclick="toggleAspect(this)">Discreción</span>
+          <span class="aspect-chip" onclick="toggleAspect(this)">Amabilidad</span>
+          <span class="aspect-chip" onclick="toggleAspect(this)">Profesionalismo</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-review')">Cancelar</button><button class="btn btn-gold" onclick="submitReview()">Publicar reseña</button></div>
+  </div>
+</div>
+
+<!-- Modal: identity verification -->
+<!-- Hidden file inputs for document capture -->
+<input type="file" id="file-front" accept="image/*" capture="environment" style="display:none" onchange="handleFileSelect(event,'front')">
+<input type="file" id="file-back"  accept="image/*" capture="environment" style="display:none" onchange="handleFileSelect(event,'back')">
+<input type="file" id="file-selfie" accept="image/*" capture="user" style="display:none" onchange="handleSelfieSelect(event)">
+
+<div class="modal-backdrop" id="modal-verify-id">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Verificación de identidad</div>
+        <div style="font-size:.76rem;color:var(--text3);margin-top:.2rem">AWS Rekognition + Textract · Proceso seguro y encriptado</div>
+      </div>
+      <button class="modal-close" onclick="abortVerification()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- ── INTRO ── -->
+      <div id="verif-intro">
+        <div style="background:var(--bg3);border:1px solid var(--gold-border2);border-radius:var(--r-lg);padding:1.5rem;margin-bottom:1.5rem;text-align:center">
+          <div style="font-size:2.5rem;margin-bottom:.75rem">🔐</div>
+          <div style="font-family:var(--serif);font-size:1.3rem;color:var(--text);margin-bottom:.5rem">Verifica tu identidad</div>
+          <div style="font-size:.82rem;color:var(--text3);line-height:1.7;max-width:400px;margin:0 auto">Al verificarte obtienes el badge <strong style="color:var(--gold)">✦ Verificado</strong> en tu perfil, lo que aumenta la confianza de otros usuarios.</div>
+        </div>
+        <div class="grid-2" style="gap:.75rem;margin-bottom:1.25rem">
+          <div style="padding:1rem;background:var(--bg3);border:1px solid var(--gold-border);border-radius:var(--r);text-align:center"><div style="font-size:1.25rem;margin-bottom:.35rem">📄</div><div style="font-size:.8rem;color:var(--text);font-weight:500;margin-bottom:.2rem">Cédula de identidad</div><div style="font-size:.7rem;color:var(--text3)">AWS Textract extrae y valida datos del documento</div></div>
+          <div style="padding:1rem;background:var(--bg3);border:1px solid var(--gold-border);border-radius:var(--r);text-align:center"><div style="font-size:1.25rem;margin-bottom:.35rem">🤳</div><div style="font-size:.8rem;color:var(--text);font-weight:500;margin-bottom:.2rem">Selfie con liveness</div><div style="font-size:.7rem;color:var(--text3)">AWS Rekognition compara tu selfie con la foto del carnet</div></div>
+        </div>
+        <div style="font-size:.74rem;color:var(--text3);line-height:1.6;padding:.8rem 1rem;background:var(--bg4);border-radius:var(--r);border-left:2px solid var(--gold3);margin-bottom:1.25rem">
+          🔒 Las imágenes se envían encriptadas a AWS, se procesan en segundos y se eliminan automáticamente. Solo almacenamos el resultado: <em>verificado / no verificado</em>. Cumple con la Ley 19.628 y GDPR.
+        </div>
+        <!-- Consent -->
+        <label style="display:flex;align-items:flex-start;gap:.65rem;cursor:pointer;margin-bottom:1.1rem;padding:.85rem;background:var(--bg3);border:1px solid var(--gold-border);border-radius:var(--r)">
+          <input type="checkbox" id="verif-consent" style="accent-color:var(--gold);margin-top:2px;flex-shrink:0">
+          <span style="font-size:.75rem;color:var(--text2);line-height:1.5">Acepto el procesamiento de mis datos biométricos (foto de cédula y selfie) para verificar mi identidad. Entiendo que las imágenes serán eliminadas tras el procesamiento.</span>
+        </label>
+        <button class="btn btn-gold btn-xl" style="width:100%" onclick="startVerification()">Comenzar verificación</button>
+      </div>
+
+      <!-- ── FLOW ── -->
+      <div id="verif-flow" style="display:none">
+
+        <!-- Error banner -->
+        <div id="verif-error" style="display:none;background:rgba(204,68,68,.1);border:1px solid rgba(204,68,68,.3);border-radius:var(--r);padding:.85rem 1rem;margin-bottom:1rem;font-size:.78rem;color:#c66;line-height:1.5"></div>
+
+        <!-- Step 1: Confirmed -->
+        <div class="verif-step done" id="vstep-1">
+          <div class="verif-step-header">
+            <div class="verif-step-num">✓</div>
+            <div><div class="verif-step-title">Consentimiento aceptado</div><div class="verif-step-sub">Sesión de verificación iniciada en el servidor</div></div>
+            <span id="vstep-1-sessionid" style="font-size:.62rem;color:var(--text4);margin-left:auto;font-family:monospace"></span>
+          </div>
+        </div>
+
+        <!-- Step 2: Document upload -->
+        <div class="verif-step active" id="vstep-2">
+          <div class="verif-step-header">
+            <div class="verif-step-num" id="vstep-2-num">2</div>
+            <div><div class="verif-step-title">Cédula de identidad</div><div class="verif-step-sub" id="vstep-2-sub">Sube foto del frente (con tu foto) y del reverso</div></div>
+          </div>
+          <div class="verif-step-body" id="vstep-2-body">
+            <div class="grid-2" style="gap:.75rem;margin-bottom:.85rem">
+              <!-- Front -->
+              <div>
+                <div class="id-upload-zone" id="zone-front" onclick="document.getElementById('file-front').click()" style="position:relative">
+                  <div class="id-upload-zone-icon" id="front-icon">📄</div>
+                  <div class="id-upload-zone-title" id="front-title">Frente de la cédula</div>
+                  <div class="id-upload-zone-sub" id="front-sub">Haz clic para seleccionar o tomar foto</div>
+                  <img id="front-preview" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:var(--r-lg);opacity:.7" alt="preview">
+                </div>
+                <div id="front-extract" style="display:none;margin-top:.5rem;background:var(--bg4);border-radius:var(--r);padding:.55rem .75rem">
+                  <div style="font-size:.62rem;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:.3rem">Datos extraídos por Textract</div>
+                  <div id="front-extract-data" style="font-size:.72rem;color:var(--text2);line-height:1.6"></div>
+                </div>
+              </div>
+              <!-- Back -->
+              <div>
+                <div class="id-upload-zone" id="zone-back" onclick="document.getElementById('file-back').click()" style="position:relative">
+                  <div class="id-upload-zone-icon" id="back-icon">📄</div>
+                  <div class="id-upload-zone-title" id="back-title">Reverso de la cédula</div>
+                  <div class="id-upload-zone-sub" id="back-sub">Haz clic para seleccionar o tomar foto</div>
+                  <img id="back-preview" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:var(--r-lg);opacity:.7" alt="preview">
+                </div>
+                <div style="font-size:.68rem;color:var(--text4);margin-top:.4rem;text-align:center">Opcional si el frente ya tiene el RUT</div>
+              </div>
+            </div>
+            <!-- Loading front -->
+            <div id="front-loading" style="display:none;text-align:center;padding:.75rem;font-size:.78rem;color:var(--text3)">
+              <span id="front-loading-text">⏳ Enviando a AWS Textract…</span>
+              <div style="height:2px;background:var(--bg4);border-radius:1px;margin-top:.5rem;overflow:hidden"><div id="front-loading-bar" style="height:100%;width:0;background:var(--gold);transition:width .3s ease"></div></div>
+            </div>
+            <button class="btn btn-gold" style="width:100%;margin-top:.25rem" id="btn-next-step2" onclick="proceedToSelfie()" disabled>Continuar → Tomar selfie</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Selfie -->
+        <div class="verif-step" id="vstep-3">
+          <div class="verif-step-header">
+            <div class="verif-step-num" id="vstep-3-num">3</div>
+            <div><div class="verif-step-title">Selfie con detección de vida</div><div class="verif-step-sub" id="vstep-3-sub">AWS Rekognition comparará tu cara con el carnet</div></div>
+          </div>
+          <div class="verif-step-body" id="vstep-3-body" style="display:none">
+            <div class="selfie-area" style="margin-bottom:1rem">
+              <div class="camera-frame" id="camera-frame">
+                <div class="camera-scanning" id="camera-scan-anim"></div>
+                <video id="camera-video" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%" autoplay playsinline muted></video>
+                <canvas id="camera-canvas" style="display:none"></canvas>
+                <span style="font-size:3rem" id="camera-icon">📷</span>
+              </div>
+              <div style="font-size:.82rem;color:var(--text2);margin:.6rem 0 .25rem" id="camera-status">Posiciona tu rostro en el círculo</div>
+              <div style="font-size:.72rem;color:var(--text3)">Buena iluminación · Mira directamente a la cámara · Sin lentes de sol</div>
+            </div>
+            <!-- Camera buttons -->
+            <div id="selfie-btn-group" style="display:flex;flex-direction:column;gap:.6rem">
+              <button class="btn btn-gold" style="width:100%" id="btn-open-camera" onclick="openCamera()">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="1.5"/></svg>
+                Usar cámara en vivo
+              </button>
+              <button class="btn btn-ghost" style="width:100%" onclick="document.getElementById('file-selfie').click()">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="1.5"/><polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="1.5"/></svg>
+                Subir foto existente
+              </button>
+            </div>
+            <button class="btn btn-gold" style="width:100%;display:none" id="btn-capture" onclick="captureFromCamera()">📸 Capturar foto</button>
+            <!-- Loading selfie -->
+            <div id="selfie-loading" style="display:none;margin-top:.85rem;text-align:center;font-size:.78rem;color:var(--text3)">
+              <span id="selfie-loading-text">⏳ Enviando a AWS Rekognition…</span>
+              <div style="height:2px;background:var(--bg4);border-radius:1px;margin-top:.5rem;overflow:hidden"><div id="selfie-loading-bar" style="height:100%;width:0;background:var(--gold);transition:width .3s ease"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Result -->
+        <div class="verif-step" id="vstep-4">
+          <div class="verif-step-header">
+            <div class="verif-step-num" id="vstep-4-num">4</div>
+            <div><div class="verif-step-title" id="vstep-4-title">Procesando con AWS…</div><div class="verif-step-sub" id="vstep-4-sub">Rekognition está comparando rostros</div></div>
+          </div>
+          <div class="verif-step-body" id="vstep-4-body" style="display:none">
+            <div style="text-align:center;padding:1.25rem">
+              <div style="font-size:2rem;margin-bottom:.6rem" id="result-icon">⏳</div>
+              <div style="font-family:var(--serif);font-size:1.1rem;color:var(--text);margin-bottom:.4rem" id="result-title">Analizando…</div>
+              <div style="font-size:.78rem;color:var(--text3);line-height:1.6;margin-bottom:.9rem" id="result-sub">AWS Textract y Rekognition están procesando tus imágenes.</div>
+              <div style="height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-bottom:.9rem"><div id="verif-progress-bar" style="height:100%;width:0;background:linear-gradient(90deg,var(--gold4),var(--gold));border-radius:2px;transition:width .5s ease"></div></div>
+              <!-- Result detail card (shown on completion) -->
+              <div id="result-detail" style="display:none;background:var(--bg3);border:1px solid var(--gold-border);border-radius:var(--r-lg);padding:1rem;text-align:left">
+                <div style="font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.65rem">Resultado de verificación</div>
+                <div id="result-detail-content" style="font-size:.78rem;color:var(--text2);line-height:1.8"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /verif-flow -->
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  PAGE: LOGIN
+════════════════════════════════════════ -->
+<div id="page-login" class="page active">
+  <div class="login-split">
+    <div class="login-left">
+      <div class="login-form-box">
+        <div class="login-logo">Acompañía</div>
+        <div class="login-tagline">Compañía <em>refinada</em><br>para cada ocasión</div>
+        <div class="login-sub">Plataforma exclusiva que conecta personas que buscan compañía selecta con quienes ofrecen su tiempo bajo condiciones claras y acordadas.</div>
+        <div style="display:flex;flex-direction:column;gap:1rem">
+          <!-- Google -->
+          <button class="btn btn-google" onclick="loginWithGoogle()">
+            <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/></svg>
+            Continuar con Google
+          </button>
+          <!-- Phone -->
+          <button class="btn btn-phone" onclick="navigateTo('verify-otp');setupOTP('login')">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l1.9-1.9a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" stroke="currentColor" stroke-width="1.5"/></svg>
+            Continuar con teléfono
+          </button>
+          <div class="auth-divider"><span>o con correo</span></div>
+          <div class="input-wrap"><label class="input-label">Correo electrónico</label><input class="input" type="email" id="login-email" placeholder="tu@correo.com"></div>
+          <div class="input-wrap"><label class="input-label">Contraseña</label><input class="input" type="password" id="login-password" placeholder="••••••••"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <label style="display:flex;align-items:center;gap:.5rem;font-size:.75rem;color:var(--text3);cursor:pointer"><input type="checkbox" style="accent-color:var(--gold)"> Recordarme</label>
+            <span style="font-size:.73rem;color:var(--gold3);cursor:pointer">¿Olvidaste tu contraseña?</span>
+          </div>
+          <button class="btn btn-gold btn-lg" style="width:100%" onclick="handleEmailLogin()">Ingresar</button>
+          <div style="text-align:center;font-size:.75rem;color:var(--text3)">¿No tienes cuenta? <span style="color:var(--gold);cursor:pointer" onclick="navigateTo('register')">Regístrate gratis</span></div>
+          <div style="text-align:center;font-size:.7rem;color:var(--text4)">Al continuar aceptas los <a href="#" style="color:var(--gold3)">Términos de uso</a> y la <a href="#" style="color:var(--gold3)">Política de privacidad</a></div>
+        </div>
+      </div>
+    </div>
+    <div class="login-right">
+      <div>
+        <div class="section-eyebrow">Lo que dicen</div>
+        <div class="login-testimonial"><div style="font-family:var(--serif);font-size:1rem;font-style:italic;color:var(--text2);line-height:1.6;margin-bottom:.9rem">"La plataforma más elegante y discreta que he encontrado. La experiencia desde el inicio transmite exclusividad."</div><div style="font-size:.7rem;color:var(--text3)">— C.V., cliente verificado · Santiago</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem">
+        <div class="login-stat"><div class="login-stat-val">2.400+</div><div class="login-stat-label">Verificadas</div></div>
+        <div class="login-stat"><div class="login-stat-val">98%</div><div class="login-stat-label">Satisfacción</div></div>
+        <div class="login-stat"><div class="login-stat-val">12k+</div><div class="login-stat-label">Citas</div></div>
+        <div class="login-stat"><div class="login-stat-val">100%</div><div class="login-stat-label">ID verificados</div></div>
+      </div>
+      <div style="font-size:.7rem;color:var(--text4);line-height:1.6;padding:.9rem;border:1px solid var(--gold-border);border-radius:var(--r)">🔒 Plataforma segura y discreta. Verificación de identidad con <strong style="color:var(--text3)">Veriff</strong>. Perfiles aprobados manualmente.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  PAGE: REGISTER
+════════════════════════════════════════ -->
+<div id="page-register" class="page">
+  <div class="auth-box">
+    <div style="position:relative;z-index:1">
+      <div class="auth-logo">Acompañía</div>
+      <div class="auth-title">Crear cuenta</div>
+      <div class="auth-sub">Únete a la plataforma exclusiva de compañía. Es gratis registrarse.</div>
+
+      <div class="role-selector" id="register-roles">
+        <div class="role-card active" onclick="selectRegisterRole('cliente',this)">
+          <div class="role-card-icon">👤</div>
+          <div class="role-card-title">Cliente</div>
+          <div class="role-card-desc">Busco compañía para ocasiones especiales</div>
+        </div>
+        <div class="role-card" onclick="selectRegisterRole('acompanante',this)">
+          <div class="role-card-icon">✨</div>
+          <div class="role-card-title">Acompañante</div>
+          <div class="role-card-desc">Ofrezco mi tiempo y compañía</div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:.9rem">
+        <button class="btn btn-google" onclick="loginWithGoogle()">
+          <svg width="16" height="16" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/></svg>
+          Registrarse con Google
+        </button>
+        <button class="btn btn-phone" onclick="navigateTo('verify-otp');setupOTP('register')">
+          <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l1.9-1.9a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" stroke="currentColor" stroke-width="1.5"/></svg>
+          Registrarse con teléfono
+        </button>
+        <div class="auth-divider"><span>o con correo</span></div>
+        <div class="grid-2"><div class="input-wrap"><label class="input-label">Nombre</label><input class="input" placeholder="María"></div><div class="input-wrap"><label class="input-label">Apellido</label><input class="input" placeholder="González"></div></div>
+        <div class="input-wrap"><label class="input-label">Correo electrónico</label><input class="input" type="email" placeholder="tu@correo.com"></div>
+        <div class="input-wrap"><label class="input-label">Teléfono (opcional)</label><input class="input" type="tel" placeholder="+56 9 1234 5678"></div>
+        <div class="input-wrap">
+          <label class="input-label">Contraseña</label>
+          <input class="input" type="password" id="reg-password" placeholder="Mínimo 8 caracteres" oninput="checkPwStrength(this.value)">
+          <div class="pw-strength"><div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-fill" style="width:0;background:var(--danger)"></div></div><div class="pw-strength-label" id="pw-label">Escribe una contraseña</div></div>
+        </div>
+        <div class="input-wrap"><label class="input-label">Confirmar contraseña</label><input class="input" type="password" placeholder="Repite la contraseña"></div>
+        <div class="input-wrap"><label class="input-label">Fecha de nacimiento</label><input class="input" type="date" max="2007-01-01"><div class="input-hint">Debes ser mayor de 18 años</div></div>
+        <label style="display:flex;align-items:flex-start;gap:.6rem;cursor:pointer;font-size:.75rem;color:var(--text3)"><input type="checkbox" style="accent-color:var(--gold);margin-top:2px;flex-shrink:0"> Acepto los <a href="#" style="color:var(--gold3)">Términos y condiciones</a> y la <a href="#" style="color:var(--gold3)">Política de privacidad</a></label>
+        <button class="btn btn-gold btn-lg" style="width:100%" onclick="handleRegister()">Crear cuenta</button>
+        <div style="text-align:center;font-size:.75rem;color:var(--text3)">¿Ya tienes cuenta? <span style="color:var(--gold);cursor:pointer" onclick="navigateTo('login')">Inicia sesión</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  PAGE: VERIFY OTP (PHONE)
+════════════════════════════════════════ -->
+<div id="page-verify-otp" class="page">
+  <div class="auth-box">
+    <div style="position:relative;z-index:1">
+      <div class="auth-logo">Acompañía</div>
+      <div style="text-align:center;margin-bottom:1.5rem">
+        <div style="font-size:2.5rem;margin-bottom:.75rem">📱</div>
+        <div class="auth-title" style="font-size:1.5rem;text-align:center">Verifica tu teléfono</div>
+        <div class="auth-sub" style="text-align:center;margin-bottom:0">Ingresa el código de 6 dígitos enviado a <strong id="otp-phone-display" style="color:var(--gold)">+56 9 ···· ····</strong></div>
+      </div>
+      <div id="otp-phone-step" style="display:block">
+        <div class="input-wrap" style="margin-bottom:1rem">
+          <label class="input-label">Número de teléfono</label>
+          <input class="input" type="tel" id="otp-phone-input" placeholder="+56 9 1234 5678" style="font-size:1rem">
+        </div>
+        <button class="btn btn-gold btn-lg" style="width:100%" onclick="sendOTP()">Enviar código</button>
+      </div>
+      <div id="otp-code-step" style="display:none">
+        <div class="otp-group">
+          <input class="otp-input" maxlength="1" id="otp0" oninput="otpNext(this,0)">
+          <input class="otp-input" maxlength="1" id="otp1" oninput="otpNext(this,1)">
+          <input class="otp-input" maxlength="1" id="otp2" oninput="otpNext(this,2)">
+          <input class="otp-input" maxlength="1" id="otp3" oninput="otpNext(this,3)">
+          <input class="otp-input" maxlength="1" id="otp4" oninput="otpNext(this,4)">
+          <input class="otp-input" maxlength="1" id="otp5" oninput="otpNext(this,5)">
+        </div>
+        <button class="btn btn-gold btn-lg" style="width:100%;margin-bottom:.85rem" onclick="verifyOTP()">Verificar código</button>
+        <div style="text-align:center;font-size:.75rem;color:var(--text3)">¿No llegó el código? <span style="color:var(--gold);cursor:pointer" id="resend-btn" onclick="resendOTP()">Reenviar (<span id="otp-countdown">60</span>s)</span></div>
+      </div>
+      <div style="text-align:center;margin-top:1rem"><span style="font-size:.73rem;color:var(--text3);cursor:pointer" onclick="navigateTo('login')">← Volver</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  AUTH SHELL (post-login)
+════════════════════════════════════════ -->
+<div id="auth-shell" style="display:none;flex-direction:column;flex:1">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-logo" onclick="navigateTo('home')">Acompañía</div>
+    <div class="nav-links" id="nav-client" style="display:none">
+      <button class="nav-link" onclick="nav('home',this)">Inicio</button>
+      <button class="nav-link" onclick="nav('explore',this)">Explorar</button>
+      <button class="nav-link" onclick="nav('client-requests',this)">Mis solicitudes</button>
+      <button class="nav-link" onclick="nav('appointments',this)">Citas</button>
+    </div>
+    <div class="nav-links" id="nav-companion" style="display:none">
+      <button class="nav-link" onclick="nav('companion-dashboard',this)">Dashboard</button>
+      <button class="nav-link" onclick="nav('companion-requests',this)">Solicitudes</button>
+      <button class="nav-link" onclick="nav('appointments',this)">Citas</button>
+      <button class="nav-link" onclick="nav('companion-profile',this)">Mi perfil</button>
+    </div>
+    <div class="nav-actions">
+      <button class="nav-notif" onclick="toggleNotif()"><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="1.5"/></svg><div class="notif-dot"></div></button>
+      <div class="avatar avatar-sm avatar-verified-ring" style="cursor:pointer" id="nav-avatar" onclick="navigateTo('my-profile')">CL</div>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Salir</button>
+    </div>
+  </nav>
+
+  <div class="promo-banner" id="promo-banner">
+    <div style="font-size:.75rem;color:var(--gold2);display:flex;align-items:center;gap:.6rem"><span class="promo-pill">✦ Oferta</span><span id="promo-banner-text">Primera solicitud sin fee de servicio — Código: <strong>BIENVENIDA</strong></span></div>
+    <button style="background:none;border:none;color:var(--text3);cursor:pointer" onclick="document.getElementById('promo-banner').classList.add('hidden')">✕</button>
+  </div>
+
+  <!-- ── HOME ── -->
+  <div id="page-home" class="page">
+    <div class="page-container">
+      <div class="hero-banner">
+        <div class="hero-banner-label" id="hero-greeting">Bienvenido, Carlos</div>
+        <div class="hero-banner-title">¿Para qué ocasión<br>buscas <em>compañía hoy?</em></div>
+        <div class="hero-banner-sub">Define tu solicitud con fecha, lugar y presupuesto. Las acompañantes compatibles se postulan y tú eliges.</div>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+          <button class="btn btn-gold btn-lg" onclick="navigateTo('create-request')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Nueva solicitud</button>
+          <button class="btn btn-outline btn-lg" onclick="navigateTo('explore')">Explorar perfiles</button>
+        </div>
+      </div>
+      <div class="grid-4" style="margin-bottom:2.5rem">
+        <div class="stat-card"><div class="stat-label">Solicitudes activas</div><div class="stat-value">3</div><div class="stat-sub">1 con postulantes</div></div>
+        <div class="stat-card"><div class="stat-label">Citas confirmadas</div><div class="stat-value">1</div><div class="stat-sub">Este mes</div></div>
+        <div class="stat-card"><div class="stat-label">Postulaciones nuevas</div><div class="stat-value">4</div><div class="stat-sub stat-up">↑ Revisar</div></div>
+        <div class="stat-card"><div class="stat-label">Citas realizadas</div><div class="stat-value">12</div><div class="stat-sub">Total</div></div>
+      </div>
+      <div class="flex-between" style="margin-bottom:1.2rem">
+        <div><div class="section-eyebrow">Disponibles ahora</div><div class="section-title" style="font-size:1.6rem">Acompañantes <em>verificadas</em></div></div>
+        <button class="btn btn-outline btn-sm" onclick="navigateTo('explore')">Ver todas →</button>
+      </div>
+      <div class="grid-4" style="margin-bottom:3rem" id="home-companions"></div>
+      <div class="flex-between" style="margin-bottom:1.2rem">
+        <div><div class="section-eyebrow">Actividad</div><div class="section-title" style="font-size:1.6rem">Mis <em>solicitudes</em></div></div>
+        <button class="btn btn-outline btn-sm" onclick="navigateTo('client-requests')">Ver todas →</button>
+      </div>
+      <div class="request-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem"><div><div class="request-card-title">Cena en restaurante — Viernes 23 Mayo</div><div class="request-card-meta"><span>📅 Vie 23 Mayo 20:00</span><span>📍 Las Condes</span><span>⏱ 3 hrs</span><span>💰 $25.000/hr</span></div></div><span class="badge badge-gold">4 postulantes</span></div>
+        <div style="background:var(--bg3);border:1px solid var(--gold-border);border-radius:var(--r);padding:.9rem">
+          <div style="font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:.65rem">Postulantes</div>
+          <div class="applicant-row"><div class="avatar avatar-sm avatar-verified-ring">VM</div><div style="flex:1;margin-left:.4rem"><div style="font-size:.83rem;color:var(--text);display:flex;align-items:center;gap:.4rem">Valentina Morales <span class="badge-verified badge" style="font-size:.55rem">✦ Verificada</span></div><div style="font-size:.7rem;color:var(--text3)">Las Condes · ★★★★★ 4.9</div></div><div style="font-family:var(--serif);font-size:.95rem;color:var(--gold);margin-right:.75rem">$25.000/hr</div><button class="btn btn-gold btn-sm" onclick="openModal('modal-confirm')">Seleccionar</button></div>
+          <div class="applicant-row"><div class="avatar avatar-sm">SC</div><div style="flex:1;margin-left:.4rem"><div style="font-size:.83rem;color:var(--text)">Sofía Contreras</div><div style="font-size:.7rem;color:var(--text3)">Providencia · ★★★★★ 4.8</div></div><div style="font-family:var(--serif);font-size:.95rem;color:var(--gold);margin-right:.75rem">$20.000/hr</div><button class="btn btn-outline btn-sm" onclick="navigateTo('companion-detail')">Ver perfil</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── EXPLORE ── -->
+  <div id="page-explore" class="page">
+    <div class="page-container">
+      <div style="margin-bottom:1.75rem"><div class="section-eyebrow">Catálogo completo</div><div class="section-title">Explorar <em>acompañantes</em></div></div>
+      <div style="background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r-lg);padding:1.2rem 1.5rem;margin-bottom:1.75rem;display:flex;gap:.85rem;align-items:flex-end;flex-wrap:wrap">
+        <div class="input-wrap" style="flex:2;min-width:150px"><label class="input-label">Zona o comuna</label><input class="input" placeholder="Ej: Las Condes..."></div>
+        <div class="input-wrap" style="min-width:150px"><label class="input-label">Servicio</label><select class="input"><option>Todos</option><option>Cenas</option><option>Eventos</option><option>Viajes</option><option>Negocios</option></select></div>
+        <div class="input-wrap" style="min-width:140px"><label class="input-label">Precio máx/hr</label><input class="input" type="number" placeholder="$35.000"></div>
+        <div class="input-wrap" style="min-width:130px"><label class="input-label">Verificación</label><select class="input"><option>Todas</option><option>Solo verificadas</option></select></div>
+        <div class="input-wrap" style="min-width:120px"><label class="input-label">Calificación</label><select class="input"><option>Todas</option><option>★ 4.5+</option><option>★ 4.8+</option></select></div>
+        <button class="btn btn-gold" style="align-self:flex-end">Buscar</button>
+      </div>
+      <div class="flex-between" style="margin-bottom:1.1rem">
+        <div style="font-size:.78rem;color:var(--text3)">Mostrando <strong style="color:var(--text2)">12</strong> acompañantes</div>
+        <select class="input" style="width:180px;font-size:.75rem"><option>Mejor calificación</option><option>Precio ↑</option><option>Precio ↓</option></select>
+      </div>
+      <div id="explore-grid" class="grid-4"></div>
+    </div>
+  </div>
+
+  <!-- ── COMPANION DETAIL ── -->
+  <div id="page-companion-detail" class="page">
+    <div class="page-container">
+      <button class="btn btn-ghost btn-sm" onclick="goBack()" style="margin-bottom:1.4rem">← Volver</button>
+      <div style="display:flex;gap:2rem;align-items:flex-start;margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid var(--gold-border);flex-wrap:wrap">
+        <div class="avatar avatar-xl avatar-verified-ring" style="width:110px;height:110px;font-size:2.4rem;flex-shrink:0">VM</div>
+        <div style="flex:1;min-width:200px">
+          <div style="display:flex;align-items:center;gap:.85rem;margin-bottom:.2rem;flex-wrap:wrap">
+            <div style="font-family:var(--serif);font-size:2rem;font-weight:300;color:var(--text)">Valentina Morales</div>
+            <span class="badge-verified badge">✦ Identidad verificada</span>
+          </div>
+          <div style="font-family:var(--serif);font-size:.95rem;font-style:italic;color:var(--gold3);margin-bottom:.7rem">"Compañía elegante para cada ocasión especial"</div>
+          <div style="display:flex;gap:1.4rem;flex-wrap:wrap;font-size:.75rem;color:var(--text3);margin-bottom:1.2rem">
+            <span style="display:flex;align-items:center;gap:.35rem"><div class="status-dot status-available"></div> Disponible ahora</span>
+            <span>📍 Las Condes</span>
+            <span>★ 4.9 · 48 citas</span>
+            <span>Desde $25.000/hr</span>
+          </div>
+          <div style="display:flex;gap:.7rem;flex-wrap:wrap">
+            <button class="btn btn-gold" onclick="navigateTo('create-request')">Crear solicitud</button>
+            <button class="btn btn-outline" onclick="openModal('modal-review')">Escribir reseña</button>
+          </div>
+        </div>
+        <div class="card-elevated" style="padding:1.1rem;text-align:center;min-width:130px;flex-shrink:0"><div style="font-family:var(--serif);font-size:1.9rem;color:var(--gold);font-weight:300">4.9</div><div style="color:var(--gold);font-size:.9rem;margin:.3rem 0">★★★★★</div><div style="font-size:.68rem;color:var(--text3)">48 reseñas</div></div>
+      </div>
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab(this,'dtab-about')">Sobre mí</button>
+        <button class="tab" onclick="switchTab(this,'dtab-services')">Servicios</button>
+        <button class="tab" onclick="switchTab(this,'dtab-avail')">Disponibilidad</button>
+        <button class="tab" onclick="switchTab(this,'dtab-reviews')">Reseñas (48)</button>
+      </div>
+      <div id="dtab-about" class="tab-content">
+        <div class="grid-2">
+          <div><div class="form-section-title">Descripción personal</div><div style="font-family:var(--serif);font-style:italic;color:var(--text2);line-height:1.8;margin-bottom:1.25rem;font-size:.98rem">Soy una profesional del área de comunicaciones con amplio manejo de contextos sociales y culturales. Me apasiona la gastronomía, el arte contemporáneo y los viajes. Ofrezco compañía refinada y discreta.</div></div>
+          <div><div class="form-section-title" style="margin-bottom:.9rem">Información</div><div style="display:flex;flex-direction:column;gap:.55rem"><div class="price-line"><span class="price-line-label">Precio / hr</span><span style="font-family:var(--serif);font-size:1rem;color:var(--gold)">$25.000</span></div><div class="price-line"><span class="price-line-label">Mínimo</span><span class="price-line-value">$20.000/hr</span></div><div class="price-line"><span class="price-line-label">Zonas</span><span class="price-line-value">Las Condes, Vitacura</span></div><div class="price-line" style="border:none"><span class="price-line-label">Verificación</span><span class="badge-verified badge">✦ Identidad confirmada</span></div></div></div>
+        </div>
+      </div>
+      <div id="dtab-services" class="tab-content" style="display:none"><div class="grid-3">
+        <div class="card" style="padding:1.1rem"><div style="font-size:1.3rem;margin-bottom:.45rem">🍽️</div><div style="font-weight:500;color:var(--text);margin-bottom:.2rem">Cenas</div><div style="font-size:.73rem;color:var(--text3)">Restaurantes y eventos gastronómicos</div></div>
+        <div class="card" style="padding:1.1rem"><div style="font-size:1.3rem;margin-bottom:.45rem">🎭</div><div style="font-weight:500;color:var(--text);margin-bottom:.2rem">Eventos sociales</div><div style="font-size:.73rem;color:var(--text3)">Galas, premiaciones, cócteles</div></div>
+        <div class="card" style="padding:1.1rem"><div style="font-size:1.3rem;margin-bottom:.45rem">✈️</div><div style="font-weight:500;color:var(--text);margin-bottom:.2rem">Viajes</div><div style="font-size:.73rem;color:var(--text3)">Dentro y fuera de la ciudad</div></div>
+        <div class="card" style="padding:1.1rem"><div style="font-size:1.3rem;margin-bottom:.45rem">💼</div><div style="font-weight:500;color:var(--text);margin-bottom:.2rem">Negocios</div><div style="font-size:.73rem;color:var(--text3)">Cenas corporativas y eventos formales</div></div>
+        <div class="card" style="padding:1.1rem"><div style="font-size:1.3rem;margin-bottom:.45rem">🎨</div><div style="font-weight:500;color:var(--text);margin-bottom:.2rem">Arte y cultura</div><div style="font-size:.73rem;color:var(--text3)">Museos, teatro, ópera</div></div>
+      </div></div>
+      <div id="dtab-avail" class="tab-content" style="display:none">
+        <div class="section-eyebrow" style="margin-bottom:.9rem">Disponibilidad semanal</div>
+        <div class="availability-grid" style="margin-bottom:1.25rem">
+          <div class="avail-day"><div class="avail-day-label">Lun</div><div class="avail-slot">—</div><div class="avail-slot available">18-22</div></div>
+          <div class="avail-day"><div class="avail-day-label">Mar</div><div class="avail-slot">—</div><div class="avail-slot available">18-22</div></div>
+          <div class="avail-day"><div class="avail-day-label">Mié</div><div class="avail-slot">—</div><div class="avail-slot">—</div></div>
+          <div class="avail-day"><div class="avail-day-label">Jue</div><div class="avail-slot">—</div><div class="avail-slot available">18-23</div></div>
+          <div class="avail-day"><div class="avail-day-label">Vie</div><div class="avail-slot">—</div><div class="avail-slot available">19-24</div></div>
+          <div class="avail-day"><div class="avail-day-label">Sáb</div><div class="avail-slot busy">13-16</div><div class="avail-slot available">19-24</div></div>
+          <div class="avail-day"><div class="avail-day-label">Dom</div><div class="avail-slot available">13-18</div><div class="avail-slot">—</div></div>
+        </div>
+      </div>
+      <div id="dtab-reviews" class="tab-content" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+          <div style="font-family:var(--serif);font-size:1rem;color:var(--text2);font-style:italic">48 reseñas de usuarios con citas verificadas</div>
+          <button class="btn btn-outline btn-sm" onclick="openModal('modal-review')">+ Escribir reseña</button>
+        </div>
+        <div class="review-card">
+          <div class="review-author-info">
+            <div class="avatar avatar-sm avatar-verified-ring">CV</div>
+            <div>
+              <div class="review-author-name" style="display:flex;align-items:center;gap:.45rem">C. Vásquez <span class="badge-verified badge" style="font-size:.55rem">✦ Verificado</span></div>
+              <div class="review-author-role">Cliente verificado · ★★★★★ · Abril 2025</div>
+            </div>
+          </div>
+          <div class="review-text">"Una experiencia impecable. Valentina es elegante, puntual y genuinamente agradable. La volvería a elegir sin dudarlo."</div>
+          <div class="review-aspects"><span class="review-aspect">Puntualidad</span><span class="review-aspect">Presentación</span><span class="review-aspect">Discreción</span></div>
+        </div>
+        <div class="review-card">
+          <div class="review-author-info">
+            <div class="avatar avatar-sm avatar-verified-ring">RM</div>
+            <div>
+              <div class="review-author-name" style="display:flex;align-items:center;gap:.45rem">R. Morales <span class="badge-verified badge" style="font-size:.55rem">✦ Verificado</span></div>
+              <div class="review-author-role">Cliente verificado · ★★★★★ · Marzo 2025</div>
+            </div>
+          </div>
+          <div class="review-text">"Perfecta para la cena corporativa. Discreta y con excelente manejo de la conversación en todo momento."</div>
+          <div class="review-aspects"><span class="review-aspect">Profesionalismo</span><span class="review-aspect">Conversación</span></div>
+        </div>
+        <div class="review-card">
+          <div class="review-author-info">
+            <div class="avatar avatar-sm">JH</div>
+            <div>
+              <div class="review-author-name">J. Herrera</div>
+              <div class="review-author-role">Cliente · ★★★★☆ · Febrero 2025</div>
+            </div>
+          </div>
+          <div class="review-text">"Muy buena experiencia. La recomiendo para eventos formales."</div>
+          <div style="font-size:.68rem;color:var(--text4);margin-top:.5rem">⚠ Solo los usuarios verificados pueden dejar reseñas visibles en perfiles públicos.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CREATE REQUEST ── -->
+  <div id="page-create-request" class="page">
+    <div class="page-container">
+      <button class="btn btn-ghost btn-sm" onclick="goBack()" style="margin-bottom:1rem">← Volver</button>
+      <div style="margin-bottom:1.75rem"><div class="section-eyebrow">Nueva solicitud</div><div class="section-title">Crear <em>solicitud</em></div></div>
+      <div class="wizard-steps"><div class="wizard-step done"><div class="wizard-step-circle">✓</div><div class="wizard-step-label">Detalles</div></div><div class="wizard-step active"><div class="wizard-step-circle">2</div><div class="wizard-step-label">Servicios</div></div><div class="wizard-step"><div class="wizard-step-circle">3</div><div class="wizard-step-label">Presupuesto</div></div><div class="wizard-step"><div class="wizard-step-circle">4</div><div class="wizard-step-label">Confirmar</div></div></div>
+      <div class="grid-2" style="align-items:start">
+        <div>
+          <div class="form-section"><div class="form-section-title">Detalles del encuentro</div><div class="form-grid"><div class="input-wrap"><label class="input-label">Fecha</label><input class="input" type="date" value="2025-05-23"></div><div class="input-wrap"><label class="input-label">Hora inicio</label><input class="input" type="time" value="20:00"></div><div class="input-wrap"><label class="input-label">Duración</label><select class="input" id="req-dur" onchange="updatePP()"><option value="2">2 horas</option><option value="3" selected>3 horas</option><option value="4">4 horas</option><option value="5">5 horas</option></select></div><div class="input-wrap"><label class="input-label">Género buscado</label><select class="input"><option>Femenino</option><option>Masculino</option><option>Cualquiera</option></select></div></div></div>
+          <div class="form-section"><div class="form-section-title">Ubicación</div><div class="form-grid"><div class="input-wrap"><label class="input-label">Comuna</label><select class="input"><option>Las Condes</option><option>Providencia</option><option>Vitacura</option><option>Ñuñoa</option></select></div><div class="input-wrap"><label class="input-label">Lugar específico</label><input class="input" placeholder="Restaurante, evento..."></div></div></div>
+          <div class="form-section"><div class="form-section-title">Servicios requeridos</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem"><label class="service-checkbox"><input type="checkbox" checked><span>Cena en restaurante</span></label><label class="service-checkbox"><input type="checkbox"><span>Evento social</span></label><label class="service-checkbox"><input type="checkbox"><span>Cóctel</span></label><label class="service-checkbox"><input type="checkbox"><span>Gala</span></label><label class="service-checkbox"><input type="checkbox"><span>Cena de negocios</span></label><label class="service-checkbox"><input type="checkbox"><span>Salida cultural</span></label></div></div>
+          <div class="form-section"><div class="form-section-title">Precio y cupón</div><div class="form-grid"><div class="input-wrap"><label class="input-label">Precio/hr (CLP)</label><input class="input" type="number" value="25000" id="req-price" oninput="updatePP()"></div><div class="input-wrap"><label class="input-label">Cupón</label><input class="input" placeholder="GOLD10" id="req-coupon" oninput="updatePP()"></div></div></div>
+          <div class="form-section"><div class="form-section-title">Comentario adicional</div><textarea class="input" placeholder="Contexto o preferencias (opcional)…"></textarea></div>
+          <div style="display:flex;gap:.75rem"><button class="btn btn-gold btn-lg" onclick="submitRequest()">Publicar solicitud</button><button class="btn btn-ghost" onclick="goBack()">Cancelar</button></div>
+        </div>
+        <div>
+          <div class="price-preview">
+            <div class="price-preview-title">Resumen y cobros</div>
+            <div class="price-line"><span class="price-line-label">Duración</span><span class="price-line-value" id="pp-duration">3 horas</span></div>
+            <div class="price-line"><span class="price-line-label">Zona</span><span class="price-line-value">Las Condes</span></div>
+            <div style="height:1px;background:var(--gold-border);margin:.5rem 0"></div>
+            <div class="price-line"><span class="price-line-label">Valor base</span><span class="price-line-value" id="pp-base">$75.000</span></div>
+            <div class="price-line"><span class="price-line-label">Fee servicio (5%)</span><span class="price-line-value" id="pp-fee">$3.750</span></div>
+            <div class="price-line" id="pp-disc-row" style="display:none"><span class="price-line-label">Descuento cupón</span><span style="color:var(--success);font-size:.8rem" id="pp-disc">−$0</span></div>
+            <div class="price-line" style="margin-top:.4rem"><span style="font-weight:500;color:var(--text);font-size:.8rem">Total estimado</span><span class="price-total" id="pp-total">$78.750</span></div>
+            <div style="margin-top:.75rem;font-size:.7rem;color:var(--text3);padding:.6rem;background:var(--bg4);border-radius:var(--r);border-left:2px solid var(--gold3)">💡 Pagos en Etapa 2. Actualmente gratuito.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CLIENT REQUESTS ── -->
+  <div id="page-client-requests" class="page">
+    <div class="page-container">
+      <div class="flex-between" style="margin-bottom:2rem"><div><div class="section-eyebrow">Gestión</div><div class="section-title">Mis <em>solicitudes</em></div></div><button class="btn btn-gold" onclick="navigateTo('create-request')">+ Nueva solicitud</button></div>
+      <div class="tabs"><button class="tab active">Activas (3)</button><button class="tab">Confirmadas (1)</button><button class="tab">Finalizadas (8)</button><button class="tab">Canceladas (1)</button></div>
+      <div class="request-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.9rem"><div><div class="request-card-title">Cena en restaurante — Viernes 23 Mayo</div><div class="request-card-meta"><span>📅 Vie 23 Mayo 20:00</span><span>📍 Las Condes</span><span>⏱ 3 hrs</span></div></div><span class="badge badge-gold">4 postulantes</span></div><div style="background:var(--bg3);border:1px solid var(--gold-border);border-radius:var(--r);padding:.9rem"><div style="font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:.65rem">Postulantes</div><div class="applicant-row"><div class="avatar avatar-sm avatar-verified-ring">VM</div><div style="flex:1;margin-left:.4rem"><div style="font-size:.83rem;color:var(--text);display:flex;align-items:center;gap:.4rem">Valentina M.<span class="badge-verified badge" style="font-size:.55rem">✦</span></div><div style="font-size:.7rem;color:var(--text3)">★★★★★ 4.9</div></div><div style="font-family:var(--serif);color:var(--gold);margin-right:.6rem">$25k</div><button class="btn btn-gold btn-sm" onclick="openModal('modal-confirm')">Seleccionar</button></div><div class="applicant-row"><div class="avatar avatar-sm">SC</div><div style="flex:1;margin-left:.4rem"><div style="font-size:.83rem;color:var(--text)">Sofía C.</div><div style="font-size:.7rem;color:var(--text3)">★★★★★ 4.8</div></div><div style="font-family:var(--serif);color:var(--gold);margin-right:.6rem">$20k</div><button class="btn btn-outline btn-sm">Ver perfil</button></div></div></div>
+      <div class="request-card"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="request-card-title">Gala benéfica — Sábado 31 Mayo</div><div class="request-card-meta"><span>📅 Sáb 31 Mayo 19:00</span><span>📍 Vitacura</span></div></div><span class="badge badge-gray">1 postulante</span></div></div>
+    </div>
+  </div>
+
+  <!-- ── APPOINTMENTS ── -->
+  <div id="page-appointments" class="page">
+    <div class="page-container">
+      <div style="margin-bottom:2rem"><div class="section-eyebrow">Agenda</div><div class="section-title">Mis <em>citas</em></div></div>
+      <div class="tabs"><button class="tab active">Próximas (1)</button><button class="tab">Historial (12)</button><button class="tab">Canceladas (1)</button></div>
+      <div class="appt-card">
+        <div class="appt-date-box"><div class="appt-date-day">24</div><div class="appt-date-month">Mayo</div></div>
+        <div style="flex:1"><div style="font-family:var(--serif);font-size:1.1rem;color:var(--text);margin-bottom:.3rem">Cena con Sofía C.</div><div style="font-size:.73rem;color:var(--text3);display:flex;gap:1rem;flex-wrap:wrap"><span>🕗 20:00 — 23:00</span><span>📍 Providencia</span></div><div style="margin-top:.7rem;display:flex;gap:.5rem"><span class="badge badge-green">Confirmada</span></div></div>
+        <div style="display:flex;flex-direction:column;gap:.45rem;flex-shrink:0"><button class="btn btn-outline btn-sm">Ver detalle</button><button class="btn btn-gold btn-sm" onclick="openModal('modal-review')">Reseñar</button><button class="btn btn-danger btn-sm">Cancelar</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MY PROFILE (CLIENT) ── -->
+  <div id="page-my-profile" class="page">
+    <div class="profile-cover"><div class="profile-cover-pattern"></div><div class="profile-avatar-wrap"><div class="avatar avatar-xl avatar-verified-ring" id="profile-avatar-main">CL</div></div></div>
+    <div class="profile-info-bar">
+      <div class="profile-name-block">
+        <div class="profile-name" id="profile-name-display">Carlos López <span class="badge-verified badge">✦ Verificado</span></div>
+        <div class="profile-meta-row"><span class="profile-meta-item">👤 Cliente</span><span class="profile-meta-item">📅 Miembro desde Feb 2025</span><span class="profile-meta-item">⭐ 12 citas realizadas</span></div>
+      </div>
+      <div style="display:flex;gap:.65rem;flex-wrap:wrap">
+        <button class="btn btn-gold btn-sm" onclick="navigateTo('profile-settings')">Configurar perfil</button>
+        <button class="btn btn-outline btn-sm" onclick="openModal('modal-verify-id');startVerifFlow()">✦ Verificar identidad</button>
+      </div>
+    </div>
+    <div class="page-container" style="padding-top:1.5rem">
+      <div class="grid-4" style="margin-bottom:2rem">
+        <div class="stat-card"><div class="stat-label">Solicitudes</div><div class="stat-value">15</div></div>
+        <div class="stat-card"><div class="stat-label">Citas</div><div class="stat-value">12</div></div>
+        <div class="stat-card"><div class="stat-label">Reseñas dadas</div><div class="stat-value">8</div></div>
+        <div class="stat-card"><div class="stat-label">Calificación promedio</div><div class="stat-value">4.8</div></div>
+      </div>
+      <div class="form-section-title" style="margin-bottom:1.1rem">Reseñas recibidas</div>
+      <div class="review-card">
+        <div class="review-author-info"><div class="avatar avatar-sm avatar-verified-ring">VM</div><div><div class="review-author-name" style="display:flex;align-items:center;gap:.4rem">Valentina Morales <span class="badge-verified badge" style="font-size:.55rem">✦</span></div><div class="review-author-role">Acompañante verificada · ★★★★★ · Abril 2025</div></div></div>
+        <div class="review-text">"Carlos es muy amable y puntual. Una persona con quien es genuinamente placentero pasar el tiempo."</div>
+        <div class="review-aspects"><span class="review-aspect">Puntualidad</span><span class="review-aspect">Amabilidad</span><span class="review-aspect">Respeto</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PROFILE SETTINGS ── -->
+  <div id="page-profile-settings" class="page">
+    <div class="page-container">
+      <div class="flex-between" style="margin-bottom:2rem">
+        <div><button class="btn btn-ghost btn-sm" onclick="goBack()" style="margin-bottom:.75rem">← Volver</button><div class="section-eyebrow">Mi cuenta</div><div class="section-title">Configurar <em>perfil</em></div></div>
+        <button class="btn btn-gold" onclick="showToast('Cambios guardados','Tu perfil fue actualizado.')">Guardar cambios</button>
+      </div>
+      <div class="tabs" id="settings-tabs">
+        <button class="tab active" onclick="switchSettingsTab(this,'st-personal')">Datos personales</button>
+        <button class="tab" onclick="switchSettingsTab(this,'st-security')">Seguridad</button>
+        <button class="tab" onclick="switchSettingsTab(this,'st-notif')">Notificaciones</button>
+        <button class="tab" onclick="switchSettingsTab(this,'st-verification')">Verificación de identidad</button>
+        <button class="tab" onclick="switchSettingsTab(this,'st-reviews')">Mis reseñas</button>
+      </div>
+
+      <div id="st-personal">
+        <div class="grid-2" style="align-items:start">
+          <div style="display:flex;flex-direction:column;gap:1rem">
+            <div style="display:flex;align-items:center;gap:1.25rem;margin-bottom:.5rem">
+              <div class="avatar avatar-xl avatar-verified-ring">CL</div>
+              <div><button class="btn btn-outline btn-sm">Cambiar foto</button><div style="font-size:.68rem;color:var(--text3);margin-top:.35rem">JPG o PNG, máx 5 MB</div></div>
+            </div>
+            <div class="form-grid">
+              <div class="input-wrap"><label class="input-label">Nombre</label><input class="input" value="Carlos"></div>
+              <div class="input-wrap"><label class="input-label">Apellido</label><input class="input" value="López"></div>
+            </div>
+            <div class="input-wrap"><label class="input-label">Correo electrónico</label><input class="input" type="email" value="carlos@email.com"></div>
+            <div class="input-wrap"><label class="input-label">Teléfono</label><input class="input" type="tel" value="+56 9 8765 4321"></div>
+            <div class="input-wrap"><label class="input-label">Fecha de nacimiento</label><input class="input" type="date" value="1990-06-15"></div>
+            <div class="input-wrap"><label class="input-label">Descripción personal (visible en tu perfil)</label><textarea class="input" placeholder="Una breve presentación sobre ti…">Profesional del sector tecnológico. Me gustan las cenas interesantes y las conversaciones de fondo.</textarea></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.75rem">
+            <div class="card" style="padding:1.25rem"><div class="form-section-title">Estado de la cuenta</div><div style="display:flex;flex-direction:column;gap:.55rem"><div class="price-line"><span class="price-line-label">Correo</span><span class="badge badge-green">Verificado</span></div><div class="price-line"><span class="price-line-label">Teléfono</span><span class="badge badge-green">Verificado</span></div><div class="price-line"><span class="price-line-label">Identidad</span><span class="badge-verified badge">✦ Verificado</span></div><div class="price-line" style="border:none"><span class="price-line-label">Estado</span><span class="badge badge-green">Activo</span></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="st-security" style="display:none">
+        <div style="max-width:480px;display:flex;flex-direction:column;gap:1.25rem">
+          <div class="form-section"><div class="form-section-title">Cambiar contraseña</div><div style="display:flex;flex-direction:column;gap:.9rem"><div class="input-wrap"><label class="input-label">Contraseña actual</label><input class="input" type="password" placeholder="••••••••"></div><div class="input-wrap"><label class="input-label">Nueva contraseña</label><input class="input" type="password" placeholder="Mínimo 8 caracteres" oninput="checkPwStrength(this.value)"><div class="pw-strength"><div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-fill2" style="width:0;background:var(--danger)"></div></div><div class="pw-strength-label" id="pw-label2">Escribe una contraseña</div></div></div><div class="input-wrap"><label class="input-label">Confirmar nueva contraseña</label><input class="input" type="password" placeholder="Repite la nueva contraseña"></div><button class="btn btn-gold" style="align-self:flex-start" onclick="showToast('Contraseña actualizada','Tu contraseña fue cambiada correctamente.')">Actualizar contraseña</button></div></div>
+          <div class="form-section"><div class="form-section-title">Sesiones activas</div><div class="card" style="padding:1rem"><div class="flex-between"><div><div style="font-size:.82rem;color:var(--text)">Chrome · Santiago, Chile</div><div style="font-size:.7rem;color:var(--text3)">Sesión actual · Hace 2 minutos</div></div><span class="badge badge-green">Activa</span></div></div></div>
+          <div class="form-section"><div class="form-section-title">Autenticación de dos factores</div><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:.82rem;color:var(--text2)">2FA por SMS</span><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div></div>
+        </div>
+      </div>
+
+      <div id="st-notif" style="display:none">
+        <div style="max-width:480px;display:flex;flex-direction:column;gap:.85rem">
+          <div class="form-section-title">Preferencias de notificación</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:.65rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)"><div><div style="font-size:.82rem;color:var(--text)">Nuevas postulaciones</div><div style="font-size:.7rem;color:var(--text3)">Cuando alguien postule a tu solicitud</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:.65rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)"><div><div style="font-size:.82rem;color:var(--text)">Recordatorio de cita</div><div style="font-size:.7rem;color:var(--text3)">24 horas antes de tu cita</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:.65rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)"><div><div style="font-size:.82rem;color:var(--text)">Notificaciones por email</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:.65rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)"><div><div style="font-size:.82rem;color:var(--text)">Notificaciones por SMS</div></div><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:.65rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)"><div><div style="font-size:.82rem;color:var(--text)">Promociones y cupones</div><div style="font-size:.7rem;color:var(--text3)">Ofertas personalizadas para ti</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+        </div>
+      </div>
+
+      <div id="st-verification" style="display:none">
+        <div style="max-width:600px">
+          <div style="background:linear-gradient(135deg,rgba(196,166,110,.1),rgba(196,166,110,.04));border:1px solid var(--gold-border2);border-radius:var(--r-lg);padding:1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem">
+            <div style="font-size:2.5rem;flex-shrink:0">✦</div>
+            <div><div style="font-family:var(--serif);font-size:1.25rem;color:var(--gold);margin-bottom:.3rem">Identidad verificada</div><div style="font-size:.8rem;color:var(--text2);line-height:1.6">Tu cédula de identidad y selfie fueron verificados por Veriff el 10 de Marzo, 2025. Este badge aparece en tu perfil público y aumenta la confianza de otros usuarios.</div></div>
+          </div>
+          <div class="form-section-title" style="margin-bottom:1rem">¿Qué incluye la verificación?</div>
+          <div style="display:flex;flex-direction:column;gap:.65rem">
+            <div style="display:flex;gap:.85rem;align-items:flex-start;padding:.85rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)"><div style="font-size:1.1rem;flex-shrink:0">📄</div><div><div style="font-size:.82rem;color:var(--text);margin-bottom:.15rem">Cédula de identidad (RUT)</div><div style="font-size:.72rem;color:var(--text3)">Verificación OCR del número, nombre y fecha de nacimiento</div></div><span class="badge badge-green" style="margin-left:auto;flex-shrink:0">✓</span></div>
+            <div style="display:flex;gap:.85rem;align-items:flex-start;padding:.85rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)"><div style="font-size:1.1rem;flex-shrink:0">🤳</div><div><div style="font-size:.82rem;color:var(--text);margin-bottom:.15rem">Detección de vida (liveness)</div><div style="font-size:.72rem;color:var(--text3)">Selfie en vivo comparado con foto del documento</div></div><span class="badge badge-green" style="margin-left:auto;flex-shrink:0">✓</span></div>
+            <div style="display:flex;gap:.85rem;align-items:flex-start;padding:.85rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)"><div style="font-size:1.1rem;flex-shrink:0">🔞</div><div><div style="font-size:.82rem;color:var(--text);margin-bottom:.15rem">Verificación de mayoría de edad</div><div style="font-size:.72rem;color:var(--text3)">Confirmación de que el usuario es mayor de 18 años</div></div><span class="badge badge-green" style="margin-left:auto;flex-shrink:0">✓</span></div>
+          </div>
+          <div style="margin-top:1.5rem;padding:1rem;background:var(--bg3);border:1px solid var(--gold-border);border-radius:var(--r);font-size:.73rem;color:var(--text3);line-height:1.6">🔒 La verificación es procesada por <strong style="color:var(--text2)">Veriff</strong>. No almacenamos fotos ni biometría. Solo guardamos el resultado: verificado/no verificado + fecha. Cumple con GDPR y la Ley 19.628 de Chile.</div>
+        </div>
+      </div>
+
+      <div id="st-reviews" style="display:none">
+        <div class="form-section-title" style="margin-bottom:1.1rem">Reseñas que he escrito</div>
+        <div class="review-card"><div class="review-author-info"><div class="avatar avatar-sm">VM</div><div><div class="review-author-name">Para: Valentina Morales</div><div class="review-author-role">★★★★★ · 24 Abril 2025</div></div></div><div class="review-text">"Una experiencia impecable. Elegante y genuinamente agradable."</div></div>
+        <div class="review-card"><div class="review-author-info"><div class="avatar avatar-sm">SC</div><div><div class="review-author-name">Para: Sofía Contreras</div><div class="review-author-role">★★★★★ · 10 Marzo 2025</div></div></div><div class="review-text">"Perfecta para la ocasión. Muy profesional en todo momento."</div></div>
+        <div class="form-section-title" style="margin-bottom:1.1rem;margin-top:1.5rem">Reseñas que he recibido</div>
+        <div class="review-card"><div class="review-author-info"><div class="avatar avatar-sm avatar-verified-ring">VM</div><div><div class="review-author-name" style="display:flex;align-items:center;gap:.4rem">De: Valentina Morales <span class="badge-verified badge" style="font-size:.55rem">✦</span></div><div class="review-author-role">★★★★★ · 24 Abril 2025</div></div></div><div class="review-text">"Carlos es muy amable, puntual y un cliente ejemplar."</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── COMPANION DASHBOARD ── -->
+  <div id="page-companion-dashboard" class="page">
+    <div class="sidebar-layout">
+      <nav class="sidebar">
+        <div style="padding:.9rem 1.4rem 1.3rem;border-bottom:1px solid var(--gold-border)"><div class="avatar avatar-md avatar-verified-ring" style="margin-bottom:.65rem">VM</div><div style="font-family:var(--serif);font-size:.95rem;color:var(--text)">Valentina Morales</div><div style="font-size:.7rem;color:var(--text3);margin:.15rem 0">valentina@email.com</div><div class="badge-verified badge" style="margin-bottom:.45rem">✦ Identidad verificada</div><div style="display:flex;align-items:center;gap:.4rem;font-size:.7rem;color:#4a9"><div class="status-dot status-available"></div>Disponible</div></div>
+        <div class="sidebar-section-label">Principal</div>
+        <button class="sidebar-item active" onclick="navigateTo('companion-dashboard')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>Dashboard</button>
+        <button class="sidebar-item" onclick="navigateTo('companion-requests')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5"/></svg>Solicitudes (3)</button>
+        <button class="sidebar-item" onclick="navigateTo('appointments')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="1.5"/></svg>Mis citas</button>
+        <div class="sidebar-section-label">Mi perfil</div>
+        <button class="sidebar-item" onclick="navigateTo('companion-profile')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/></svg>Perfil público</button>
+        <button class="sidebar-item" onclick="navigateTo('profile-settings')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="1.5"/></svg>Configuración</button>
+      </nav>
+      <div class="main-content">
+        <div class="flex-between" style="margin-bottom:2rem"><div><div class="section-eyebrow">Panel acompañante</div><div class="section-title" style="font-size:1.8rem">Hola, <em>Valentina</em></div></div><div style="display:flex;align-items:center;gap:.75rem"><span style="font-size:.76rem;color:var(--text3)">Estado:</span><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label><span style="font-size:.76rem;color:#4a9">Disponible</span></div></div>
+        <div class="grid-4" style="margin-bottom:2rem">
+          <div class="stat-card"><div class="stat-label">Solicitudes nuevas</div><div class="stat-value">3</div><div class="stat-sub stat-up">↑ Esta semana</div></div>
+          <div class="stat-card"><div class="stat-label">Postulaciones activas</div><div class="stat-value">5</div></div>
+          <div class="stat-card"><div class="stat-label">Citas este mes</div><div class="stat-value">2</div></div>
+          <div class="stat-card"><div class="stat-label">Calificación</div><div class="stat-value">4.9</div><div class="stat-sub">★ 48 reseñas</div></div>
+        </div>
+        <div class="grid-2">
+          <div>
+            <div style="font-family:var(--serif);font-size:1.1rem;color:var(--gold);margin-bottom:.9rem">Solicitudes recientes</div>
+            <div class="request-card" style="margin-bottom:.75rem"><div class="flex-between" style="margin-bottom:.45rem"><div style="font-size:.84rem;font-weight:500;color:var(--text)">Cena · Viernes 23 Mayo</div><span class="badge badge-gold">Nueva</span></div><div style="font-size:.73rem;color:var(--text3)">📍 Las Condes · 20:00 · 3hrs · $25.000/hr</div><div style="display:flex;gap:.5rem;margin-top:.7rem"><button class="btn btn-gold btn-sm" onclick="showToast('Postulación enviada','El cliente fue notificado.')">Postularme</button><button class="btn btn-ghost btn-sm">Rechazar</button></div></div>
+            <div class="request-card"><div class="flex-between" style="margin-bottom:.45rem"><div style="font-size:.84rem;font-weight:500;color:var(--text)">Gala · Sábado 31 Mayo</div><span class="badge badge-gold">Nueva</span></div><div style="font-size:.73rem;color:var(--text3)">📍 Vitacura · 19:00 · 4hrs · $30.000/hr</div><div style="display:flex;gap:.5rem;margin-top:.7rem"><button class="btn btn-gold btn-sm" onclick="showToast('Postulación enviada','El cliente fue notificado.')">Postularme</button><button class="btn btn-ghost btn-sm">Rechazar</button></div></div>
+          </div>
+          <div>
+            <div style="font-family:var(--serif);font-size:1.1rem;color:var(--gold);margin-bottom:.9rem">Próxima cita</div>
+            <div class="appt-card" style="flex-direction:column"><div style="display:flex;gap:1rem;align-items:flex-start;width:100%"><div class="appt-date-box"><div class="appt-date-day">24</div><div class="appt-date-month">Mayo</div></div><div><div style="font-family:var(--serif);font-size:1.05rem;color:var(--text);margin-bottom:.3rem">Cena — R. Morales</div><div style="font-size:.73rem;color:var(--text3);display:flex;gap:.75rem"><span>🕗 20:00</span><span>📍 Providencia</span></div><span class="badge badge-green" style="margin-top:.5rem">Confirmada</span></div></div></div>
+            <div style="margin-top:1.25rem">
+              <div style="font-family:var(--serif);font-size:1.1rem;color:var(--gold);margin-bottom:.9rem">Reseñas recibidas</div>
+              <div class="review-card" style="margin-bottom:0"><div class="review-author-info"><div class="avatar avatar-sm avatar-verified-ring">RM</div><div><div class="review-author-name" style="display:flex;align-items:center;gap:.4rem">R. Morales <span class="badge-verified badge" style="font-size:.55rem">✦</span></div><div class="review-author-role">★★★★★ · Abril 2025</div></div></div><div class="review-text">"Valentina es excepcional. Puntual, elegante y encantadora."</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── COMPANION REQUESTS ── -->
+  <div id="page-companion-requests" class="page">
+    <div class="sidebar-layout">
+      <nav class="sidebar">
+        <div style="padding:.9rem 1.4rem 1.3rem;border-bottom:1px solid var(--gold-border)"><div class="avatar avatar-md avatar-verified-ring" style="margin-bottom:.65rem">VM</div><div style="font-family:var(--serif);font-size:.95rem;color:var(--text)">Valentina Morales</div><div class="badge-verified badge" style="margin-top:.3rem">✦ Verificada</div></div>
+        <div class="sidebar-section-label">Principal</div>
+        <button class="sidebar-item" onclick="navigateTo('companion-dashboard')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>Dashboard</button>
+        <button class="sidebar-item active"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5"/></svg>Solicitudes (3)</button>
+        <button class="sidebar-item" onclick="navigateTo('appointments')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="1.5"/></svg>Citas</button>
+        <button class="sidebar-item" onclick="navigateTo('companion-profile')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/></svg>Mi perfil</button>
+      </nav>
+      <div class="main-content">
+        <div style="margin-bottom:2rem"><div class="section-eyebrow">Bandeja</div><div class="section-title" style="font-size:1.8rem">Solicitudes <em>compatibles</em></div></div>
+        <div class="tabs"><button class="tab active">Nuevas (3)</button><button class="tab">Postuladas (5)</button><button class="tab">Seleccionada (1)</button></div>
+        <div class="request-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem"><div><div class="request-card-title">Cena en restaurante — Viernes 23 Mayo</div><div class="request-card-meta"><span>📅 Vie 23 Mayo 20:00</span><span>📍 Las Condes</span><span>⏱ 3 hrs</span><span>💰 $25.000/hr</span></div></div><span class="badge badge-green">Compatible</span></div><div style="font-size:.78rem;color:var(--text3);margin:.6rem 0">El cliente busca compañía para cena formal. Zona y horario compatibles.</div><div style="display:flex;gap:.7rem"><button class="btn btn-gold btn-sm" onclick="showToast('Postulación enviada','El cliente fue notificado.')">Postularme</button><button class="btn btn-outline btn-sm" onclick="navigateTo('companion-detail')">Ver detalle</button><button class="btn btn-danger btn-sm">Rechazar</button></div></div>
+        <div class="request-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem"><div><div class="request-card-title">Gala benéfica — Sábado 31 Mayo</div><div class="request-card-meta"><span>📅 Sáb 31 Mayo 19:00</span><span>📍 Vitacura</span><span>⏱ 4 hrs</span><span>💰 $30.000/hr</span></div></div><span class="badge badge-green">Compatible</span></div><div style="display:flex;gap:.7rem;margin-top:.7rem"><button class="btn btn-gold btn-sm" onclick="showToast('Postulación enviada','El cliente fue notificado.')">Postularme</button><button class="btn btn-danger btn-sm">Rechazar</button></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── COMPANION PROFILE (PUBLIC EDIT) ── -->
+  <div id="page-companion-profile" class="page">
+    <div class="sidebar-layout">
+      <nav class="sidebar">
+        <div style="padding:.9rem 1.4rem 1.3rem;border-bottom:1px solid var(--gold-border)"><div class="avatar avatar-md avatar-verified-ring" style="margin-bottom:.65rem">VM</div><div style="font-family:var(--serif);font-size:.95rem;color:var(--text)">Valentina Morales</div><div class="badge-verified badge" style="margin-top:.3rem">✦ Verificada</div></div>
+        <div class="sidebar-section-label">Principal</div>
+        <button class="sidebar-item" onclick="navigateTo('companion-dashboard')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>Dashboard</button>
+        <button class="sidebar-item" onclick="navigateTo('companion-requests')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5"/></svg>Solicitudes</button>
+        <button class="sidebar-item active"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/></svg>Mi perfil</button>
+        <button class="sidebar-item" onclick="navigateTo('profile-settings')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="1.5"/></svg>Configuración</button>
+      </nav>
+      <div class="main-content">
+        <div class="flex-between" style="margin-bottom:2rem"><div><div class="section-eyebrow">Editar</div><div class="section-title" style="font-size:1.8rem">Mi <em>perfil público</em></div></div><button class="btn btn-gold" onclick="showToast('Perfil guardado','Enviado a revisión del equipo.')">Guardar cambios</button></div>
+        <div class="tabs">
+          <button class="tab active" onclick="switchSettingsTab(this,'cp-info')">Información</button>
+          <button class="tab" onclick="switchSettingsTab(this,'cp-services')">Servicios</button>
+          <button class="tab" onclick="switchSettingsTab(this,'cp-avail')">Disponibilidad</button>
+          <button class="tab" onclick="switchSettingsTab(this,'cp-photos')">Fotos</button>
+          <button class="tab" onclick="switchSettingsTab(this,'cp-reviews')">Mis reseñas</button>
+          <button class="tab" onclick="switchSettingsTab(this,'cp-verify')">Verificación</button>
+        </div>
+        <div id="cp-info">
+          <div class="grid-2" style="align-items:start">
+            <div style="display:flex;flex-direction:column;gap:.9rem">
+              <div class="input-wrap"><label class="input-label">Nombre visible</label><input class="input" value="Valentina Morales"></div>
+              <div class="input-wrap"><label class="input-label">Descripción personal</label><textarea class="input" style="min-height:100px">Soy una profesional del área de comunicaciones con amplio manejo de contextos sociales y culturales. Me apasiona la gastronomía, el arte y los viajes.</textarea></div>
+              <div class="form-grid"><div class="input-wrap"><label class="input-label">Precio/hr</label><input class="input" type="number" value="25000"></div><div class="input-wrap"><label class="input-label">Precio mínimo</label><input class="input" type="number" value="20000"></div></div>
+              <div class="input-wrap"><label class="input-label">Zonas donde acepto citas</label><input class="input" value="Las Condes, Vitacura, Providencia"></div>
+              <div style="display:flex;align-items:center;gap:.7rem"><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label><span style="font-size:.8rem;color:var(--text2)">Perfil activo y visible para solicitudes</span></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:.75rem">
+              <div class="card" style="padding:1.25rem"><div class="form-section-title">Estado de perfil</div><div style="display:flex;flex-direction:column;gap:.55rem"><div class="price-line"><span class="price-line-label">Identidad</span><span class="badge-verified badge">✦ Verificada</span></div><div class="price-line"><span class="price-line-label">Perfil</span><span class="badge badge-green">Aprobado</span></div><div class="price-line"><span class="price-line-label">Email</span><span class="badge badge-green">Verificado</span></div><div class="price-line" style="border:none"><span class="price-line-label">Teléfono</span><span class="badge badge-green">Verificado</span></div></div></div>
+            </div>
+          </div>
+        </div>
+        <div id="cp-services" style="display:none"><div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;max-width:400px"><label class="service-checkbox"><input type="checkbox" checked><span>Cenas</span></label><label class="service-checkbox"><input type="checkbox" checked><span>Eventos sociales</span></label><label class="service-checkbox"><input type="checkbox" checked><span>Galas</span></label><label class="service-checkbox"><input type="checkbox" checked><span>Negocios</span></label><label class="service-checkbox"><input type="checkbox"><span>Viajes</span></label><label class="service-checkbox"><input type="checkbox" checked><span>Arte y cultura</span></label></div></div>
+        <div id="cp-avail" style="display:none">
+          <div class="form-section-title" style="margin-bottom:1rem">Ventanas de disponibilidad</div>
+          <div class="availability-grid" style="margin-bottom:1.25rem">
+            <div class="avail-day"><div class="avail-day-label">Lun</div><div class="avail-slot" onclick="toggleSlot(this)">—</div><div class="avail-slot available" onclick="toggleSlot(this)">18-22</div></div>
+            <div class="avail-day"><div class="avail-day-label">Mar</div><div class="avail-slot" onclick="toggleSlot(this)">—</div><div class="avail-slot available" onclick="toggleSlot(this)">18-22</div></div>
+            <div class="avail-day"><div class="avail-day-label">Mié</div><div class="avail-slot" onclick="toggleSlot(this)">—</div><div class="avail-slot" onclick="toggleSlot(this)">—</div></div>
+            <div class="avail-day"><div class="avail-day-label">Jue</div><div class="avail-slot" onclick="toggleSlot(this)">—</div><div class="avail-slot available" onclick="toggleSlot(this)">18-23</div></div>
+            <div class="avail-day"><div class="avail-day-label">Vie</div><div class="avail-slot" onclick="toggleSlot(this)">—</div><div class="avail-slot available" onclick="toggleSlot(this)">19-24</div></div>
+            <div class="avail-day"><div class="avail-day-label">Sáb</div><div class="avail-slot busy" onclick="toggleSlot(this)">13-16</div><div class="avail-slot available" onclick="toggleSlot(this)">19-24</div></div>
+            <div class="avail-day"><div class="avail-day-label">Dom</div><div class="avail-slot available" onclick="toggleSlot(this)">13-18</div><div class="avail-slot" onclick="toggleSlot(this)">—</div></div>
+          </div>
+          <div style="font-size:.72rem;color:var(--text3)">Haz clic en un bloque para activarlo o desactivarlo.</div>
+        </div>
+        <div id="cp-photos" style="display:none">
+          <div class="form-section-title" style="margin-bottom:1rem">Fotos de perfil</div>
+          <div class="photo-grid" style="max-width:320px"><div class="photo-thumb" style="font-family:var(--serif);font-size:1.75rem;color:var(--gold)">VM</div><div class="photo-thumb"></div><div class="photo-thumb"></div><div class="photo-thumb add-photo">+</div></div>
+          <div style="font-size:.72rem;color:var(--text3);margin-top:.75rem">Máximo 6 fotos. Revisadas por el equipo antes de publicarse. Las fotos deben mostrar el rostro claramente.</div>
+        </div>
+        <div id="cp-reviews" style="display:none">
+          <div class="form-section-title" style="margin-bottom:1rem">Reseñas de clientes verificados</div>
+          <div class="review-card"><div class="review-author-info"><div class="avatar avatar-sm avatar-verified-ring">CV</div><div><div class="review-author-name" style="display:flex;align-items:center;gap:.4rem">C. Vásquez <span class="badge-verified badge" style="font-size:.55rem">✦</span></div><div class="review-author-role">Cliente verificado · ★★★★★ · Abril 2025</div></div></div><div class="review-text">"Una experiencia impecable. Elegante, puntual y genuinamente agradable."</div><div class="review-aspects"><span class="review-aspect">Puntualidad</span><span class="review-aspect">Presentación</span><span class="review-aspect">Discreción</span></div></div>
+          <div class="review-card"><div class="review-author-info"><div class="avatar avatar-sm avatar-verified-ring">RM</div><div><div class="review-author-name" style="display:flex;align-items:center;gap:.4rem">R. Morales <span class="badge-verified badge" style="font-size:.55rem">✦</span></div><div class="review-author-role">Cliente verificado · ★★★★★ · Marzo 2025</div></div></div><div class="review-text">"Perfecta para la cena corporativa. Discreta y excelente conversación."</div><div class="review-aspects"><span class="review-aspect">Profesionalismo</span><span class="review-aspect">Conversación</span></div></div>
+          <div style="font-size:.72rem;color:var(--text3);margin-top:.5rem">Solo los usuarios con identidad verificada (✦) pueden dejar reseñas públicas visibles en perfiles.</div>
+        </div>
+        <div id="cp-verify" style="display:none">
+          <div style="max-width:500px">
+            <div style="background:linear-gradient(135deg,rgba(196,166,110,.1),rgba(196,166,110,.04));border:1px solid var(--gold-border2);border-radius:var(--r-lg);padding:1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:1.25rem"><div style="font-size:2rem;flex-shrink:0">✦</div><div><div style="font-family:var(--serif);font-size:1.1rem;color:var(--gold);margin-bottom:.2rem">Identidad verificada</div><div style="font-size:.78rem;color:var(--text2);line-height:1.6">Verificada el 10 de Marzo, 2025 vía Veriff. Badge activo en perfil público.</div></div></div>
+            <button class="btn btn-outline btn-sm" onclick="openModal('modal-verify-id');startVerifFlow()">Re-verificar identidad</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /auth-shell -->
+
+<style>
+/* aspect chips */
+.aspect-chip{background:var(--bg4);color:var(--text3);font-size:.72rem;padding:.25rem .65rem;border-radius:3px;cursor:pointer;border:1px solid var(--text4);transition:all var(--t)}
+.aspect-chip:hover{border-color:var(--gold3)}
+.aspect-chip.selected{background:var(--gold-dim);color:var(--gold);border-color:var(--gold-border2)}
+</style>
+
+<script>
+// ────────────────────────────
+//  DATA
+// ────────────────────────────
+const COMPANIONS=[
+  {init:'VM',name:'Valentina Morales',loc:'Las Condes',tags:['Cenas','Eventos','Galas'],price:'$25.000',rating:'4.9',avail:true,verified:true},
+  {init:'SC',name:'Sofía Contreras',loc:'Providencia',tags:['Social','Arte'],price:'$20.000',rating:'4.8',avail:true,verified:true},
+  {init:'LR',name:'Luciana Reyes',loc:'Vitacura',tags:['VIP','Viajes'],price:'$35.000',rating:'5.0',avail:true,verified:true},
+  {init:'AM',name:'Andrea Molina',loc:'Ñuñoa',tags:['Teatro','Música'],price:'$22.000',rating:'4.6',avail:false,verified:false},
+  {init:'PG',name:'Paloma Gutiérrez',loc:'Bellavista',tags:['Cenas','Conciertos'],price:'$18.000',rating:'4.7',avail:true,verified:true},
+  {init:'CR',name:'Camila Riquelme',loc:'Miraflores',tags:['Negocios','Galas'],price:'$28.000',rating:'4.9',avail:true,verified:false},
+  {init:'IS',name:'Isidora Salas',loc:'Las Condes',tags:['VIP','Eventos'],price:'$32.000',rating:'4.8',avail:true,verified:true},
+  {init:'MP',name:'Martina Pérez',loc:'Santiago Centro',tags:['Arte','Cultural'],price:'$16.000',rating:'4.5',avail:false,verified:false},
+  {init:'FL',name:'Fernanda Lagos',loc:'Providencia',tags:['Cenas','Negocios'],price:'$24.000',rating:'4.7',avail:true,verified:true},
+  {init:'NV',name:'Natalia Vega',loc:'Vitacura',tags:['Galas','VIP'],price:'$30.000',rating:'4.9',avail:true,verified:true},
+  {init:'BP',name:'Beatriz Pino',loc:'Ñuñoa',tags:['Social','Arte'],price:'$19.000',rating:'4.6',avail:true,verified:false},
+  {init:'TH',name:'Trinidad Herrera',loc:'Las Condes',tags:['Cenas','Viajes'],price:'$27.000',rating:'4.8',avail:false,verified:true},
+];
+
+const COUPON_MAP={'GOLD10':.10,'BIENVENIDA':1,'RETOMA20':.20,'FEE50':.50,'VIP15':.15};
+const SERVICE_FEE=.05;
+
+// ────────────────────────────
+//  STATE
+// ────────────────────────────
+let currentRole='cliente';
+let histStack=[];
+let otpMode='login';
+let otpCountdownInterval=null;
+let currentStars=4;
+let verif={frontDone:false,backDone:false};
+
+// ────────────────────────────
+//  ROUTING
+// ────────────────────────────
+const PAGES={
+  'login':'page-login','register':'page-register','verify-otp':'page-verify-otp',
+  'home':'page-home','explore':'page-explore','companion-detail':'page-companion-detail',
+  'create-request':'page-create-request','client-requests':'page-client-requests',
+  'appointments':'page-appointments','my-profile':'page-my-profile',
+  'profile-settings':'page-profile-settings',
+  'companion-dashboard':'page-companion-dashboard','companion-requests':'page-companion-requests',
+  'companion-profile':'page-companion-profile',
+};
+
+function navigateTo(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const id=PAGES[name];
+  if(id){document.getElementById(id).classList.add('active')}
+  histStack.push(name);
+  closeNotifPanel();
+  window.scrollTo({top:0,behavior:'smooth'});
+  updateNavActive(name);
+}
+
+function nav(page,btn){
+  navigateTo(page);
+  const parent=btn.closest('.nav-links');
+  parent.querySelectorAll('.nav-link').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function updateNavActive(name){
+  const map={home:0,explore:1,'client-requests':2,appointments:3,'create-request':2,'companion-detail':1,'my-profile':-1,'profile-settings':-1,'companion-dashboard':0,'companion-requests':1,'companion-profile':3};
+  const navId=currentRole==='cliente'?'nav-client':'nav-companion';
+  const navEl=document.getElementById(navId);
+  if(!navEl)return;
+  navEl.querySelectorAll('.nav-link').forEach((b,i)=>b.classList.toggle('active',i===map[name]));
+}
+
+function goBack(){
+  if(histStack.length>1){histStack.pop();const prev=histStack[histStack.length-1];histStack.pop();navigateTo(prev)}
+}
+
+// ────────────────────────────
+//  AUTH
+// ────────────────────────────
+function handleEmailLogin(){
+  const email=document.getElementById('login-email').value;
+  const pw=document.getElementById('login-password').value;
+  if(!email||!pw){showToast('Campos requeridos','Por favor completa email y contraseña.');return}
+  // Detect role from email for demo
+  if(email.includes('acomp')||email.includes('valentina')){currentRole='acompanante'}else{currentRole='cliente'}
+  doLogin();
+}
+
+function loginWithGoogle(){
+  showToast('Google Auth','Redirigiendo a Google para autenticación…');
+  setTimeout(()=>{currentRole='cliente';doLogin()},1500);
+}
+
+function handleRegister(){
+  showToast('Cuenta creada','Bienvenida/o a Acompañía. Verifica tu email para activar tu cuenta.');
+  setTimeout(()=>doLogin(),1200);
+}
+
+function doLogin(){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const shell=document.getElementById('auth-shell');
+  shell.style.display='flex';
+  document.getElementById('nav-client').style.display='none';
+  document.getElementById('nav-companion').style.display='none';
+  if(currentRole==='cliente'){
+    document.getElementById('nav-client').style.display='flex';
+    document.getElementById('nav-avatar').textContent='CL';
+    buildCompanionGrid('home-companions',4);
+    navigateTo('home');
+    setTimeout(()=>showSmartPromo('welcome'),8000);
+  } else {
+    document.getElementById('nav-companion').style.display='flex';
+    document.getElementById('nav-avatar').textContent='VM';
+    document.getElementById('promo-banner').classList.add('hidden');
+    navigateTo('companion-dashboard');
+  }
+  buildExploreGrid();
+}
+
+function selectRegisterRole(role,card){
+  currentRole=role;
+  document.querySelectorAll('.role-card').forEach(c=>c.classList.remove('active'));
+  card.classList.add('active');
+}
+
+function logout(){
+  document.getElementById('auth-shell').style.display='none';
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-login').classList.add('active');
+  histStack=[];
+}
+
+// ────────────────────────────
+//  PHONE OTP
+// ────────────────────────────
+function setupOTP(mode){
+  otpMode=mode;
+  document.getElementById('otp-phone-step').style.display='block';
+  document.getElementById('otp-code-step').style.display='none';
+}
+
+function sendOTP(){
+  const phone=document.getElementById('otp-phone-input').value;
+  if(!phone){showToast('Ingresa tu número','Por favor escribe tu número de teléfono.');return}
+  document.getElementById('otp-phone-display').textContent=phone.replace(/\d(?=\d{4})/g,'·');
+  document.getElementById('otp-phone-step').style.display='none';
+  document.getElementById('otp-code-step').style.display='block';
+  startOTPCountdown(60);
+  showToast('Código enviado','Se envió un código de 6 dígitos a tu teléfono.');
+}
+
+function startOTPCountdown(sec){
+  if(otpCountdownInterval)clearInterval(otpCountdownInterval);
+  let s=sec;
+  const el=document.getElementById('otp-countdown');
+  otpCountdownInterval=setInterval(()=>{if(s<=0){clearInterval(otpCountdownInterval);if(el)el.textContent='0';return}s--;if(el)el.textContent=s},1000);
+}
+
+function otpNext(input,idx){
+  if(input.value.length===1&&idx<5){
+    document.getElementById('otp'+(idx+1)).focus();
+  }
+  // Auto verify if all filled
+  const all=[...Array(6)].map((_,i)=>document.getElementById('otp'+i).value).join('');
+  if(all.length===6)setTimeout(verifyOTP,300);
+}
+
+function verifyOTP(){
+  const code=[...Array(6)].map((_,i)=>document.getElementById('otp'+i).value).join('');
+  if(code.length<6){showToast('Código incompleto','Ingresa los 6 dígitos.');return}
+  showToast('Teléfono verificado','Tu número fue verificado correctamente.');
+  setTimeout(()=>{currentRole=otpMode==='register'?'cliente':'cliente';doLogin()},1000);
+}
+
+function resendOTP(){
+  startOTPCountdown(60);
+  showToast('Código reenviado','Se envió un nuevo código a tu teléfono.');
+}
+
+// ────────────────────────────
+//  COMPANION GRIDS
+// ────────────────────────────
+function buildCompanionGrid(id,count){
+  const c=document.getElementById(id);
+  if(!c)return;
+  c.innerHTML=COMPANIONS.slice(0,count).map(companionCard).join('');
+}
+
+function buildExploreGrid(){
+  const c=document.getElementById('explore-grid');
+  if(!c)return;
+  c.innerHTML=COMPANIONS.map(companionCard).join('');
+}
+
+function companionCard(c){
+  return`<div class="companion-card" onclick="navigateTo('companion-detail')">
+    <div class="companion-card-img">
+      <div class="avatar avatar-xl${c.verified?' avatar-verified-ring':''}">${c.init}</div>
+      <div class="companion-card-avail">
+        <div class="status-dot ${c.avail?'status-available':'status-busy'}"></div>
+        ${c.avail?'Disponible':'Ocupada hoy'}
+      </div>
+    </div>
+    <div class="companion-card-body">
+      <div class="companion-card-name">${c.name}${c.verified?`<span class="badge-verified badge" style="font-size:.55rem">✦</span>`:''}</div>
+      <div class="companion-card-loc">📍 ${c.loc}</div>
+      <div class="companion-card-tags">${c.tags.map(t=>`<span class="companion-card-tag">${t}</span>`).join('')}</div>
+      <div class="companion-card-footer">
+        <div class="companion-card-price">${c.price}<span>/hr</span></div>
+        <div style="font-size:.63rem;color:var(--gold)">★ ${c.rating}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ────────────────────────────
+//  PRICE PREVIEW
+// ────────────────────────────
+function updatePP(){
+  const price=parseInt(document.getElementById('req-price')?.value)||25000;
+  const dur=parseInt(document.getElementById('req-dur')?.value)||3;
+  const coupon=(document.getElementById('req-coupon')?.value||'').toUpperCase();
+  const base=price*dur;
+  const fee=Math.round(base*SERVICE_FEE);
+  const disc=COUPON_MAP[coupon]?Math.round(fee*COUPON_MAP[coupon]):0;
+  const total=base+fee-disc;
+  const el=n=>document.getElementById(n);
+  if(el('pp-duration'))el('pp-duration').textContent=dur+' hora'+(dur>1?'s':'');
+  if(el('pp-base'))el('pp-base').textContent='$'+base.toLocaleString('es-CL');
+  if(el('pp-fee'))el('pp-fee').textContent='$'+fee.toLocaleString('es-CL');
+  const dr=el('pp-disc-row');if(dr)dr.style.display=disc>0?'flex':'none';
+  if(el('pp-disc'))el('pp-disc').textContent='−$'+disc.toLocaleString('es-CL');
+  if(el('pp-total'))el('pp-total').textContent='$'+total.toLocaleString('es-CL');
+}
+
+// ────────────────────────────
+//  MODALS
+// ────────────────────────────
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+
+function confirmApplicant(){
+  closeModal('modal-confirm');
+  showToast('Cita confirmada','Valentina fue seleccionada. Ambas partes notificadas.');
+  setTimeout(()=>navigateTo('appointments'),900);
+}
+
+function submitRequest(){openModal('modal-request-ok')}
+
+// ────────────────────────────
+//  NOTIF
+// ────────────────────────────
+function toggleNotif(){document.getElementById('notif-panel').classList.toggle('open')}
+function closeNotifPanel(){document.getElementById('notif-panel').classList.remove('open')}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.nav-notif')&&!e.target.closest('.notif-panel'))closeNotifPanel();
+});
+
+// ────────────────────────────
+//  TOAST
+// ────────────────────────────
+function showToast(title,msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-title').textContent=title;
+  document.getElementById('toast-msg').textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ────────────────────────────
+//  SMART PROMO
+// ────────────────────────────
+const PROMOS={
+  welcome:{body:'Como nuevo cliente, tu primera solicitud no tiene fee de servicio.',code:'BIENVENIDA',exp:'47:59:00'},
+  abandon:{body:'Dejaste una solicitud a medias. Complétala con 20% off en el fee.',code:'RETOMA20',exp:'23:59:00'},
+  browse:{body:'Revisaste varios perfiles sin solicitar. Crea tu solicitud hoy sin fee.',code:'BIENVENIDA',exp:'23:59:00'},
+};
+
+let promoCountdown=null;
+
+function showSmartPromo(type){
+  const p=PROMOS[type]||PROMOS.welcome;
+  document.getElementById('smart-promo-body').textContent=p.body;
+  document.getElementById('smart-promo-code').textContent=p.code;
+  document.getElementById('smart-promo-timer').textContent=p.exp;
+  document.getElementById('smart-promo').classList.add('show');
+  if(promoCountdown)clearInterval(promoCountdown);
+  let parts=p.exp.split(':').map(Number),secs=parts[0]*3600+parts[1]*60+parts[2];
+  promoCountdown=setInterval(()=>{
+    if(secs<=0){clearInterval(promoCountdown);return}
+    secs--;
+    const h=Math.floor(secs/3600),m=Math.floor(secs%3600/60),s=secs%60;
+    const el=document.getElementById('smart-promo-timer');
+    if(el)el.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  },1000);
+}
+
+function applyPromo(){
+  const code=document.getElementById('smart-promo-code').textContent;
+  const inp=document.getElementById('req-coupon');
+  if(inp)inp.value=code;
+  updatePP();
+  showToast('Cupón aplicado','Código '+code+' aplicado a tu próxima solicitud.');
+  document.getElementById('smart-promo').classList.remove('show');
+}
+
+// ────────────────────────────
+//  REVIEWS
+// ────────────────────────────
+function setStars(n){
+  currentStars=n;
+  document.querySelectorAll('#star-rating .star-btn').forEach((b,i)=>{
+    b.classList.toggle('active',i<n);
+  });
+}
+
+function toggleAspect(el){
+  el.classList.toggle('selected');
+}
+
+function submitReview(){
+  closeModal('modal-review');
+  showToast('Reseña publicada','Tu reseña fue publicada y es visible en el perfil.');
+}
+
+// ════════════════════════════════════════════════════════
+//  IDENTITY VERIFICATION — AWS Rekognition + Textract
+// ════════════════════════════════════════════════════════
+
+// ── CONFIG ──
+// En producción, apunta a tu backend real:
+// const VERIF_API = 'https://api.tudominio.cl/verify';
+// En desarrollo local con el backend corriendo:
+// const VERIF_API = 'http://localhost:3001/verify';
+// Para esta demo usamos modo simulado que refleja exactamente las llamadas reales:
+const VERIF_API = null; // null = demo mode, string = live backend
+
+// ── STATE ──
+let verifSession = {
+  sessionId:    null,
+  userId:       'user_' + Date.now(),
+  frontFile:    null,
+  backFile:     null,
+  selfieFile:   null,
+  frontDone:    false,
+  backDone:     false,
+  cameraStream: null,
+};
+
+// ── START ──
+function startVerification(){
+  const consent = document.getElementById('verif-consent');
+  if (!consent?.checked) {
+    showVerifError('Debes aceptar el consentimiento de procesamiento de datos biométricos para continuar.');
+    return;
+  }
+  document.getElementById('verif-intro').style.display = 'none';
+  document.getElementById('verif-flow').style.display  = 'block';
+  hideVerifError();
+  initiateSession();
+}
+
+async function initiateSession(){
+  if (VERIF_API) {
+    try {
+      const r = await fetch(VERIF_API + '/start', {
+        method:  'POST',
+        headers: {'Content-Type':'application/json'},
+        body:    JSON.stringify({ userId: verifSession.userId }),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Error al iniciar sesión');
+      verifSession.sessionId = data.sessionId;
+      const el = document.getElementById('vstep-1-sessionid');
+      if (el) el.textContent = 'ID: ' + data.sessionId.slice(0,8) + '…';
+    } catch(err) {
+      showVerifError('No se pudo conectar con el servidor de verificación. ' + err.message);
+      return;
+    }
+  } else {
+    // Demo mode: generate fake session ID
+    verifSession.sessionId = 'demo-' + Math.random().toString(36).slice(2,10);
+    const el = document.getElementById('vstep-1-sessionid');
+    if (el) el.textContent = 'Demo: ' + verifSession.sessionId;
+  }
+}
+
+function abortVerification(){
+  stopCameraStream();
+  closeModal('modal-verify-id');
+  resetVerifState();
+}
+
+function resetVerifState(){
+  verifSession = { sessionId:null, userId:'user_'+Date.now(), frontFile:null, backFile:null, selfieFile:null, frontDone:false, backDone:false, cameraStream:null };
+  // Reset UI
+  ['front','back'].forEach(side => {
+    const icon = document.getElementById(side+'-icon');
+    const title = document.getElementById(side+'-title');
+    const sub = document.getElementById(side+'-sub');
+    const preview = document.getElementById(side+'-preview');
+    const extract = document.getElementById(side+'-extract');
+    if (icon)    icon.textContent = '📄';
+    if (title)   title.textContent = side === 'front' ? 'Frente de la cédula' : 'Reverso de la cédula';
+    if (sub)     sub.textContent = 'Haz clic para seleccionar o tomar foto';
+    if (preview) { preview.style.display='none'; preview.src=''; }
+    if (extract) extract.style.display = 'none';
+  });
+  const btn = document.getElementById('btn-next-step2');
+  if (btn) { btn.disabled=true; btn.textContent='Continuar → Tomar selfie'; }
+  document.getElementById('verif-intro').style.display = 'block';
+  document.getElementById('verif-flow').style.display  = 'none';
+  hideVerifError();
+  // Reset steps
+  ['vstep-2','vstep-3','vstep-4'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.classList.remove('done','active'); if (id==='vstep-2') el.classList.add('active'); }
+  });
+  ['vstep-2-body','vstep-3-body','vstep-4-body'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = id==='vstep-2-body' ? 'block' : 'none';
+  });
+  const cameraIcon = document.getElementById('camera-icon');
+  if (cameraIcon) { cameraIcon.style.display=''; cameraIcon.textContent='📷'; }
+  const video = document.getElementById('camera-video');
+  if (video) video.style.display = 'none';
+}
+
+// ── FILE HANDLING ──
+function handleFileSelect(event, side){
+  const file = event.target.files[0];
+  if (!file) return;
+  verifSession[side+'File'] = file;
+
+  // Show preview
+  const preview = document.getElementById(side+'-preview');
+  if (preview) {
+    const url = URL.createObjectURL(file);
+    preview.src = url;
+    preview.style.display = 'block';
+  }
+  document.getElementById(side+'-icon').textContent = '⏳';
+  document.getElementById(side+'-title').textContent = 'Procesando…';
+
+  // Upload to backend (or simulate)
+  uploadDocument(file, side);
+}
+
+async function uploadDocument(file, side){
+  const loadingEl = document.getElementById('front-loading');
+  const loadingText = document.getElementById('front-loading-text');
+  const loadingBar = document.getElementById('front-loading-bar');
+
+  if (side === 'front' && loadingEl) loadingEl.style.display = 'block';
+
+  // Animate loading bar
+  let barPct = 0;
+  const barInterval = setInterval(() => {
+    barPct = Math.min(barPct + 5, 90);
+    if (loadingBar) loadingBar.style.width = barPct + '%';
+  }, 80);
+
+  try {
+    let extracted = null;
+
+    if (VERIF_API) {
+      // ── LIVE: Real AWS Textract call ──
+      if (loadingText) loadingText.textContent = '⏳ Enviando a AWS Textract…';
+      const formData = new FormData();
+      formData.append('document', file);
+      const endpoint = side === 'front' ? '/document' : '/document-back';
+      const r = await fetch(VERIF_API + endpoint, {
+        method:  'POST',
+        headers: { 'X-Session-Id': verifSession.sessionId },
+        body:    formData,
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        clearInterval(barInterval);
+        if (loadingEl) loadingEl.style.display = 'none';
+        showVerifError(data.message || 'Error al procesar el documento.');
+        if (data.error === 'UNDERAGE') {
+          showVerifError('⚠️ La cédula indica que eres menor de 18 años. No puedes registrarte en la plataforma.');
+          abortVerification();
+        }
+        return;
+      }
+      extracted = data.extracted;
+    } else {
+      // ── DEMO: Simulate Textract response ──
+      if (loadingText) loadingText.textContent = '⏳ AWS Textract procesando cédula…';
+      await sleep(1800);
+      extracted = side === 'front' ? {
+        rut:       '12.345.678-9',
+        name:      'CARLOS ALBERTO LÓPEZ VEGA',
+        birthDate: '1990-06-15',
+        age:       34,
+        isAdult:   true,
+        hasFace:   true,
+        confidence: { textract: 97, faceInDoc: 99 },
+      } : null;
+    }
+
+    clearInterval(barInterval);
+    if (loadingBar) loadingBar.style.width = '100%';
+    await sleep(300);
+    if (loadingEl) loadingEl.style.display = 'none';
+
+    // Update UI
+    document.getElementById(side+'-icon').textContent = '✅';
+    document.getElementById(side+'-title').textContent = side==='front' ? 'Frente cargada ✓' : 'Reverso cargado ✓';
+    document.getElementById(side+'-sub').textContent   = 'Imagen procesada por AWS Textract';
+
+    // Show extracted data (front only)
+    if (side === 'front' && extracted) {
+      const extractEl = document.getElementById('front-extract');
+      const dataEl    = document.getElementById('front-extract-data');
+      if (extractEl && dataEl) {
+        dataEl.innerHTML = [
+          extracted.name      ? `<div>👤 <strong>Nombre:</strong> ${extracted.name}</div>` : '',
+          extracted.rut       ? `<div>🪪 <strong>RUT:</strong> ${extracted.rut}</div>`     : '',
+          extracted.birthDate ? `<div>📅 <strong>Fecha nac.:</strong> ${extracted.birthDate} (${extracted.age} años)</div>` : '',
+          `<div>✅ <strong>Mayoría de edad:</strong> ${extracted.isAdult ? 'Confirmada' : '⚠ No confirmada'}</div>`,
+          `<div style="font-size:.65rem;color:var(--text3);margin-top:.3rem">Textract confidence: ${extracted.confidence?.textract}% · Face in doc: ${extracted.confidence?.faceInDoc}%</div>`,
+        ].join('');
+        extractEl.style.display = 'block';
+      }
+    }
+
+    verifSession[side+'Done'] = true;
+    checkDocumentStep();
+
+  } catch(err) {
+    clearInterval(barInterval);
+    if (loadingEl) loadingEl.style.display = 'none';
+    document.getElementById(side+'-icon').textContent = '❌';
+    document.getElementById(side+'-title').textContent = 'Error al procesar';
+    document.getElementById(side+'-sub').textContent   = 'Intenta con otra foto';
+    showVerifError('Error al enviar el documento: ' + err.message);
+  }
+
+  // Reset file input
+  event.target && (event.target.value = '');
+}
+
+function checkDocumentStep(){
+  if (verifSession.frontDone) {
+    const btn = document.getElementById('btn-next-step2');
+    if (btn) { btn.disabled=false; }
+    hideVerifError();
+  }
+}
+
+// ── PROCEED TO SELFIE STEP ──
+function proceedToSelfie(){
+  const s2 = document.getElementById('vstep-2');
+  s2.classList.remove('active'); s2.classList.add('done');
+  s2.querySelector('.verif-step-num').textContent = '✓';
+  const s3 = document.getElementById('vstep-3');
+  s3.classList.add('active');
+  document.getElementById('vstep-3-body').style.display = 'block';
+  hideVerifError();
+}
+
+// ── CAMERA ──
+async function openCamera(){
+  const video = document.getElementById('camera-video');
+  const icon  = document.getElementById('camera-icon');
+  const btn   = document.getElementById('btn-open-camera');
+  const btnCapture = document.getElementById('btn-capture');
+  const status = document.getElementById('camera-status');
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 640 } },
+    });
+    verifSession.cameraStream = stream;
+    video.srcObject = stream;
+    video.style.display = 'block';
+    if (icon) icon.style.display = 'none';
+    document.getElementById('selfie-btn-group').style.display = 'none';
+    if (btnCapture) btnCapture.style.display = 'block';
+    if (status) status.textContent = 'Posiciona tu rostro en el círculo y presiona capturar';
+  } catch(err) {
+    showVerifError('No se pudo acceder a la cámara. ' + (err.message.includes('NotAllowed') ? 'Permite el acceso a la cámara en tu navegador.' : err.message));
+  }
+}
+
+function stopCameraStream(){
+  if (verifSession.cameraStream) {
+    verifSession.cameraStream.getTracks().forEach(t => t.stop());
+    verifSession.cameraStream = null;
+  }
+}
+
+async function captureFromCamera(){
+  const video  = document.getElementById('camera-video');
+  const canvas = document.getElementById('camera-canvas');
+  const status = document.getElementById('camera-status');
+  const btn    = document.getElementById('btn-capture');
+
+  if (!canvas || !video) return;
+  canvas.width  = video.videoWidth  || 640;
+  canvas.height = video.videoHeight || 640;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+
+  // Flash effect
+  const frame = document.getElementById('camera-frame');
+  frame.style.background = 'rgba(196,166,110,.5)';
+  await sleep(120);
+  frame.style.background = '';
+
+  // Convert canvas to blob
+  canvas.toBlob(async (blob) => {
+    const file = new File([blob], 'selfie.jpg', { type: 'image/jpeg' });
+    verifSession.selfieFile = file;
+    stopCameraStream();
+    video.style.display = 'none';
+    if (btn) btn.style.display = 'none';
+    if (status) status.textContent = 'Foto capturada — enviando a AWS…';
+    const camIcon = document.getElementById('camera-icon');
+    if (camIcon) { camIcon.style.display=''; camIcon.textContent='⏳'; }
+    await processSelfie(file);
+  }, 'image/jpeg', 0.9);
+}
+
+async function handleSelfieSelect(event){
+  const file = event.target.files[0];
+  if (!file) return;
+  verifSession.selfieFile = file;
+  const status = document.getElementById('camera-status');
+  if (status) status.textContent = 'Foto seleccionada — enviando a AWS…';
+  const camIcon = document.getElementById('camera-icon');
+  if (camIcon) { camIcon.style.display=''; camIcon.textContent='⏳'; }
+  document.getElementById('selfie-btn-group').style.display = 'none';
+  await processSelfie(file);
+  event.target.value = '';
+}
+
+// ── SELFIE + REKOGNITION ──
+async function processSelfie(file){
+  const selfieLoading = document.getElementById('selfie-loading');
+  const selfieText    = document.getElementById('selfie-loading-text');
+  const selfieBar     = document.getElementById('selfie-loading-bar');
+  if (selfieLoading) selfieLoading.style.display = 'block';
+
+  let barPct = 0;
+  const barInterval = setInterval(() => {
+    barPct = Math.min(barPct + 4, 85);
+    if (selfieBar) selfieBar.style.width = barPct + '%';
+  }, 80);
+
+  try {
+    if (selfieText) selfieText.textContent = '⏳ AWS Rekognition detectando rostro…';
+
+    let result = null;
+    if (VERIF_API) {
+      // ── LIVE: Real Rekognition call ──
+      const formData = new FormData();
+      formData.append('selfie', file);
+      const r = await fetch(VERIF_API + '/selfie', {
+        method:  'POST',
+        headers: { 'X-Session-Id': verifSession.sessionId },
+        body:    formData,
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        clearInterval(barInterval);
+        if (selfieLoading) selfieLoading.style.display = 'none';
+        const msgs = {
+          NO_FACE_IN_SELFIE:   'No se detectó un rostro en la selfie. Asegúrate de que tu cara sea bien visible.',
+          MULTIPLE_FACES:      'Se detectaron múltiples rostros. La selfie debe mostrar solo tu cara.',
+          LOW_FACE_CONFIDENCE: 'No se pudo confirmar el rostro. Mejora la iluminación e intenta nuevamente.',
+          FACE_MISMATCH:       `El rostro no coincide con el documento. Similitud: ${data.similarity}% (mínimo ${data.threshold}%). Intenta nuevamente con mejor iluminación.`,
+        };
+        showVerifError(msgs[data.error] || data.message || 'Error en la verificación facial.');
+        resetSelfieStep();
+        return;
+      }
+      result = data.result;
+    } else {
+      // ── DEMO: Simulate Rekognition response ──
+      await sleep(800);
+      if (selfieText) selfieText.textContent = '⏳ AWS Rekognition comparando faces…';
+      await sleep(1200);
+      result = {
+        sessionId:  verifSession.sessionId,
+        userId:     verifSession.userId,
+        similarity: 96.4,
+        isAdult:    true,
+        extractedData: { rut:'12.345.678-9', name:'CARLOS ALBERTO LÓPEZ VEGA', birthDate:'1990-06-15', age:34 },
+        liveness:   { eyesOpen:true, notSunglasses:true, faceConfidence:99 },
+        verifiedAt: new Date().toISOString(),
+        provider:   'aws-rekognition-textract (demo)',
+      };
+    }
+
+    clearInterval(barInterval);
+    if (selfieBar)     selfieBar.style.width = '100%';
+    if (selfieLoading) selfieLoading.style.display = 'none';
+
+    // Mark step 3 done
+    const s3 = document.getElementById('vstep-3');
+    s3.classList.remove('active'); s3.classList.add('done');
+    s3.querySelector('.verif-step-num').textContent = '✓';
+    document.getElementById('vstep-3-sub').textContent = `Selfie aprobada — similitud ${result.similarity.toFixed(1)}%`;
+
+    // Show step 4
+    const s4 = document.getElementById('vstep-4');
+    s4.classList.add('active');
+    document.getElementById('vstep-4-body').style.display = 'block';
+    document.getElementById('vstep-4-title').textContent  = 'Verificación completada';
+    document.getElementById('vstep-4-sub').textContent    = 'AWS confirmó tu identidad';
+
+    // Run final progress animation
+    runFinalProgress(result);
+
+  } catch(err) {
+    clearInterval(barInterval);
+    if (selfieLoading) selfieLoading.style.display = 'none';
+    showVerifError('Error de conexión con AWS: ' + err.message);
+    resetSelfieStep();
+  }
+}
+
+function resetSelfieStep(){
+  const camIcon = document.getElementById('camera-icon');
+  if (camIcon) { camIcon.style.display=''; camIcon.textContent='📷'; }
+  const status = document.getElementById('camera-status');
+  if (status) status.textContent = 'Posiciona tu rostro en el círculo';
+  const btnGroup = document.getElementById('selfie-btn-group');
+  if (btnGroup) btnGroup.style.display = 'flex';
+}
+
+async function runFinalProgress(result){
+  const bar   = document.getElementById('verif-progress-bar');
+  const icon  = document.getElementById('result-icon');
+  const title = document.getElementById('result-title');
+  const sub   = document.getElementById('result-sub');
+
+  const STEPS = [
+    [25,  '⏳', 'Textract: extrayendo RUT y nombre…',    'Leyendo datos del documento de identidad'],
+    [50,  '⏳', 'Rekognition: detectando rostro…',       'Analizando puntos biométricos faciales'],
+    [75,  '⏳', 'Rekognition: comparando faces…',        `Similitud calculada: ${result.similarity.toFixed(1)}%`],
+    [90,  '⏳', 'Validando mayoría de edad…',            `Edad confirmada: ${result.extractedData.age} años`],
+    [100, '✅', '¡Identidad verificada! ✦',              'Tu badge verificado está activo en tu perfil'],
+  ];
+
+  let pct = 0;
+  for (const [target, ico, ttl, stt] of STEPS) {
+    while (pct < target) {
+      pct = Math.min(pct + 3, target);
+      if (bar) bar.style.width = pct + '%';
+      await sleep(40);
+    }
+    if (icon)  icon.textContent  = ico;
+    if (title) title.textContent = ttl;
+    if (sub)   sub.textContent   = stt;
+    await sleep(400);
+  }
+
+  // Show result detail card
+  const detail = document.getElementById('result-detail');
+  const detailContent = document.getElementById('result-detail-content');
+  if (detail && detailContent) {
+    const r = result;
+    detailContent.innerHTML = `
+      <div>✅ <strong>RUT:</strong> ${r.extractedData.rut || '—'}</div>
+      <div>✅ <strong>Nombre:</strong> ${r.extractedData.name || '—'}</div>
+      <div>✅ <strong>Mayoría de edad:</strong> ${r.isAdult ? 'Confirmada ('+r.extractedData.age+' años)' : '⚠ No confirmada'}</div>
+      <div>✅ <strong>Coincidencia facial:</strong> ${r.similarity.toFixed(1)}% (umbral: 80%)</div>
+      <div>✅ <strong>Liveness:</strong> Ojos abiertos: ${r.liveness.eyesOpen?'Sí':'No'} · Sin lentes: ${r.liveness.notSunglasses?'Sí':'No'}</div>
+      <div>✅ <strong>Motor:</strong> ${r.provider}</div>
+      <div style="font-size:.65rem;color:var(--text3);margin-top:.3rem">Verificado: ${new Date(r.verifiedAt).toLocaleString('es-CL')}</div>
+    `;
+    detail.style.display = 'block';
+  }
+
+  // Mark step 4 done
+  const s4 = document.getElementById('vstep-4');
+  s4.classList.remove('active'); s4.classList.add('done');
+  s4.querySelector('.verif-step-num').textContent = '✓';
+
+  await sleep(2200);
+  closeModal('modal-verify-id');
+  showToast('✦ Identidad verificada','Tu badge de usuario verificado ya está activo en tu perfil.');
+  resetVerifState();
+}
+
+// ── ERROR HELPERS ──
+function showVerifError(msg){
+  const el = document.getElementById('verif-error');
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+function hideVerifError(){
+  const el = document.getElementById('verif-error');
+  if (el) el.style.display = 'none';
+}
+
+// ── UTILS ──
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+// ── KEEP startVerifFlow for settings page button ──
+function startVerifFlow(){
+  openModal('modal-verify-id');
+}
+
+// ────────────────────────────
+//  TABS
+// ────────────────────────────
+function switchTab(btn,targetId){
+  const page=btn.closest('.page');
+  page.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  page.querySelectorAll('.tab-content').forEach(c=>c.style.display='none');
+  const t=document.getElementById(targetId);
+  if(t)t.style.display='block';
+}
+
+function switchSettingsTab(btn,targetId){
+  // Find parent tab bar
+  const parent=btn.parentElement;
+  parent.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  // Hide siblings that start with same prefix
+  const prefix=targetId.split('-')[0];
+  document.querySelectorAll('[id^="'+prefix+'-"]').forEach(el=>el.style.display='none');
+  const target=document.getElementById(targetId);
+  if(target)target.style.display='block';
+}
+
+function toggleSlot(el){
+  el.classList.toggle('available');
+  el.textContent=el.classList.contains('available')?el.textContent||'—':'—';
+}
+
+// ────────────────────────────
+//  PW STRENGTH
+// ────────────────────────────
+function checkPwStrength(pw){
+  let score=0;
+  if(pw.length>=8)score++;
+  if(/[A-Z]/.test(pw))score++;
+  if(/[0-9]/.test(pw))score++;
+  if(/[^A-Za-z0-9]/.test(pw))score++;
+  const colors=['var(--danger)','var(--warn)','var(--warn)','var(--success)','var(--success)'];
+  const labels=['Muy débil','Débil','Regular','Buena','Muy fuerte'];
+  const pct=[10,30,55,80,100];
+  ['pw-fill','pw-fill2'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.style.width=pct[score]+'%';el.style.background=colors[score]}
+  });
+  ['pw-label','pw-label2'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.textContent=labels[score];el.style.color=colors[score]}
+  });
+}
+</script>
+</body>
+</html>

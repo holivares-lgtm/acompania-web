@@ -1,0 +1,381 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Description: >
+  ACOMPAÑÍA — Módulo de Verificación de Identidad
+  AWS Rekognition + Textract + S3 + DynamoDB + API Gateway + Lambda
+
+# ─────────────────────────────────────────────────────────
+#  PARÁMETROS (sobreescribibles por ambiente)
+# ─────────────────────────────────────────────────────────
+Parameters:
+  Env:
+    Type: String
+    Default: dev
+    AllowedValues: [dev, staging, prod]
+    Description: Ambiente de despliegue
+
+  AllowedOrigins:
+    Type: String
+    Default: '*'
+    Description: Orígenes CORS permitidos (en prod usar tu dominio)
+
+  RekognitionConfidenceMin:
+    Type: Number
+    Default: 90
+    MinValue: 80
+    MaxValue: 100
+    Description: Umbral mínimo de similitud facial (%)
+
+  AlertEmail:
+    Type: String
+    Default: ''
+    Description: Email para alertas de errores (opcional)
+
+# ─────────────────────────────────────────────────────────
+#  GLOBALS SAM
+# ─────────────────────────────────────────────────────────
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    MemorySize: 512
+    Timeout: 60
+    Environment:
+      Variables:
+        NODE_ENV: !Ref Env
+        S3_BUCKET_UPLOADS: !Ref VerifyImagesBucket
+        DYNAMODB_TABLE: !Ref VerifySessionsTable
+        REKOGNITION_CONFIDENCE_MIN: !Ref RekognitionConfidenceMin
+        ALLOWED_ORIGINS: !Ref AllowedOrigins
+    Tracing: Active  # X-Ray tracing
+    Layers:
+      - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:aws-sdk-v3:1'
+
+# ─────────────────────────────────────────────────────────
+#  RECURSOS
+# ─────────────────────────────────────────────────────────
+Resources:
+
+  # ── S3: Bucket temporal para imágenes ──────────────────
+  VerifyImagesBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'acompania-verify-${Env}-${AWS::AccountId}'
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms   # Cifrado KMS para datos biométricos
+      LifecycleConfiguration:
+        Rules:
+          # Eliminar imágenes automáticamente en 1 hora (fallback si Lambda no las borra)
+          - Id: DeleteTempImages
+            Status: Enabled
+            ExpirationInDays: 1
+            Prefix: verify/
+          # Eliminar logs de acceso en 90 días
+          - Id: DeleteAccessLogs
+            Status: Enabled
+            ExpirationInDays: 90
+            Prefix: logs/
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: ['*']
+            AllowedMethods: [GET, PUT, POST]
+            AllowedOrigins: !Split [',', !Ref AllowedOrigins]
+            MaxAge: 3600
+      Tags:
+        - Key: Project
+          Value: Acompania
+        - Key: Env
+          Value: !Ref Env
+        - Key: DataType
+          Value: Biometric-Temporary  # Importante para auditoría
+
+  # Política del bucket: solo permitir acceso desde la cuenta propia
+  VerifyImagesBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref VerifyImagesBucket
+      PolicyDocument:
+        Statement:
+          # Solo la Lambda puede acceder al bucket
+          - Sid: AllowLambdaAccess
+            Effect: Allow
+            Principal:
+              AWS: !GetAtt VerifyFunctionRole.Arn
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:DeleteObject
+              - s3:DeleteObjects
+            Resource: !Sub '${VerifyImagesBucket.Arn}/verify/*'
+          # Negar todo acceso no SSL
+          - Sid: DenyNonSSL
+            Effect: Deny
+            Principal: '*'
+            Action: 's3:*'
+            Resource:
+              - !GetAtt VerifyImagesBucket.Arn
+              - !Sub '${VerifyImagesBucket.Arn}/*'
+            Condition:
+              Bool:
+                'aws:SecureTransport': false
+
+  # ── DynamoDB: Sesiones y resultados de verificación ────
+  VerifySessionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'acompania-verify-sessions-${Env}'
+      BillingMode: PAY_PER_REQUEST   # On-demand, sin necesidad de provisionar
+      TableClass: STANDARD
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+        SSEType: KMS
+      # Clave primaria compuesta: pk (SESSION#id) + sk (METADATA | RESULT)
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: status
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+      # GSI para consultar por userId
+      GlobalSecondaryIndexes:
+        - IndexName: userId-index
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+            - AttributeName: sk
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: status-index
+          KeySchema:
+            - AttributeName: status
+              KeyType: HASH
+            - AttributeName: sk
+              KeyType: RANGE
+          Projection:
+            ProjectionType: KEYS_ONLY
+      # TTL automático usando el campo expiresAt
+      TimeToLiveSpecification:
+        AttributeName: expiresAt
+        Enabled: true
+      Tags:
+        - Key: Project
+          Value: Acompania
+        - Key: DataType
+          Value: VerificationResults
+
+  # ── IAM Role para Lambda ────────────────────────────────
+  VerifyFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub 'acompania-verify-lambda-${Env}'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+      Policies:
+        - PolicyName: VerifyPermissions
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              # Textract: AnalyzeID + DetectDocumentText
+              - Effect: Allow
+                Action:
+                  - textract:AnalyzeID
+                  - textract:DetectDocumentText
+                  - textract:AnalyzeDocument
+                Resource: '*'
+              # Rekognition: CompareFaces + DetectFaces
+              - Effect: Allow
+                Action:
+                  - rekognition:CompareFaces
+                  - rekognition:DetectFaces
+                  - rekognition:DetectLabels
+                Resource: '*'
+              # S3: operaciones en el bucket de imágenes
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                  - s3:DeleteObjects
+                  - s3:GeneratePresignedUrl
+                Resource:
+                  - !GetAtt VerifyImagesBucket.Arn
+                  - !Sub '${VerifyImagesBucket.Arn}/*'
+              # DynamoDB: operaciones CRUD
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:Query
+                Resource:
+                  - !GetAtt VerifySessionsTable.Arn
+                  - !Sub '${VerifySessionsTable.Arn}/index/*'
+              # KMS: descifrar datos del bucket y tabla
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                  - kms:GenerateDataKey
+                Resource: '*'
+                Condition:
+                  StringEquals:
+                    'kms:ViaService': !Sub 's3.${AWS::Region}.amazonaws.com'
+
+  # ── Lambda: Función principal ───────────────────────────
+  VerifyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'acompania-verify-identity-${Env}'
+      CodeUri: ./
+      Handler: lambda-verify-identity.handler
+      Role: !GetAtt VerifyFunctionRole.Arn
+      Description: Verificación de identidad con Textract + Rekognition
+      ReservedConcurrentExecutions: 50  # Limitar para controlar costos
+      Events:
+        StartVerification:
+          Type: Api
+          Properties:
+            RestApiId: !Ref VerifyApi
+            Path: /verify/start
+            Method: POST
+        SubmitVerification:
+          Type: Api
+          Properties:
+            RestApiId: !Ref VerifyApi
+            Path: /verify/submit
+            Method: POST
+        GetStatus:
+          Type: Api
+          Properties:
+            RestApiId: !Ref VerifyApi
+            Path: /verify/status/{sessionId}
+            Method: GET
+        # Preflight CORS
+        OptionStart:
+          Type: Api
+          Properties:
+            RestApiId: !Ref VerifyApi
+            Path: /verify/start
+            Method: OPTIONS
+        OptionSubmit:
+          Type: Api
+          Properties:
+            RestApiId: !Ref VerifyApi
+            Path: /verify/submit
+            Method: OPTIONS
+        OptionStatus:
+          Type: Api
+          Properties:
+            RestApiId: !Ref VerifyApi
+            Path: /verify/status/{sessionId}
+            Method: OPTIONS
+
+  # ── API Gateway ─────────────────────────────────────────
+  VerifyApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub 'acompania-verify-api-${Env}'
+      StageName: !Ref Env
+      Cors:
+        AllowMethods: "'POST,GET,OPTIONS'"
+        AllowHeaders: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Requested-With'"
+        AllowOrigin: !Sub "'${AllowedOrigins}'"
+        MaxAge: "'3600'"
+      Auth:
+        # En producción, agregar un API Key o Cognito Authorizer
+        DefaultAuthorizer: NONE
+      MethodSettings:
+        - ResourcePath: '/*'
+          HttpMethod: '*'
+          ThrottlingBurstLimit: 50
+          ThrottlingRateLimit: 20
+          LoggingLevel: INFO
+          MetricsEnabled: true
+      Tags:
+        Project: Acompania
+        Env: !Ref Env
+
+  # ── CloudWatch: Alarmas de errores ──────────────────────
+  VerifyFunctionErrors:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub 'acompania-verify-errors-${Env}'
+      AlarmDescription: 'Errores en Lambda de verificación de identidad'
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref VerifyFunction
+      Statistic: Sum
+      Period: 300      # 5 minutos
+      EvaluationPeriods: 1
+      Threshold: 5
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+
+  # ── SNS: Notificaciones (opcional) ─────────────────────
+  VerifyAlertTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub 'acompania-verify-alerts-${Env}'
+
+# ─────────────────────────────────────────────────────────
+#  OUTPUTS
+# ─────────────────────────────────────────────────────────
+Outputs:
+  ApiEndpoint:
+    Description: URL base del API de verificación
+    Value: !Sub 'https://${VerifyApi}.execute-api.${AWS::Region}.amazonaws.com/${Env}'
+    Export:
+      Name: !Sub 'AcompaniaVerifyApiEndpoint-${Env}'
+
+  BucketName:
+    Description: Bucket S3 para imágenes temporales
+    Value: !Ref VerifyImagesBucket
+    Export:
+      Name: !Sub 'AcompaniaVerifyBucket-${Env}'
+
+  TableName:
+    Description: Tabla DynamoDB de sesiones
+    Value: !Ref VerifySessionsTable
+    Export:
+      Name: !Sub 'AcompaniaVerifyTable-${Env}'
+
+  LambdaArn:
+    Description: ARN de la Lambda
+    Value: !GetAtt VerifyFunction.Arn
+
+  # Variables de entorno para el frontend
+  FrontendConfig:
+    Description: JSON con config para el frontend (pegar en .env)
+    Value: !Sub |
+      {
+        "VERIFY_API_URL": "https://${VerifyApi}.execute-api.${AWS::Region}.amazonaws.com/${Env}",
+        "VERIFY_BUCKET": "${VerifyImagesBucket}"
+      }

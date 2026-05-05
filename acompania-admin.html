@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACOMPAÑÍA Admin — Panel de Administración</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080604;--bg2:#0e0c08;--bg3:#141210;--bg4:#1c1814;--bg5:#221e18;
+  --gold:#c4a66e;--gold2:#d4b880;--gold3:#a08040;--gold4:#7a6030;
+  --gold-dim:rgba(196,166,110,.1);--gold-border:rgba(196,166,110,.15);--gold-border2:rgba(196,166,110,.32);
+  --text:#f0e8d4;--text2:#b8a888;--text3:#706050;--text4:#3a3028;--text5:#221a12;
+  --danger:#b84;--danger-red:#c44;--success:#4a9;--warn:#c84;--info:#6090c8;
+  --serif:'Cormorant Garamond',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;
+  --r:6px;--r-lg:12px;--t:.2s cubic-bezier(.4,0,.2,1);
+  --sidebar-w:240px;
+}
+html{font-size:15px}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.3}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--gold4);border-radius:2px}
+
+/* ── LAYOUT ── */
+.admin-shell{display:flex;min-height:100vh}
+.page{display:none;animation:fadeUp .25s ease}
+.page.active{display:flex;flex-direction:column}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── TOPBAR ── */
+.topbar{height:54px;background:rgba(8,6,4,.95);backdrop-filter:blur(18px);border-bottom:1px solid var(--gold-border);display:flex;align-items:center;justify-content:space-between;padding:0 1.75rem;position:sticky;top:0;z-index:100;flex-shrink:0}
+.topbar-logo{font-family:var(--serif);font-size:1.1rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:.6rem}
+.topbar-logo-badge{font-size:.58rem;background:var(--gold-dim);border:1px solid var(--gold-border2);color:var(--gold);padding:.15rem .5rem;border-radius:2px;letter-spacing:.1em;text-transform:uppercase;font-family:var(--sans)}
+.topbar-right{display:flex;align-items:center;gap:.75rem}
+.topbar-user{font-size:.75rem;color:var(--text3);display:flex;align-items:center;gap:.5rem}
+.topbar-avatar{width:28px;height:28px;border-radius:50%;background:var(--bg4);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--gold);font-family:var(--serif)}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar-w);background:var(--bg2);border-right:1px solid var(--gold-border);flex-shrink:0;overflow-y:auto;padding:1rem 0}
+.sidebar-logo-area{padding:.75rem 1.25rem 1.25rem;border-bottom:1px solid var(--gold-border);margin-bottom:.5rem}
+.sidebar-section-label{padding:.9rem 1.25rem .3rem;font-size:.57rem;font-weight:500;color:var(--text4);letter-spacing:.15em;text-transform:uppercase}
+.sidebar-item{display:flex;align-items:center;gap:.65rem;padding:.62rem 1.25rem;font-size:.76rem;color:var(--text3);cursor:pointer;transition:all var(--t);border-left:2px solid transparent;background:none;border-right:none;border-top:none;border-bottom:none;width:100%;text-align:left}
+.sidebar-item:hover{color:var(--text2);background:var(--bg3)}
+.sidebar-item.active{color:var(--gold);border-left-color:var(--gold);background:var(--gold-dim)}
+.sidebar-item svg{flex-shrink:0;opacity:.7}
+.sidebar-item.active svg{opacity:1}
+.sidebar-badge{margin-left:auto;background:var(--gold-dim);border:1px solid var(--gold-border2);color:var(--gold);font-size:.58rem;padding:.1rem .45rem;border-radius:2px;letter-spacing:.04em}
+.sidebar-badge-red{background:rgba(204,68,68,.1);border-color:rgba(204,68,68,.25);color:#c66}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;background:var(--bg)}
+.content{padding:2rem 2.25rem;max-width:1400px}
+
+/* ── BTN ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.55rem 1.25rem;font-family:var(--sans);font-size:.72rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;border-radius:var(--r);border:none;cursor:pointer;transition:all var(--t);white-space:nowrap}
+.btn-gold{background:var(--gold);color:var(--bg)}.btn-gold:hover{background:var(--gold2);transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--gold);border:1px solid var(--gold-border2)}.btn-outline:hover{background:var(--gold-dim)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--text4)}.btn-ghost:hover{border-color:var(--text3);color:var(--text)}
+.btn-danger{background:transparent;color:var(--danger-red);border:1px solid rgba(204,68,68,.28)}.btn-danger:hover{background:rgba(204,68,68,.07)}
+.btn-info{background:transparent;color:var(--info);border:1px solid rgba(96,144,200,.3)}.btn-info:hover{background:rgba(96,144,200,.07)}
+.btn-sm{padding:.32rem .78rem;font-size:.65rem}
+.btn-xs{padding:.22rem .55rem;font-size:.6rem}
+
+/* ── INPUT ── */
+.input-wrap{display:flex;flex-direction:column;gap:.35rem}
+.input-label{font-size:.64rem;font-weight:500;color:var(--text3);letter-spacing:.1em;text-transform:uppercase}
+.input{background:var(--bg3);border:1px solid var(--gold-border);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:.84rem;padding:.58rem .85rem;width:100%;transition:border-color var(--t);outline:none}
+.input:focus{border-color:var(--gold)}
+.input::placeholder{color:var(--text4)}
+select.input{cursor:pointer}
+textarea.input{resize:vertical;min-height:75px}
+
+/* ── BADGE ── */
+.badge{display:inline-flex;align-items:center;gap:.25rem;padding:.16rem .55rem;font-size:.6rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;border-radius:2px}
+.badge-gold{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border2)}
+.badge-green{background:rgba(74,153,102,.12);color:#4a9;border:1px solid rgba(74,153,102,.25)}
+.badge-red{background:rgba(204,68,68,.1);color:#c66;border:1px solid rgba(204,68,68,.2)}
+.badge-gray{background:var(--bg4);color:var(--text3);border:1px solid var(--text4)}
+.badge-warn{background:rgba(200,132,0,.12);color:#c84;border:1px solid rgba(200,132,0,.25)}
+.badge-info{background:rgba(96,144,200,.1);color:var(--info);border:1px solid rgba(96,144,200,.2)}
+
+/* ── CARD ── */
+.card{background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r-lg)}
+
+/* ── STAT ── */
+.stat-card{background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r-lg);padding:1.25rem;position:relative;overflow:hidden}
+.stat-card::after{content:'';position:absolute;top:0;right:0;width:30px;height:30px;background:var(--gold-dim);border-radius:0 var(--r-lg) 0 30px}
+.stat-label{font-size:.6rem;font-weight:500;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem}
+.stat-value{font-family:var(--serif);font-size:1.8rem;font-weight:300;color:var(--text);line-height:1}
+.stat-sub{font-size:.67rem;color:var(--text3);margin-top:.3rem}
+.stat-up{color:var(--success)}.stat-down{color:var(--danger-red)}.stat-warn{color:var(--warn)}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead tr{border-bottom:1px solid var(--gold-border)}
+th{font-size:.6rem;font-weight:500;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;padding:.55rem .85rem;text-align:left;white-space:nowrap}
+td{padding:.72rem .85rem;font-size:.78rem;color:var(--text2);border-bottom:1px solid var(--text5);vertical-align:middle}
+tbody tr:hover{background:var(--bg3)}
+tbody tr:last-child td{border-bottom:none}
+
+/* ── TABS ── */
+.tabs{display:flex;border-bottom:1px solid var(--gold-border);margin-bottom:1.5rem;overflow-x:auto}
+.tab{padding:.65rem 1.25rem;font-size:.7rem;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all var(--t);letter-spacing:.04em;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap}
+.tab:hover{color:var(--text2)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* ── TOGGLE ── */
+.toggle{position:relative;display:inline-block;width:38px;height:22px;cursor:pointer;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:var(--bg4);border:1px solid var(--gold-border);border-radius:11px;transition:all var(--t)}
+.toggle-slider::before{content:'';position:absolute;left:3px;top:50%;transform:translateY(-50%);width:14px;height:14px;background:var(--text3);border-radius:50%;transition:all var(--t)}
+.toggle input:checked + .toggle-slider{background:var(--gold-dim);border-color:var(--gold)}
+.toggle input:checked + .toggle-slider::before{transform:translateX(16px) translateY(-50%);background:var(--gold)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9998;background:var(--bg3);border:1px solid var(--gold-border2);border-radius:var(--r);padding:.8rem 1.25rem;min-width:250px;display:none;animation:toastIn .25s ease;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.toast.show{display:block}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.toast-title{font-size:.76rem;font-weight:500;color:var(--gold);margin-bottom:.15rem}
+.toast-msg{font-size:.7rem;color:var(--text2)}
+
+/* ── MODAL ── */
+.modal-backdrop{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.8);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:2rem}
+.modal-backdrop.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--gold-border2);border-radius:var(--r-lg);width:100%;max-width:520px;max-height:88vh;overflow-y:auto;animation:modalIn .22s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.modal-header{padding:1.25rem 1.6rem .9rem;border-bottom:1px solid var(--gold-border);display:flex;justify-content:space-between;align-items:flex-start}
+.modal-title{font-family:var(--serif);font-size:1.4rem;color:var(--text)}
+.modal-close{background:none;border:none;color:var(--text3);font-size:1.1rem;cursor:pointer;transition:color var(--t)}.modal-close:hover{color:var(--gold)}
+.modal-body{padding:1.25rem 1.6rem}
+.modal-footer{padding:.9rem 1.6rem 1.25rem;display:flex;gap:.65rem;justify-content:flex-end;border-top:1px solid var(--gold-border)}
+
+/* ── UTILS ── */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:1.1rem}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:.9rem}
+.flex-between{display:flex;align-items:center;justify-content:space-between}
+.flex-gap{display:flex;align-items:center;gap:.65rem}
+.section-eyebrow{font-size:.62rem;color:var(--gold);letter-spacing:.17em;text-transform:uppercase;margin-bottom:.45rem}
+.section-title{font-family:var(--serif);font-size:1.8rem;font-weight:300;color:var(--text);line-height:1.15}
+.section-title em{font-style:italic;color:var(--gold)}
+.page-header{margin-bottom:2rem}
+.form-section-title{font-family:var(--serif);font-size:1rem;color:var(--gold);margin-bottom:.75rem;padding-bottom:.4rem;border-bottom:1px solid var(--gold-border)}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:.9rem}
+.price-line{display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--gold-border)}
+.price-line:last-child{border-bottom:none}
+.price-line-label{font-size:.73rem;color:var(--text3)}
+.price-line-value{font-size:.78rem;color:var(--text2)}
+.avatar{border-radius:50%;background:var(--bg4);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:500;color:var(--gold);flex-shrink:0}
+.avatar-sm{width:32px;height:32px;font-size:.78rem}
+.avatar-md{width:44px;height:44px;font-size:1rem}
+.divider{height:1px;background:var(--gold-border);margin:1rem 0}
+.ornament{display:flex;align-items:center;gap:.9rem;margin:1rem 0}
+.ornament::before,.ornament::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold-border),transparent)}
+.ornament span{font-family:var(--serif);font-size:.9rem;color:var(--gold3)}
+
+/* ── AI AGENT ── */
+.agent-header{background:linear-gradient(135deg,var(--bg2) 0%,var(--bg) 100%);border:1px solid var(--gold-border2);border-radius:var(--r-lg);padding:1.5rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
+.agent-header::before{content:'';position:absolute;top:-30px;right:-30px;width:160px;height:160px;background:radial-gradient(circle,rgba(196,166,110,.08) 0%,transparent 70%)}
+.agent-title{font-family:var(--serif);font-size:1.6rem;font-weight:300;color:var(--text);margin-bottom:.3rem}
+.agent-title em{font-style:italic;color:var(--gold)}
+.agent-status{display:flex;align-items:center;gap:.5rem;font-size:.72rem;color:var(--success)}
+.agent-dot{width:7px;height:7px;border-radius:50%;background:var(--success);animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.insight-card{background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r-lg);padding:1.1rem;margin-bottom:.8rem;transition:border-color var(--t)}
+.insight-card:hover{border-color:var(--gold-border2)}
+.insight-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.5rem}
+.insight-type{font-size:.6rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.2rem}
+.insight-title{font-size:.84rem;font-weight:500;color:var(--text)}
+.insight-desc{font-size:.75rem;color:var(--text3);line-height:1.5;margin-bottom:.75rem}
+.insight-users{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.7rem}
+.insight-user-chip{display:flex;align-items:center;gap:.35rem;background:var(--bg3);border:1px solid var(--gold-border);border-radius:3px;padding:.2rem .55rem;font-size:.68rem;color:var(--text2)}
+.insight-chip-dot{width:5px;height:5px;border-radius:50%;background:var(--warn)}
+.insight-action-row{display:flex;gap:.5rem;align-items:center}
+
+.behavior-event{display:flex;align-items:center;gap:.65rem;padding:.5rem .75rem;background:var(--bg3);border-radius:var(--r);margin-bottom:.35rem;border-left:2px solid var(--gold-border)}
+.behavior-event.abandon{border-left-color:var(--danger-red)}
+.behavior-event.convert{border-left-color:var(--success)}
+.behavior-event.browse{border-left-color:var(--gold3)}
+.event-icon{width:20px;height:20px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0}
+.event-label{font-size:.74rem;color:var(--text2);flex:1}
+.event-time{font-size:.64rem;color:var(--text4)}
+.event-user{font-size:.64rem;color:var(--gold3)}
+
+/* ── PAYMENTS ── */
+.rule-card{background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r-lg);padding:1.1rem;margin-bottom:.75rem;transition:border-color var(--t)}
+.rule-card:hover{border-color:var(--gold-border2)}
+.rule-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.rule-card-name{font-size:.85rem;font-weight:500;color:var(--text)}
+.rule-card-meta{font-size:.7rem;color:var(--text3);display:flex;gap:.85rem;flex-wrap:wrap}
+.rule-card-actions{display:flex;gap:.4rem;margin-top:.75rem}
+
+.coupon-card{background:var(--bg3);border:1px solid var(--gold-border2);border-radius:var(--r-lg);padding:1rem;margin-bottom:.65rem;display:flex;align-items:center;gap:1rem;transition:border-color var(--t)}
+.coupon-card:hover{border-color:var(--gold)}
+.coupon-code{font-family:var(--serif);font-size:1.3rem;color:var(--gold);letter-spacing:.1em;min-width:100px}
+.coupon-info{flex:1}
+.coupon-name{font-size:.82rem;color:var(--text);margin-bottom:.2rem}
+.coupon-meta{font-size:.7rem;color:var(--text3);display:flex;gap:.75rem;flex-wrap:wrap}
+.coupon-actions{display:flex;gap:.4rem}
+
+/* ── BILLING ── */
+.transaction-card{background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r-lg);padding:1rem;margin-bottom:.6rem;transition:border-color var(--t)}
+.transaction-card:hover{border-color:var(--gold-border2)}
+.tx-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.35rem}
+.tx-id{font-family:var(--serif);font-size:1rem;color:var(--text)}
+.tx-amount{font-family:var(--serif);font-size:1.1rem;color:var(--gold)}
+.tx-meta{font-size:.7rem;color:var(--text3);display:flex;gap:.75rem;flex-wrap:wrap}
+
+/* ── LOGIN PAGE ── */
+#page-login{background:var(--bg);display:flex;align-items:center;justify-content:center;min-height:100vh}
+.login-box{background:var(--bg2);border:1px solid var(--gold-border2);border-radius:var(--r-lg);padding:2.5rem;width:100%;max-width:420px;position:relative;overflow:hidden}
+.login-box::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(196,166,110,.06) 0%,transparent 70%)}
+.login-logo{font-family:var(--serif);font-size:1.4rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem}
+.login-subtitle{font-size:.75rem;color:var(--text3);margin-bottom:2rem;letter-spacing:.04em}
+.login-form{display:flex;flex-direction:column;gap:1rem;position:relative;z-index:1}
+.login-warning{background:rgba(184,132,0,.1);border:1px solid rgba(184,132,0,.3);border-radius:var(--r);padding:.75rem 1rem;font-size:.73rem;color:var(--warn);line-height:1.5;margin-top:.5rem}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><div class="toast-title" id="toast-title"></div><div class="toast-msg" id="toast-msg"></div></div>
+
+<!-- MODALS -->
+<div class="modal-backdrop" id="modal-rule">
+  <div class="modal">
+    <div class="modal-header"><div><div class="modal-title">Nueva regla comercial</div></div><button class="modal-close" onclick="closeModal('modal-rule')">✕</button></div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:.9rem">
+        <div class="form-grid">
+          <div class="input-wrap"><label class="input-label">Nombre</label><input class="input" placeholder="Ej: Fee publicación cliente"></div>
+          <div class="input-wrap"><label class="input-label">Tipo de regla</label><select class="input"><option>Fee de servicio cliente</option><option>Fee de servicio acompañante</option><option>Cobro por publicación</option><option>Cobro por postulación</option><option>Comisión por confirmación</option><option>Recargo por zona</option><option>Recargo por horario</option><option>Descuento automático</option></select></div>
+          <div class="input-wrap"><label class="input-label">Tipo de cobro</label><select class="input"><option>Porcentaje (%)</option><option>Monto fijo (CLP)</option><option>Mixto</option></select></div>
+          <div class="input-wrap"><label class="input-label">Valor</label><input class="input" type="number" placeholder="Ej: 5 (%) o 1000 (CLP)"></div>
+          <div class="input-wrap"><label class="input-label">Aplica a</label><select class="input"><option>Cliente</option><option>Acompañante</option><option>Ambos</option></select></div>
+          <div class="input-wrap"><label class="input-label">Moneda</label><select class="input"><option>CLP</option><option>USD</option></select></div>
+        </div>
+        <div class="form-grid">
+          <div class="input-wrap"><label class="input-label">Servicio aplicable</label><select class="input"><option>Todos</option><option>Cenas</option><option>Eventos</option><option>VIP</option><option>Viajes</option></select></div>
+          <div class="input-wrap"><label class="input-label">Zona aplicable</label><select class="input"><option>Todas</option><option>Las Condes</option><option>Vitacura</option><option>Providencia</option></select></div>
+          <div class="input-wrap"><label class="input-label">Fecha inicio</label><input class="input" type="date"></div>
+          <div class="input-wrap"><label class="input-label">Fecha término</label><input class="input" type="date"></div>
+        </div>
+        <div class="input-wrap"><label class="input-label">Descripción / condiciones</label><textarea class="input" placeholder="Condiciones de aplicación de esta regla..."></textarea></div>
+        <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:.78rem;color:var(--text2)">Activar inmediatamente</span><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-rule')">Cancelar</button><button class="btn btn-gold" onclick="closeModal('modal-rule');showToast('Regla creada','La regla comercial fue guardada y activada.')">Guardar regla</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-coupon">
+  <div class="modal">
+    <div class="modal-header"><div><div class="modal-title">Nuevo cupón</div></div><button class="modal-close" onclick="closeModal('modal-coupon')">✕</button></div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:.9rem">
+        <div class="form-grid">
+          <div class="input-wrap"><label class="input-label">Código</label><input class="input" placeholder="Ej: PROMO20" style="text-transform:uppercase"></div>
+          <div class="input-wrap"><label class="input-label">Nombre</label><input class="input" placeholder="Nombre del cupón"></div>
+          <div class="input-wrap"><label class="input-label">Tipo</label><select class="input"><option>Porcentaje del fee</option><option>Monto fijo</option><option>Fee gratis</option><option>Primera publicación gratis</option></select></div>
+          <div class="input-wrap"><label class="input-label">Valor (%)</label><input class="input" type="number" placeholder="20"></div>
+          <div class="input-wrap"><label class="input-label">Aplica a</label><select class="input"><option>Cliente</option><option>Acompañante</option><option>Ambos</option></select></div>
+          <div class="input-wrap"><label class="input-label">Usos máximos</label><input class="input" type="number" placeholder="100"></div>
+          <div class="input-wrap"><label class="input-label">Usos por usuario</label><input class="input" type="number" placeholder="1"></div>
+          <div class="input-wrap"><label class="input-label">Monto mínimo</label><input class="input" type="number" placeholder="$20.000"></div>
+          <div class="input-wrap"><label class="input-label">Válido desde</label><input class="input" type="date"></div>
+          <div class="input-wrap"><label class="input-label">Válido hasta</label><input class="input" type="date"></div>
+        </div>
+        <div class="input-wrap"><label class="input-label">Descripción</label><textarea class="input" placeholder="Descripción pública del cupón..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-coupon')">Cancelar</button><button class="btn btn-gold" onclick="closeModal('modal-coupon');showToast('Cupón creado','El cupón fue creado y está activo.')">Crear cupón</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-visibility">
+  <div class="modal">
+    <div class="modal-header"><div><div class="modal-title">Período de visibilidad</div><div style="font-size:.73rem;color:var(--text3);margin-top:.15rem">Configurar cobro de publicación para acompañantes</div></div><button class="modal-close" onclick="closeModal('modal-visibility')">✕</button></div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:.9rem">
+        <div class="form-grid">
+          <div class="input-wrap"><label class="input-label">Nombre del plan</label><input class="input" placeholder="Ej: Perfil destacado mensual"></div>
+          <div class="input-wrap"><label class="input-label">Tipo de período</label><select class="input"><option>Semanal</option><option>Quincenal</option><option>Mensual</option><option>Trimestral</option></select></div>
+          <div class="input-wrap"><label class="input-label">Precio</label><input class="input" type="number" placeholder="$9.990"></div>
+          <div class="input-wrap"><label class="input-label">Nivel de visibilidad</label><select class="input"><option>Básica (gratuita)</option><option>Estándar</option><option>Destacada (+20% clicks)</option><option>Premium (top 3)</option></select></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.6rem">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:.8rem;color:var(--text2)">Perfil básico gratuito</span><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:.8rem;color:var(--text2)">Período de prueba gratis (7 días)</span><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:.8rem;color:var(--text2)">Renovación automática</span><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-visibility')">Cancelar</button><button class="btn btn-gold" onclick="closeModal('modal-visibility');showToast('Plan creado','El plan de visibilidad fue configurado.')">Guardar plan</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-promo-ai">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-header"><div><div class="modal-title">Crear promoción automática</div><div style="font-size:.73rem;color:var(--text3);margin-top:.15rem">El agente personalizará el envío según el comportamiento</div></div><button class="modal-close" onclick="closeModal('modal-promo-ai')">✕</button></div>
+    <div class="modal-body">
+      <div id="modal-promo-content" style="display:flex;flex-direction:column;gap:.9rem">
+        <div style="background:var(--bg3);border:1px solid var(--gold-border);border-radius:var(--r);padding:.9rem;font-size:.78rem;color:var(--text2);line-height:1.6;margin-bottom:.5rem" id="promo-ai-suggestion"></div>
+        <div class="form-grid">
+          <div class="input-wrap"><label class="input-label">Código generado</label><input class="input" id="promo-ai-code" style="font-family:var(--serif);letter-spacing:.1em;text-transform:uppercase"></div>
+          <div class="input-wrap"><label class="input-label">Tipo de descuento</label><select class="input"><option>% del fee</option><option>Monto fijo</option><option>Fee gratis</option></select></div>
+          <div class="input-wrap"><label class="input-label">Valor</label><input class="input" type="number" id="promo-ai-value"></div>
+          <div class="input-wrap"><label class="input-label">Válido (horas)</label><input class="input" type="number" value="24"></div>
+        </div>
+        <div class="input-wrap"><label class="input-label">Segmento objetivo</label><select class="input" id="promo-ai-segment"><option>Usuarios con solicitud incompleta</option><option>Usuarios que vieron 3+ perfiles sin solicitar</option><option>Clientes sin actividad 7+ días</option><option>Acompañantes sin postulación 14+ días</option><option>Todos los usuarios</option></select></div>
+        <div style="background:rgba(74,153,102,.08);border:1px solid rgba(74,153,102,.2);border-radius:var(--r);padding:.75rem 1rem;font-size:.72rem;color:#4a9;line-height:1.5" id="promo-ai-estimate">Alcance estimado: <strong>47 usuarios</strong> · Tasa de conversión esperada: <strong>18-25%</strong></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-promo-ai')">Cancelar</button><button class="btn btn-gold" onclick="closeModal('modal-promo-ai');showToast('Promoción activada','El agente comenzará a enviar la promoción al segmento objetivo.')">Activar promoción</button></div>
+  </div>
+</div>
+
+<!-- ══════════════════════
+     PAGE: LOGIN ADMIN
+══════════════════════ -->
+<div id="page-login" class="page active" style="flex-direction:column">
+  <div class="login-box">
+    <div style="position:relative;z-index:1">
+      <div class="login-logo">Acompañía</div>
+      <div class="login-subtitle">Panel de Administración · Acceso restringido</div>
+      <div class="login-form">
+        <div class="input-wrap"><label class="input-label">Email de administrador</label><input class="input" type="email" placeholder="admin@acompania.com" value="admin@acompania.com"></div>
+        <div class="input-wrap"><label class="input-label">Contraseña</label><input class="input" type="password" placeholder="••••••••" value="admin123"></div>
+        <button class="btn btn-gold" style="width:100%;padding:.75rem" onclick="handleAdminLogin()">Ingresar al panel</button>
+        <div class="login-warning">🔒 Este panel es exclusivo para administradores. Los accesos son auditados. Si no eres administrador, <a href="acompania-app.html" style="color:var(--gold)">accede aquí</a>.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════
+     ADMIN SHELL
+══════════════════════ -->
+<div id="admin-shell" style="display:none" class="admin-shell">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="admin-sidebar">
+    <div class="sidebar-logo-area">
+      <div style="font-family:var(--serif);font-size:.95rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase">Acompañía</div>
+      <div style="font-size:.62rem;color:var(--text3);margin-top:.2rem;letter-spacing:.06em">PANEL ADMINISTRATIVO</div>
+    </div>
+
+    <div class="sidebar-section-label">Visión general</div>
+    <button class="sidebar-item active" onclick="goTo('dashboard',this)">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+      Dashboard
+    </button>
+
+    <div class="sidebar-section-label">Usuarios</div>
+    <button class="sidebar-item" onclick="goTo('users',this)">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.5"/></svg>
+      Usuarios
+      <span class="sidebar-badge sidebar-badge-red">12</span>
+    </button>
+    <button class="sidebar-item" onclick="goTo('moderation',this)">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="1.5"/></svg>
+      Reportes y mod.
+      <span class="sidebar-badge sidebar-badge-red">4</span>
+    </button>
+
+    <div class="sidebar-section-label">Catálogo</div>
+    <button class="sidebar-item" onclick="goTo('services',this)">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" stroke-width="1.5"/></svg>
+      Servicios
+    </button>
+    <button class="sidebar-item" onclick="goTo('locations',this)">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
+      Ubicaciones
+    </button>
+
+    <div class="sidebar-section-label">💳 Módulo de Pagos</div>
+    <button class="sidebar-item" onclick="goTo('pricing',this)">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Reglas comerciales
+    </button>
+    <button class="sidebar-item" onclick="goTo('visibility',this)">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/></svg>
+      Visibilidad perfiles
+    </button>
+    <button class="sidebar-item" onclick="goTo('coupons',this)">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" stroke="currentColor" stroke-width="1.5"/><line x1="7" y1="7" x2="7.01" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Cupones y promos
+    </button>
+
+    <div class="sidebar-section-label">📊 Facturación</div>
+    <button class="sidebar-item" onclick="goTo('billing',this)">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="10" x2="23" y2="10" stroke="currentColor" stroke-width="1.5"/></svg>
+      Transacciones
+    </button>
+    <button class="sidebar-item" onclick="goTo('revenue',this)">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Ingresos plataforma
+    </button>
+
+    <div class="sidebar-section-label">🤖 Agente IA</div>
+    <button class="sidebar-item" onclick="goTo('agent',this)">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M8 12h4l3-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>
+      Comportamiento
+      <span class="sidebar-badge">Live</span>
+    </button>
+
+    <div class="sidebar-section-label">Sistema</div>
+    <button class="sidebar-item" onclick="goTo('settings',this)">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="1.5"/></svg>
+      Configuración
+    </button>
+    <button class="sidebar-item" onclick="logout()">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="1.5"/><polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="1.5"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="1.5"/></svg>
+      Cerrar sesión
+    </button>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main" id="admin-main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-logo">Acompañía <span class="topbar-logo-badge">Admin</span></div>
+      <div class="topbar-right">
+        <div style="font-size:.68rem;color:var(--text4);letter-spacing:.04em">Panel exclusivo · No compartir URL</div>
+        <div class="topbar-user"><div class="topbar-avatar">AD</div><span>Administrador</span></div>
+      </div>
+    </div>
+
+    <!-- ── SECTION: DASHBOARD ── -->
+    <div id="sec-dashboard" class="content" style="display:block">
+      <div class="page-header"><div class="section-eyebrow">Visión general</div><div class="section-title">Dashboard <em>operacional</em></div></div>
+      <div class="grid-4" style="margin-bottom:2rem">
+        <div class="stat-card"><div class="stat-label">Usuarios totales</div><div class="stat-value">3.847</div><div class="stat-sub stat-up">↑ 12% mes</div></div>
+        <div class="stat-card"><div class="stat-label">Acompañantes activas</div><div class="stat-value">284</div><div class="stat-sub">Disponibles ahora</div></div>
+        <div class="stat-card"><div class="stat-label">Solicitudes hoy</div><div class="stat-value">47</div><div class="stat-sub stat-up">↑ 8% vs ayer</div></div>
+        <div class="stat-card"><div class="stat-label">Ingresos MTD</div><div class="stat-value">$2.4M</div><div class="stat-sub stat-up">↑ 23%</div></div>
+      </div>
+      <div class="grid-4" style="margin-bottom:2rem">
+        <div class="stat-card"><div class="stat-label">Citas confirmadas</div><div class="stat-value">1.204</div><div class="stat-sub">Este mes</div></div>
+        <div class="stat-card"><div class="stat-label">Tasa de conversión</div><div class="stat-value">34%</div><div class="stat-sub stat-up">↑ 4pp</div></div>
+        <div class="stat-card"><div class="stat-label">Abandonos hoy</div><div class="stat-value">18</div><div class="stat-sub stat-warn">⚠ Alto</div></div>
+        <div class="stat-card"><div class="stat-label">Cupones usados</div><div class="stat-value">142</div><div class="stat-sub">Valor: $284k</div></div>
+      </div>
+      <div class="grid-2">
+        <div><div class="form-section-title" style="margin-bottom:.9rem">Pendientes de aprobación</div>
+          <div class="table-wrap"><table><thead><tr><th>Usuario</th><th>Tipo</th><th>Hace</th><th>Acción</th></tr></thead><tbody>
+            <tr><td><div class="flex-gap"><div class="avatar avatar-sm">NP</div>Natalia P.</div></td><td><span class="badge badge-gold">Acompañante</span></td><td style="color:var(--text3)">2h</td><td><div style="display:flex;gap:.35rem"><button class="btn btn-gold btn-xs" onclick="showToast('Aprobada','Perfil aprobado.')">Aprobar</button><button class="btn btn-danger btn-xs">Rechazar</button></div></td></tr>
+            <tr><td><div class="flex-gap"><div class="avatar avatar-sm">MF</div>Marcela F.</div></td><td><span class="badge badge-gold">Acompañante</span></td><td style="color:var(--text3)">5h</td><td><div style="display:flex;gap:.35rem"><button class="btn btn-gold btn-xs" onclick="showToast('Aprobada','Perfil aprobado.')">Aprobar</button><button class="btn btn-danger btn-xs">Rechazar</button></div></td></tr>
+          </tbody></table></div>
+        </div>
+        <div><div class="form-section-title" style="margin-bottom:.9rem">Reportes abiertos</div>
+          <div class="card" style="padding:.85rem;margin-bottom:.55rem"><div class="flex-between" style="margin-bottom:.3rem"><span style="font-size:.82rem;color:var(--text)">Foto inapropiada</span><span class="badge badge-red">Abierto</span></div><div style="font-size:.72rem;color:var(--text3)">Perfil de acompañante · Revisión requerida</div><button class="btn btn-outline btn-xs" style="margin-top:.55rem">Revisar</button></div>
+          <div class="card" style="padding:.85rem"><div class="flex-between" style="margin-bottom:.3rem"><span style="font-size:.82rem;color:var(--text)">Comportamiento inapropiado</span><span class="badge badge-red">Abierto</span></div><div style="font-size:.72rem;color:var(--text3)">Cliente · Requiere revisión</div><button class="btn btn-outline btn-xs" style="margin-top:.55rem">Revisar</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION: USERS ── -->
+    <div id="sec-users" class="content" style="display:none">
+      <div class="page-header flex-between"><div><div class="section-eyebrow">Gestión</div><div class="section-title">Usuarios <em>registrados</em></div></div><div style="display:flex;gap:.65rem"><input class="input" placeholder="Buscar..." style="width:200px"><select class="input" style="width:150px"><option>Todos</option><option>Clientes</option><option>Acompañantes</option></select></div></div>
+      <div class="tabs"><button class="tab active">Todos (3.847)</button><button class="tab">Pendientes (12)</button><button class="tab">Suspendidos (3)</button><button class="tab">Bloqueados (1)</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Usuario</th><th>Rol</th><th>Estado</th><th>Verificación</th><th>Citas</th><th>Registro</th><th>Acciones</th></tr></thead><tbody>
+        <tr><td><div class="flex-gap"><div class="avatar avatar-sm">VM</div><div><div style="font-size:.82rem;color:var(--text)">Valentina Morales</div><div style="font-size:.67rem;color:var(--text3)">valentina@email.com</div></div></div></td><td><span class="badge badge-gold">Acompañante</span></td><td><span class="badge badge-green">Activa</span></td><td><span class="badge badge-green">Verificada</span></td><td style="color:var(--text2)">48</td><td style="color:var(--text3);font-size:.73rem">12 Mar 2025</td><td><div style="display:flex;gap:.3rem"><button class="btn btn-ghost btn-xs">Ver</button><button class="btn btn-ghost btn-xs">Suspender</button></div></td></tr>
+        <tr><td><div class="flex-gap"><div class="avatar avatar-sm">CL</div><div><div style="font-size:.82rem;color:var(--text)">Carlos López</div><div style="font-size:.67rem;color:var(--text3)">carlos@email.com</div></div></div></td><td><span class="badge badge-gray">Cliente</span></td><td><span class="badge badge-green">Activo</span></td><td><span class="badge badge-green">Verificado</span></td><td style="color:var(--text2)">12</td><td style="color:var(--text3);font-size:.73rem">1 Feb 2025</td><td><div style="display:flex;gap:.3rem"><button class="btn btn-ghost btn-xs">Ver</button><button class="btn btn-ghost btn-xs">Suspender</button></div></td></tr>
+        <tr><td><div class="flex-gap"><div class="avatar avatar-sm">NP</div><div><div style="font-size:.82rem;color:var(--text)">Natalia P.</div><div style="font-size:.67rem;color:var(--text3)">natalia@email.com</div></div></div></td><td><span class="badge badge-gold">Acompañante</span></td><td><span class="badge badge-warn">Pendiente</span></td><td><span class="badge badge-gray">Sin verificar</span></td><td style="color:var(--text2)">0</td><td style="color:var(--text3);font-size:.73rem">Hoy</td><td><div style="display:flex;gap:.3rem"><button class="btn btn-gold btn-xs" onclick="showToast('Aprobada','Perfil de Natalia aprobado.')">Aprobar</button><button class="btn btn-danger btn-xs">Rechazar</button></div></td></tr>
+      </tbody></table></div>
+    </div>
+
+    <!-- ── SECTION: SERVICES ── -->
+    <div id="sec-services" class="content" style="display:none">
+      <div class="page-header flex-between"><div><div class="section-eyebrow">Catálogo</div><div class="section-title">Servicios <em>disponibles</em></div></div><button class="btn btn-gold" onclick="showToast('Servicio creado','El nuevo servicio fue añadido al catálogo.')">+ Nuevo servicio</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Servicio</th><th>Categoría</th><th>Estado</th><th>Fee especial</th><th>Cobro extra</th><th>Rev. especial</th><th>Acciones</th></tr></thead><tbody>
+        <tr><td style="color:var(--text)">Cenas y restaurantes</td><td><span class="badge badge-gray">Social</span></td><td><span class="badge badge-green">Activo</span></td><td style="color:var(--text3)">—</td><td style="color:var(--text3)">No</td><td style="color:var(--text3)">No</td><td><button class="btn btn-ghost btn-xs">Editar</button></td></tr>
+        <tr><td style="color:var(--text)">Eventos sociales</td><td><span class="badge badge-gray">Social</span></td><td><span class="badge badge-green">Activo</span></td><td style="color:var(--text3)">—</td><td style="color:var(--text3)">No</td><td style="color:var(--text3)">No</td><td><button class="btn btn-ghost btn-xs">Editar</button></td></tr>
+        <tr><td style="color:var(--text)">Galas y premiaciones</td><td><span class="badge badge-gray">Formal</span></td><td><span class="badge badge-green">Activo</span></td><td><span class="badge badge-gold">+$2.500</span></td><td style="color:var(--success)">Sí</td><td style="color:var(--text3)">No</td><td><button class="btn btn-ghost btn-xs">Editar</button></td></tr>
+        <tr><td style="color:var(--text)">Viajes (día completo)</td><td><span class="badge badge-gray">Viajes</span></td><td><span class="badge badge-green">Activo</span></td><td><span class="badge badge-gold">+8%</span></td><td style="color:var(--success)">Sí</td><td><span class="badge badge-warn">Sí</span></td><td><button class="btn btn-ghost btn-xs">Editar</button></td></tr>
+        <tr><td style="color:var(--text)">Cenas de negocios</td><td><span class="badge badge-gray">Negocios</span></td><td><span class="badge badge-green">Activo</span></td><td style="color:var(--text3)">—</td><td style="color:var(--text3)">No</td><td style="color:var(--text3)">No</td><td><button class="btn btn-ghost btn-xs">Editar</button></td></tr>
+      </tbody></table></div>
+    </div>
+
+    <!-- ── SECTION: PRICING / REGLAS COMERCIALES ── -->
+    <div id="sec-pricing" class="content" style="display:none">
+      <div class="page-header flex-between"><div><div class="section-eyebrow">Módulo de Pagos</div><div class="section-title">Reglas <em>comerciales</em></div></div><button class="btn btn-gold" onclick="openModal('modal-rule')">+ Nueva regla</button></div>
+      <div style="background:rgba(74,153,102,.07);border:1px solid rgba(74,153,102,.2);border-radius:var(--r);padding:.8rem 1rem;margin-bottom:1.5rem;font-size:.76rem;color:#4a9;display:flex;align-items:center;gap:.5rem"><svg width="14" height="14" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" stroke-width="2"/></svg>Módulo de pagos en modo <strong>preparación</strong>. Las reglas quedan guardadas y se activarán al habilitar el módulo en Configuración.</div>
+      <div class="tabs"><button class="tab active">Todas las reglas</button><button class="tab">Fees cliente</button><button class="tab">Fees acompañante</button><button class="tab">Cobros por acción</button></div>
+
+      <div class="rule-card">
+        <div class="rule-card-header"><div class="rule-card-name">Fee de servicio — Cliente</div><span class="badge badge-green">Activa</span></div>
+        <div class="rule-card-meta"><span>Tipo: Fee de servicio cliente</span><span>Cobro: 5% del valor base</span><span>Aplica a: Todos los servicios</span><span>Zona: Todas</span></div>
+        <div class="rule-card-actions"><button class="btn btn-ghost btn-xs">Editar</button><button class="btn btn-danger btn-xs">Desactivar</button></div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-card-header"><div class="rule-card-name">Comisión por confirmación — Acompañante</div><span class="badge badge-green">Activa</span></div>
+        <div class="rule-card-meta"><span>Tipo: Comisión por confirmación</span><span>Cobro: 10% del valor base</span><span>Aplica a: Acompañante</span><span>Zona: Todas</span></div>
+        <div class="rule-card-actions"><button class="btn btn-ghost btn-xs">Editar</button><button class="btn btn-danger btn-xs">Desactivar</button></div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-card-header"><div class="rule-card-name">Cobro por publicación de solicitud</div><span class="badge badge-gray">Inactiva</span></div>
+        <div class="rule-card-meta"><span>Tipo: Cobro por publicación</span><span>Cobro: $1.000 fijo</span><span>Aplica a: Cliente</span><span>Servicio: Todos</span></div>
+        <div class="rule-card-actions"><button class="btn btn-ghost btn-xs">Editar</button><button class="btn btn-gold btn-xs" onclick="showToast('Regla activada','La regla fue activada.')">Activar</button></div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-card-header"><div class="rule-card-name">Cobro por postulación</div><span class="badge badge-gray">Inactiva</span></div>
+        <div class="rule-card-meta"><span>Tipo: Cobro por postulación</span><span>Cobro: $500 fijo</span><span>Aplica a: Acompañante</span><span>Primeras 3 del mes: gratis</span></div>
+        <div class="rule-card-actions"><button class="btn btn-ghost btn-xs">Editar</button><button class="btn btn-gold btn-xs" onclick="showToast('Regla activada','La regla fue activada.')">Activar</button></div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-card-header"><div class="rule-card-name">Recargo zona premium</div><span class="badge badge-green">Activa</span></div>
+        <div class="rule-card-meta"><span>Tipo: Recargo por zona</span><span>Cobro: +5% adicional</span><span>Zona: Vitacura, Las Condes</span><span>Aplica a: Cliente</span></div>
+        <div class="rule-card-actions"><button class="btn btn-ghost btn-xs">Editar</button><button class="btn btn-danger btn-xs">Desactivar</button></div>
+      </div>
+    </div>
+
+    <!-- ── SECTION: VISIBILIDAD PERFILES ── -->
+    <div id="sec-visibility" class="content" style="display:none">
+      <div class="page-header flex-between"><div><div class="section-eyebrow">Módulo de Pagos</div><div class="section-title">Visibilidad de <em>perfiles</em></div></div><button class="btn btn-gold" onclick="openModal('modal-visibility')">+ Nuevo plan</button></div>
+      <div style="margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r-lg)">
+        <div><div style="font-size:.84rem;font-weight:500;color:var(--text);margin-bottom:.2rem">Perfil básico — Gratuito para acompañantes</div><div style="font-size:.73rem;color:var(--text3)">Los perfiles básicos son siempre gratuitos y visibles en la plataforma</div></div>
+        <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div class="grid-3">
+        <div class="card" style="padding:1.25rem">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem"><div><div style="font-weight:500;color:var(--text);margin-bottom:.2rem">Plan Básico</div><div class="badge badge-green" style="margin-top:.2rem">Gratuito</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+          <div style="font-size:.75rem;color:var(--text3);line-height:1.6;margin-bottom:.85rem">Perfil visible en grilla general. Sin prioridad de listado.</div>
+          <div style="font-family:var(--serif);font-size:1.4rem;color:var(--text)">$0<span style="font-size:.75rem;font-family:var(--sans);color:var(--text3)">/mes</span></div>
+        </div>
+        <div class="card" style="padding:1.25rem;border-color:var(--gold-border2)">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem"><div><div style="font-weight:500;color:var(--text);margin-bottom:.2rem">Plan Estándar</div><span class="badge badge-gold">Pago</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+          <div style="font-size:.75rem;color:var(--text3);line-height:1.6;margin-bottom:.85rem">Perfil con mayor visibilidad. Aparece antes en búsquedas. +20% impresiones.</div>
+          <div style="font-family:var(--serif);font-size:1.4rem;color:var(--gold)">$9.990<span style="font-size:.75rem;font-family:var(--sans);color:var(--text3)">/mes</span></div>
+          <button class="btn btn-ghost btn-xs" style="margin-top:.75rem">Editar</button>
+        </div>
+        <div class="card" style="padding:1.25rem">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem"><div><div style="font-weight:500;color:var(--text);margin-bottom:.2rem">Plan Premium</div><span class="badge badge-gold">Pago</span></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+          <div style="font-size:.75rem;color:var(--text3);line-height:1.6;margin-bottom:.85rem">Top 3 en búsquedas. Badge Premium. Estadísticas avanzadas de perfil.</div>
+          <div style="font-family:var(--serif);font-size:1.4rem;color:var(--gold)">$24.990<span style="font-size:.75rem;font-family:var(--sans);color:var(--text3)">/mes</span></div>
+          <button class="btn btn-ghost btn-xs" style="margin-top:.75rem">Editar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION: COUPONS ── -->
+    <div id="sec-coupons" class="content" style="display:none">
+      <div class="page-header flex-between"><div><div class="section-eyebrow">Módulo de Pagos</div><div class="section-title">Cupones y <em>promociones</em></div></div><div style="display:flex;gap:.65rem"><button class="btn btn-outline" onclick="openModal('modal-coupon')">+ Nuevo cupón</button><button class="btn btn-gold" onclick="openModal('modal-coupon')">+ Promoción automática</button></div></div>
+      <div class="tabs"><button class="tab active">Cupones activos</button><button class="tab">Promociones auto.</button><button class="tab">Historial</button></div>
+      <div class="coupon-card">
+        <div class="coupon-code">GOLD10</div>
+        <div class="coupon-info"><div class="coupon-name">Descuento Gold 10%</div><div class="coupon-meta"><span>10% del fee de servicio</span><span>Cliente</span><span>Todos los servicios</span><span>Usos: 142 / 500</span><span>Vence: 30 Jun 2025</span></div></div>
+        <div style="text-align:right"><span class="badge badge-green" style="margin-bottom:.35rem;display:block">Activo</span><div class="coupon-actions"><button class="btn btn-ghost btn-xs">Editar</button><button class="btn btn-danger btn-xs">Desactivar</button></div></div>
+      </div>
+      <div class="coupon-card">
+        <div class="coupon-code">BIENVENIDA</div>
+        <div class="coupon-info"><div class="coupon-name">Primera solicitud sin fee</div><div class="coupon-meta"><span>Fee 100% gratis</span><span>Cliente nuevo</span><span>1 uso por usuario</span><span>Usos: 892 / ∞</span><span>Vence: 31 Dic 2025</span></div></div>
+        <div style="text-align:right"><span class="badge badge-green" style="margin-bottom:.35rem;display:block">Activo</span><div class="coupon-actions"><button class="btn btn-ghost btn-xs">Editar</button></div></div>
+      </div>
+      <div class="coupon-card">
+        <div class="coupon-code">RETOMA20</div>
+        <div class="coupon-info"><div class="coupon-name">Retoma tu solicitud — 20% off</div><div class="coupon-meta"><span>20% del fee</span><span>Segmento: solicitud abandonada</span><span>Usos: 47 / 200</span><span>Auto-generado por agente</span></div></div>
+        <div style="text-align:right"><span class="badge badge-info" style="margin-bottom:.35rem;display:block">Agente IA</span><div class="coupon-actions"><button class="btn btn-ghost btn-xs">Ver stats</button></div></div>
+      </div>
+    </div>
+
+    <!-- ── SECTION: BILLING ── -->
+    <div id="sec-billing" class="content" style="display:none">
+      <div class="page-header"><div class="section-eyebrow">Facturación</div><div class="section-title">Transacciones <em>registradas</em></div></div>
+      <div class="grid-4" style="margin-bottom:1.75rem">
+        <div class="stat-card"><div class="stat-label">Total facturado</div><div class="stat-value">$2.4M</div><div class="stat-sub stat-up">↑ 23% vs mes ant.</div></div>
+        <div class="stat-card"><div class="stat-label">Fees cobrados</div><div class="stat-value">$284k</div><div class="stat-sub">5% promedio</div></div>
+        <div class="stat-card"><div class="stat-label">Comisiones</div><div class="stat-value">$420k</div><div class="stat-sub">10% promedio</div></div>
+        <div class="stat-card"><div class="stat-label">Reembolsos</div><div class="stat-value">$18k</div><div class="stat-sub stat-down">↑ 2 casos</div></div>
+      </div>
+      <div class="tabs"><button class="tab active">Todas</button><button class="tab">Pagadas</button><button class="tab">Pendientes</button><button class="tab">Reembolsadas</button></div>
+      <div class="table-wrap"><table><thead><tr><th>ID</th><th>Fecha</th><th>Cliente</th><th>Acompañante</th><th>Base</th><th>Fee cli.</th><th>Comis. acomp.</th><th>Total plataforma</th><th>Estado</th><th>Acción</th></tr></thead><tbody>
+        <tr><td style="font-family:var(--serif);color:var(--gold)">#TX-2025-1204</td><td style="color:var(--text3);font-size:.73rem">24 May 2025</td><td><div class="flex-gap"><div class="avatar avatar-sm" style="width:24px;height:24px;font-size:.6rem">CL</div>Carlos L.</div></td><td><div class="flex-gap"><div class="avatar avatar-sm" style="width:24px;height:24px;font-size:.6rem">VM</div>Valentina M.</div></td><td style="color:var(--text)">$75.000</td><td style="color:var(--gold3)">$3.750</td><td style="color:var(--gold3)">$7.500</td><td style="color:var(--gold);font-family:var(--serif)">$11.250</td><td><span class="badge badge-green">Pagada</span></td><td><button class="btn btn-ghost btn-xs">Ver</button></td></tr>
+        <tr><td style="font-family:var(--serif);color:var(--gold)">#TX-2025-1203</td><td style="color:var(--text3);font-size:.73rem">21 May 2025</td><td><div class="flex-gap"><div class="avatar avatar-sm" style="width:24px;height:24px;font-size:.6rem">RM</div>Rafael M.</div></td><td><div class="flex-gap"><div class="avatar avatar-sm" style="width:24px;height:24px;font-size:.6rem">SC</div>Sofía C.</div></td><td style="color:var(--text)">$60.000</td><td style="color:var(--gold3)">$3.000</td><td style="color:var(--gold3)">$6.000</td><td style="color:var(--gold);font-family:var(--serif)">$9.000</td><td><span class="badge badge-green">Pagada</span></td><td><button class="btn btn-ghost btn-xs">Ver</button></td></tr>
+        <tr><td style="font-family:var(--serif);color:var(--gold)">#TX-2025-1202</td><td style="color:var(--text3);font-size:.73rem">19 May 2025</td><td><div class="flex-gap"><div class="avatar avatar-sm" style="width:24px;height:24px;font-size:.6rem">PV</div>Paula V.</div></td><td><div class="flex-gap"><div class="avatar avatar-sm" style="width:24px;height:24px;font-size:.6rem">LR</div>Luciana R.</div></td><td style="color:var(--text)">$140.000</td><td style="color:var(--gold3)">$7.000</td><td style="color:var(--gold3)">$14.000</td><td style="color:var(--gold);font-family:var(--serif)">$21.000</td><td><span class="badge badge-warn">Pendiente</span></td><td><div style="display:flex;gap:.3rem"><button class="btn btn-ghost btn-xs">Ver</button><button class="btn btn-danger btn-xs">Reembolsar</button></div></td></tr>
+      </tbody></table></div>
+    </div>
+
+    <!-- ── SECTION: REVENUE ── -->
+    <div id="sec-revenue" class="content" style="display:none">
+      <div class="page-header"><div class="section-eyebrow">Facturación</div><div class="section-title">Ingresos de <em>plataforma</em></div></div>
+      <div class="grid-4" style="margin-bottom:1.75rem">
+        <div class="stat-card"><div class="stat-label">Fees de servicio</div><div class="stat-value">$284k</div><div class="stat-sub stat-up">↑ 18%</div></div>
+        <div class="stat-card"><div class="stat-label">Comisiones</div><div class="stat-value">$420k</div><div class="stat-sub stat-up">↑ 12%</div></div>
+        <div class="stat-card"><div class="stat-label">Suscripciones</div><div class="stat-value">$89k</div><div class="stat-sub stat-up">↑ 34%</div></div>
+        <div class="stat-card"><div class="stat-label">Total neto</div><div class="stat-value">$793k</div><div class="stat-sub stat-up">↑ 23%</div></div>
+      </div>
+      <div class="card" style="padding:1.25rem;margin-bottom:1.25rem">
+        <div class="form-section-title" style="margin-bottom:1rem">Balance por tipo de ingreso — Mayo 2025</div>
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+          <div style="display:flex;align-items:center;gap:.75rem"><span style="font-size:.75rem;color:var(--text3);min-width:160px">Fees de servicio (cliente)</span><div style="flex:1;height:8px;background:var(--bg4);border-radius:4px;overflow:hidden"><div style="width:36%;height:100%;background:var(--gold);border-radius:4px"></div></div><span style="font-size:.75rem;color:var(--text2);min-width:60px;text-align:right">$284k</span></div>
+          <div style="display:flex;align-items:center;gap:.75rem"><span style="font-size:.75rem;color:var(--text3);min-width:160px">Comisiones (acompañante)</span><div style="flex:1;height:8px;background:var(--bg4);border-radius:4px;overflow:hidden"><div style="width:53%;height:100%;background:var(--gold3);border-radius:4px"></div></div><span style="font-size:.75rem;color:var(--text2);min-width:60px;text-align:right">$420k</span></div>
+          <div style="display:flex;align-items:center;gap:.75rem"><span style="font-size:.75rem;color:var(--text3);min-width:160px">Planes visibilidad</span><div style="flex:1;height:8px;background:var(--bg4);border-radius:4px;overflow:hidden"><div style="width:11%;height:100%;background:var(--gold4);border-radius:4px"></div></div><span style="font-size:.75rem;color:var(--text2);min-width:60px;text-align:right">$89k</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION: AGENT IA ── -->
+    <div id="sec-agent" class="content" style="display:none">
+      <div class="agent-header">
+        <div class="agent-title">Agente de <em>comportamiento</em></div>
+        <div style="font-size:.78rem;color:var(--text3);margin-bottom:.75rem">Monitorea el comportamiento de usuarios en tiempo real para sugerir y activar promociones personalizadas</div>
+        <div class="agent-status"><div class="agent-dot"></div>Analizando · <span id="agent-event-count">0</span> eventos en sesión actual</div>
+      </div>
+
+      <div class="grid-2" style="align-items:start">
+        <div>
+          <div class="form-section-title" style="margin-bottom:1rem">Insights y oportunidades</div>
+          <div class="insight-card" id="insight-1">
+            <div class="insight-header">
+              <div><div class="insight-type">Abandono de solicitud</div><div class="insight-title">18 usuarios dejaron solicitudes incompletas hoy</div></div>
+              <span class="badge badge-red">Alto impacto</span>
+            </div>
+            <div class="insight-desc">Usuarios que iniciaron el formulario de solicitud pero no lo completaron en las últimas 12 horas. El abandono ocurre principalmente en el paso de precio/presupuesto.</div>
+            <div class="insight-users">
+              <div class="insight-user-chip"><div class="insight-chip-dot"></div>Carlos L.</div>
+              <div class="insight-user-chip"><div class="insight-chip-dot"></div>Rafael M.</div>
+              <div class="insight-user-chip"><div class="insight-chip-dot"></div>Pedro A.</div>
+              <div class="insight-user-chip" style="color:var(--text3)">+15 más</div>
+            </div>
+            <div class="insight-action-row">
+              <button class="btn btn-gold btn-sm" onclick="openPromoModal('abandon','Usuarios con solicitud incompleta','RETOMA20','20','47')">Crear promoción</button>
+              <button class="btn btn-ghost btn-sm">Ver usuarios</button>
+              <span style="font-size:.68rem;color:var(--text4);margin-left:.5rem">Conversión esperada: 18–25%</span>
+            </div>
+          </div>
+          <div class="insight-card">
+            <div class="insight-header">
+              <div><div class="insight-type">Exploración sin acción</div><div class="insight-title">34 clientes vieron 3+ perfiles sin solicitar</div></div>
+              <span class="badge badge-warn">Medio impacto</span>
+            </div>
+            <div class="insight-desc">Clientes activos revisando perfiles pero sin convertir. Patrón típico de indecisión o barrera de precio. Mayor concentración en segmento de servicio "VIP y Viajes".</div>
+            <div class="insight-users">
+              <div class="insight-user-chip"><div class="insight-chip-dot" style="background:var(--warn)"></div>Ana P.</div>
+              <div class="insight-user-chip"><div class="insight-chip-dot" style="background:var(--warn)"></div>Luis R.</div>
+              <div class="insight-user-chip" style="color:var(--text3)">+32 más</div>
+            </div>
+            <div class="insight-action-row">
+              <button class="btn btn-gold btn-sm" onclick="openPromoModal('browse','Usuarios que vieron 3+ perfiles sin solicitar','EXPLORA15','15','34')">Crear promoción</button>
+              <button class="btn btn-ghost btn-sm">Ver usuarios</button>
+              <span style="font-size:.68rem;color:var(--text4);margin-left:.5rem">Conversión esperada: 12–18%</span>
+            </div>
+          </div>
+          <div class="insight-card">
+            <div class="insight-header">
+              <div><div class="insight-type">Inactividad prolongada</div><div class="insight-title">67 clientes sin actividad en 7+ días</div></div>
+              <span class="badge badge-gray">Bajo impacto</span>
+            </div>
+            <div class="insight-desc">Clientes registrados sin actividad reciente. Podrían reactivarse con un incentivo personalizado.</div>
+            <div class="insight-action-row">
+              <button class="btn btn-gold btn-sm" onclick="openPromoModal('inactive','Clientes sin actividad 7+ días','VUELVE10','10','67')">Crear promoción</button>
+              <button class="btn btn-ghost btn-sm">Ver usuarios</button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="form-section-title" style="margin-bottom:1rem">Eventos de comportamiento en vivo</div>
+          <div style="background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r-lg);padding:1rem;max-height:320px;overflow-y:auto" id="events-feed">
+            <!-- populated by JS -->
+          </div>
+          <div style="margin-top:1.25rem">
+            <div class="form-section-title" style="margin-bottom:.75rem">Promociones activas por el agente</div>
+            <div class="coupon-card" style="margin-bottom:.5rem">
+              <div class="coupon-code" style="font-size:1rem">RETOMA20</div>
+              <div class="coupon-info"><div class="coupon-name">Solicitud abandonada — 20% off</div><div class="coupon-meta"><span>Enviado: 47 usuarios</span><span>Conversiones: 9</span><span style="color:var(--success)">19% CTR</span></div></div>
+              <span class="badge badge-info">En curso</span>
+            </div>
+            <div class="coupon-card">
+              <div class="coupon-code" style="font-size:1rem">BIENVENIDA</div>
+              <div class="coupon-info"><div class="coupon-name">Bienvenida — fee gratis</div><div class="coupon-meta"><span>Enviado: 892 usuarios</span><span>Conversiones: 312</span><span style="color:var(--success)">35% CTR</span></div></div>
+              <span class="badge badge-green">Activo</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION: SETTINGS ── -->
+    <div id="sec-settings" class="content" style="display:none">
+      <div class="page-header"><div class="section-eyebrow">Configuración</div><div class="section-title">Parámetros <em>globales</em></div></div>
+      <div class="grid-2" style="align-items:start">
+        <div>
+          <div class="form-section-title" style="margin-bottom:1rem">Plataforma</div>
+          <div style="display:flex;flex-direction:column;gap:.9rem">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:.65rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)"><div><div style="font-size:.82rem;color:var(--text)">Módulo de pagos activo</div><div style="font-size:.7rem;color:var(--text3)">Habilita cobros reales en la plataforma</div></div><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:.65rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)"><div><div style="font-size:.82rem;color:var(--text)">Cupones activos</div><div style="font-size:.7rem;color:var(--text3)">Permite uso de cupones de descuento</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:.65rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)"><div><div style="font-size:.82rem;color:var(--text)">Agente de comportamiento</div><div style="font-size:.7rem;color:var(--text3)">IA analiza eventos para sugerir promociones</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:.65rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)"><div><div style="font-size:.82rem;color:var(--text)">Aprobación manual de acompañantes</div><div style="font-size:.7rem;color:var(--text3)">Requiere revisión antes de publicar perfil</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:.65rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)"><div><div style="font-size:.82rem;color:var(--text)">Verificación de identidad obligatoria</div><div style="font-size:.7rem;color:var(--text3)">Acompañantes deben verificar identidad</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+          </div>
+        </div>
+        <div>
+          <div class="form-section-title" style="margin-bottom:1rem">Pasarelas de pago</div>
+          <div style="display:flex;flex-direction:column;gap:.65rem">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)"><div class="flex-gap"><div style="font-size:.84rem;color:var(--text)">Transbank / Webpay</div></div><div style="display:flex;align-items:center;gap:.65rem"><span class="badge badge-warn">Configurar</span><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)"><div class="flex-gap"><div style="font-size:.84rem;color:var(--text)">Mercado Pago</div></div><div style="display:flex;align-items:center;gap:.65rem"><span class="badge badge-warn">Configurar</span><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)"><div class="flex-gap"><div style="font-size:.84rem;color:var(--text)">Stripe</div></div><div style="display:flex;align-items:center;gap:.65rem"><span class="badge badge-warn">Configurar</span><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)"><div class="flex-gap"><div style="font-size:.84rem;color:var(--text)">PayPal</div></div><div style="display:flex;align-items:center;gap:.65rem"><span class="badge badge-warn">Configurar</span><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div></div>
+          </div>
+          <div style="margin-top:1.25rem;padding:.85rem 1rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)">
+            <div style="font-size:.8rem;font-weight:500;color:var(--text);margin-bottom:.5rem">Datos actuales de configuración</div>
+            <div class="price-line"><span class="price-line-label">Fee de servicio (cliente)</span><span class="price-line-value">5%</span></div>
+            <div class="price-line"><span class="price-line-label">Comisión plataforma (acompañante)</span><span class="price-line-value">10%</span></div>
+            <div class="price-line"><span class="price-line-label">Edad mínima</span><span class="price-line-value">18 años</span></div>
+            <div class="price-line" style="border:none"><span class="price-line-label">Modo de pagos</span><span class="badge badge-warn">Preparación (MVP)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION: MODERATION ── -->
+    <div id="sec-moderation" class="content" style="display:none">
+      <div class="page-header"><div class="section-eyebrow">Seguridad</div><div class="section-title">Reportes y <em>moderación</em></div></div>
+      <div class="tabs"><button class="tab active">Abiertos (4)</button><button class="tab">En revisión</button><button class="tab">Resueltos</button></div>
+      <div class="table-wrap"><table><thead><tr><th>ID</th><th>Tipo</th><th>Descripción</th><th>Reportado</th><th>Estado</th><th>Acción</th></tr></thead><tbody>
+        <tr><td style="font-family:var(--serif);color:var(--gold)">#RPT-041</td><td><span class="badge badge-warn">Foto</span></td><td style="font-size:.76rem;color:var(--text2)">Foto inapropiada en perfil de acompañante</td><td style="color:var(--text3);font-size:.73rem">Hoy, 14:23</td><td><span class="badge badge-red">Abierto</span></td><td><div style="display:flex;gap:.3rem"><button class="btn btn-gold btn-xs" onclick="showToast('Contenido ocultado','El perfil fue ocultado temporalmente.')">Ocultar</button><button class="btn btn-ghost btn-xs">Ver</button></div></td></tr>
+        <tr><td style="font-family:var(--serif);color:var(--gold)">#RPT-040</td><td><span class="badge badge-red">Usuario</span></td><td style="font-size:.76rem;color:var(--text2)">Comportamiento inapropiado reportado por acompañante</td><td style="color:var(--text3);font-size:.73rem">Ayer, 20:11</td><td><span class="badge badge-red">Abierto</span></td><td><div style="display:flex;gap:.3rem"><button class="btn btn-danger btn-xs" onclick="showToast('Usuario suspendido','El usuario fue suspendido temporalmente.')">Suspender</button><button class="btn btn-ghost btn-xs">Ver</button></div></td></tr>
+      </tbody></table></div>
+    </div>
+
+    <!-- ── SECTION: LOCATIONS ── -->
+    <div id="sec-locations" class="content" style="display:none">
+      <div class="page-header flex-between"><div><div class="section-eyebrow">Catálogo</div><div class="section-title">Zonas y <em>ubicaciones</em></div></div><button class="btn btn-gold" onclick="showToast('Zona creada','La nueva zona fue añadida al sistema.')">+ Nueva zona</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Zona / Comuna</th><th>Ciudad</th><th>Estado</th><th>Acompañantes</th><th>Recargo</th><th>Acción</th></tr></thead><tbody>
+        <tr><td style="color:var(--text)">Las Condes</td><td style="color:var(--text3)">Santiago</td><td><span class="badge badge-green">Activa</span></td><td style="color:var(--text2)">64</td><td><span class="badge badge-gold">+5%</span></td><td><button class="btn btn-ghost btn-xs">Editar</button></td></tr>
+        <tr><td style="color:var(--text)">Providencia</td><td style="color:var(--text3)">Santiago</td><td><span class="badge badge-green">Activa</span></td><td style="color:var(--text2)">48</td><td style="color:var(--text3)">—</td><td><button class="btn btn-ghost btn-xs">Editar</button></td></tr>
+        <tr><td style="color:var(--text)">Vitacura</td><td style="color:var(--text3)">Santiago</td><td><span class="badge badge-green">Activa</span></td><td style="color:var(--text2)">38</td><td><span class="badge badge-gold">+5%</span></td><td><button class="btn btn-ghost btn-xs">Editar</button></td></tr>
+        <tr><td style="color:var(--text)">Ñuñoa</td><td style="color:var(--text3)">Santiago</td><td><span class="badge badge-green">Activa</span></td><td style="color:var(--text2)">22</td><td style="color:var(--text3)">—</td><td><button class="btn btn-ghost btn-xs">Editar</button></td></tr>
+      </tbody></table></div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /admin-shell -->
+
+<script>
+// ── AUTH ──
+function handleAdminLogin() {
+  document.getElementById('page-login').style.display = 'none';
+  document.getElementById('admin-shell').style.display = 'flex';
+  goTo('dashboard', document.querySelector('.sidebar-item'));
+  startAgentSimulation();
+}
+function logout() {
+  document.getElementById('admin-shell').style.display = 'none';
+  document.getElementById('page-login').style.display = 'flex';
+}
+
+// ── NAVIGATION ──
+const SECTIONS = ['dashboard','users','services','pricing','visibility','coupons','billing','revenue','agent','settings','moderation','locations'];
+function goTo(name, btn) {
+  SECTIONS.forEach(s => {
+    const el = document.getElementById('sec-' + s);
+    if (el) el.style.display = 'none';
+  });
+  const target = document.getElementById('sec-' + name);
+  if (target) target.style.display = 'block';
+  document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── MODAL ──
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ── TOAST ──
+function showToast(title, msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3500);
+}
+
+// ── OPEN PROMO MODAL ──
+function openPromoModal(type, segment, code, pct, users) {
+  const suggestions = {
+    abandon: `El agente detectó ${users} usuarios que iniciaron una solicitud pero no la completaron. Se recomienda un cupón de ${pct}% de descuento en el fee de servicio con validez de 24 horas para incentivar la conversión. Segmento de alto valor: estos usuarios ya mostraron intención de compra.`,
+    browse: `Se identificaron ${users} clientes que revisaron múltiples perfiles sin crear solicitud. Un cupón de ${pct}% elimina la fricción del precio. Tasa de conversión esperada 12-18% basada en comportamiento histórico similar.`,
+    inactive: `${users} clientes sin actividad en 7+ días. Un incentivo de ${pct}% los reactiva antes de que abandonen la plataforma definitivamente. Retención más eficiente que adquisición de nuevos usuarios.`,
+  };
+  document.getElementById('promo-ai-suggestion').textContent = suggestions[type] || suggestions.abandon;
+  document.getElementById('promo-ai-code').value = code;
+  document.getElementById('promo-ai-value').value = pct;
+  document.getElementById('promo-ai-segment').value = segment;
+  const estimates = {abandon:'47', browse:'34', inactive:'67'};
+  document.getElementById('promo-ai-estimate').innerHTML = `Alcance estimado: <strong>${estimates[type]||users} usuarios</strong> · Tasa de conversión esperada: <strong>18-25%</strong>`;
+  openModal('modal-promo-ai');
+}
+
+// ── AGENT SIMULATION ──
+const EVENT_TYPES = [
+  {type:'abandon',icon:'⚠',label:'Solicitud abandonada — paso presupuesto',user:'Carlos L.',cls:'abandon'},
+  {type:'convert',icon:'✓',label:'Solicitud completada — cena Las Condes',user:'Rafael M.',cls:'convert'},
+  {type:'browse',icon:'👁',label:'Revisó 3 perfiles sin solicitar',user:'Ana P.',cls:'browse'},
+  {type:'browse',icon:'👁',label:'Visitó perfil VIP por 4ta vez',user:'Luis R.',cls:'browse'},
+  {type:'abandon',icon:'⚠',label:'Salió del formulario — paso servicios',user:'Pedro A.',cls:'abandon'},
+  {type:'convert',icon:'✓',label:'Cita confirmada — gala Vitacura',user:'Paula V.',cls:'convert'},
+  {type:'browse',icon:'👁',label:'Revisó 5 perfiles en 12 minutos',user:'María J.',cls:'browse'},
+  {type:'abandon',icon:'⚠',label:'Abandonó en precio por hora',user:'Roberto C.',cls:'abandon'},
+];
+
+let eventCount = 0;
+function startAgentSimulation() {
+  const feed = document.getElementById('events-feed');
+  const counter = document.getElementById('agent-event-count');
+  if (!feed) return;
+
+  // Read real events from sessionStorage (from app)
+  let realEvents = [];
+  try {
+    const raw = sessionStorage.getItem('aco_events');
+    if (raw) realEvents = JSON.parse(raw);
+  } catch(e){}
+
+  // Prepopulate with some events
+  EVENT_TYPES.slice(0,4).forEach(e => addEventToFeed(feed, e));
+  eventCount = 4 + realEvents.length;
+  if(counter) counter.textContent = eventCount;
+
+  // Simulate live events
+  const interval = setInterval(() => {
+    const e = EVENT_TYPES[Math.floor(Math.random()*EVENT_TYPES.length)];
+    addEventToFeed(feed, e);
+    eventCount++;
+    if(counter) counter.textContent = eventCount;
+    // auto-scroll
+    feed.scrollTop = feed.scrollHeight;
+  }, 4500);
+}
+
+function addEventToFeed(feed, e) {
+  const now = new Date();
+  const time = now.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const div = document.createElement('div');
+  div.className = 'behavior-event ' + e.cls;
+  div.innerHTML = `<div class="event-icon">${e.icon}</div><div class="event-label">${e.label}</div><div style="text-align:right"><div class="event-user">${e.user}</div><div class="event-time">${time}</div></div>`;
+  feed.appendChild(div);
+  // Keep max 20 events
+  while (feed.children.length > 20) feed.removeChild(feed.firstChild);
+}
+</script>
+</body>
+</html>
