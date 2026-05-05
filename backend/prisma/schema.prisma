@@ -1,0 +1,194 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CLIENTE
+  ACOMPANANTE
+  ADMIN
+}
+
+enum RequestStatus {
+  OPEN
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum ApplicantStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum AppointmentStatus {
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum VerifStatus {
+  PENDING
+  PROCESSING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String?  @unique
+  phone         String?  @unique
+  passwordHash  String?
+  role          Role     @default(CLIENTE)
+  emailVerified Boolean  @default(false)
+  phoneVerified Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  profile      CompanionProfile?
+  requests     Request[]     @relation("ClientRequests")
+  appointments Appointment[] @relation("ClientAppointments")
+  reviews      Review[]      @relation("ClientReviews")
+
+  @@map("users")
+}
+
+model CompanionProfile {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName      String
+  bio              String?
+  pricePerHour     Int      @default(25000)
+  priceMin         Int?
+  location         String?
+  zones            String[]
+  tags             String[]
+  services         String[]
+  isActive         Boolean  @default(false)
+  isApproved       Boolean  @default(false)
+  identityVerified Boolean  @default(false)
+  rating           Float?
+  reviewCount      Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  photos       CompanionPhoto[]
+  availability CompanionAvailability[]
+  applicants   RequestApplicant[]
+  appointments Appointment[]  @relation("CompanionAppointments")
+  reviews      Review[]       @relation("CompanionReviews")
+
+  @@map("companion_profiles")
+}
+
+model CompanionPhoto {
+  id         String           @id @default(uuid())
+  profileId  String
+  profile    CompanionProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  url        String
+  isApproved Boolean          @default(false)
+  createdAt  DateTime         @default(now())
+
+  @@map("companion_photos")
+}
+
+model CompanionAvailability {
+  id         String           @id @default(uuid())
+  profileId  String
+  profile    CompanionProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  dayOfWeek  Int
+  slotStart  Int
+  slotEnd    Int
+
+  @@map("companion_availability")
+}
+
+model Request {
+  id          String        @id @default(uuid())
+  clientId    String
+  client      User          @relation("ClientRequests", fields: [clientId], references: [id])
+  title       String?
+  description String?
+  location    String?
+  date        DateTime
+  duration    Int
+  priceOffer  Int
+  coupon      String?
+  status      RequestStatus @default(OPEN)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  applicants  RequestApplicant[]
+  appointment Appointment?
+
+  @@map("requests")
+}
+
+model RequestApplicant {
+  id        String          @id @default(uuid())
+  requestId String
+  request   Request         @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  profileId String
+  profile   CompanionProfile @relation(fields: [profileId], references: [id])
+  message   String?
+  status    ApplicantStatus @default(PENDING)
+  createdAt DateTime        @default(now())
+
+  @@unique([requestId, profileId])
+  @@map("request_applicants")
+}
+
+model Appointment {
+  id          String            @id @default(uuid())
+  requestId   String            @unique
+  request     Request           @relation(fields: [requestId], references: [id])
+  clientId    String
+  client      User              @relation("ClientAppointments", fields: [clientId], references: [id])
+  profileId   String
+  profile     CompanionProfile  @relation("CompanionAppointments", fields: [profileId], references: [id])
+  date        DateTime
+  duration    Int
+  totalAmount Int
+  status      AppointmentStatus @default(CONFIRMED)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  review Review?
+
+  @@map("appointments")
+}
+
+model Review {
+  id            String      @id @default(uuid())
+  appointmentId String      @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  clientId      String
+  client        User        @relation("ClientReviews", fields: [clientId], references: [id])
+  profileId     String
+  profile       CompanionProfile @relation("CompanionReviews", fields: [profileId], references: [id])
+  rating        Int
+  text          String?
+  aspects       String[]
+  createdAt     DateTime    @default(now())
+
+  @@map("reviews")
+}
+
+model VerificationSession {
+  id        String      @id @default(uuid())
+  userId    String
+  sessionId String      @unique
+  status    VerifStatus @default(PENDING)
+  result    Json?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@map("verification_sessions")
+}
