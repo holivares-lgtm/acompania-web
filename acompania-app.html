@@ -403,25 +403,26 @@ tbody tr:last-child td{border-bottom:none}
     <div class="modal-header"><div><div class="modal-title">Confirmar selección</div></div><button class="modal-close" onclick="closeModal('modal-confirm')">✕</button></div>
     <div class="modal-body">
       <div class="flex-gap" style="margin-bottom:1.25rem">
-        <div class="avatar avatar-lg avatar-verified-ring">VM</div>
+        <div id="confirm-modal-avatar" class="avatar avatar-lg avatar-verified-ring" style="background-size:cover;background-position:center"></div>
         <div>
-          <div style="font-family:var(--serif);font-size:1.25rem;color:var(--text);display:flex;align-items:center;gap:.5rem">Valentina Morales <span class="badge-verified badge">✦ Verificada</span></div>
-          <div style="font-size:.73rem;color:var(--text3);margin-top:.15rem">Las Condes · Cenas, Eventos</div>
-          <div style="color:var(--gold);font-size:.73rem;margin-top:.25rem">★★★★★ 4.9 (48 citas)</div>
+          <div style="font-family:var(--serif);font-size:1.25rem;color:var(--text);display:flex;align-items:center;gap:.5rem"><span id="confirm-modal-name">—</span><span id="confirm-modal-verified"></span></div>
+          <div id="confirm-modal-meta" style="font-size:.73rem;color:var(--text3);margin-top:.15rem"></div>
+          <div id="confirm-modal-rating" style="color:var(--gold);font-size:.73rem;margin-top:.25rem"></div>
         </div>
       </div>
       <div style="background:var(--bg3);border:1px solid var(--gold-border2);border-radius:var(--r-lg);padding:1.25rem">
-        <div style="font-family:var(--serif);font-size:.95rem;color:var(--gold);margin-bottom:.8rem">Resumen de cobro</div>
-        <div class="price-line"><span class="price-line-label">Valor base (3 hrs × $25.000)</span><span class="price-line-value">$75.000</span></div>
-        <div class="price-line"><span class="price-line-label">Fee de servicio (5%)</span><span class="price-line-value">$3.750</span></div>
-        <div class="price-line"><span class="price-line-label">Descuento GOLD10</span><span style="color:var(--success);font-size:.8rem">−$3.750</span></div>
-        <div class="price-line"><span style="font-weight:500;color:var(--text);font-size:.8rem">Total</span><span class="price-total">$75.000</span></div>
+        <div id="confirm-modal-summary" style="font-size:.82rem;color:var(--text2);line-height:1.7"></div>
         <div style="margin-top:.75rem;font-size:.7rem;color:var(--text3);padding:.6rem;background:var(--bg4);border-radius:var(--r);border-left:2px solid var(--gold3)">Pagos habilitados en Etapa 2. Actualmente en modo gratuito.</div>
       </div>
     </div>
-    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-confirm')">Cancelar</button><button class="btn btn-gold" onclick="confirmApplicant()">Confirmar cita</button></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-confirm')">Cancelar</button>
+      <button class="btn btn-gold" id="confirm-modal-btn" onclick="confirmApplicant()">Confirmar cita</button>
+    </div>
   </div>
 </div>
+<input type="hidden" id="confirm-request-id">
+<input type="hidden" id="confirm-profile-id">
 
 <!-- Modal: request published -->
 <div class="modal-backdrop" id="modal-request-ok">
@@ -1487,6 +1488,7 @@ function doLogin(){
     buildCompanionGrid('home-companions',4);
     navigateTo('home');
     setTimeout(()=>showSmartPromo('welcome'),8000);
+    startNotifPolling();
   } else {
     document.getElementById('nav-companion').style.display='flex';
     document.getElementById('nav-avatar').textContent=initials;
@@ -1664,10 +1666,41 @@ function updatePP(){
 function openModal(id){document.getElementById(id).classList.add('open')}
 function closeModal(id){document.getElementById(id).classList.remove('open')}
 
-function confirmApplicant(){
-  closeModal('modal-confirm');
-  showToast('Cita confirmada','Valentina fue seleccionada. Ambas partes notificadas.');
-  setTimeout(()=>navigateTo('appointments'),900);
+function openConfirmModal(requestId, profileId, profile, request){
+  document.getElementById('confirm-request-id').value=requestId;
+  document.getElementById('confirm-profile-id').value=profileId;
+  const avEl=document.getElementById('confirm-modal-avatar');
+  if(profile.avatarUrl){avEl.style.backgroundImage=`url('${profile.avatarUrl}')`;avEl.textContent='';}
+  else{avEl.style.backgroundImage='';avEl.textContent=(profile.displayName||'?').slice(0,2).toUpperCase();}
+  document.getElementById('confirm-modal-name').textContent=profile.displayName||'—';
+  document.getElementById('confirm-modal-verified').innerHTML=profile.identityVerified?'<span class="badge-verified badge" style="font-size:.65rem">✦ Verificada</span>':'';
+  document.getElementById('confirm-modal-meta').textContent=[profile.location,( profile.services||[]).slice(0,3).join(', ')].filter(Boolean).join(' · ');
+  document.getElementById('confirm-modal-rating').textContent=profile.rating?`★ ${Number(profile.rating).toFixed(1)} · ${profile.reviewCount||0} reseñas`:'Sin calificaciones aún';
+  const total=(request.priceOffer||0)*request.duration;
+  document.getElementById('confirm-modal-summary').innerHTML=
+    `<div class="price-line"><span class="price-line-label">Duración</span><span class="price-line-value">${request.duration} hrs</span></div>`+
+    `<div class="price-line"><span class="price-line-label">Precio/hr ofrecido</span><span class="price-line-value">$${(request.priceOffer||0).toLocaleString('es-CL')}</span></div>`+
+    `<div class="price-line"><span style="font-weight:500;color:var(--text);font-size:.8rem">Total estimado</span><span class="price-total">$${total.toLocaleString('es-CL')}</span></div>`;
+  openModal('modal-confirm');
+}
+
+async function confirmApplicant(){
+  const requestId=document.getElementById('confirm-request-id').value;
+  const profileId=document.getElementById('confirm-profile-id').value;
+  if(!requestId||!profileId)return;
+  const btn=document.getElementById('confirm-modal-btn');
+  btn.disabled=true; btn.textContent='Confirmando…';
+  try{
+    await apiPost(`/api/requests/${requestId}/confirm/${profileId}`,{});
+    closeModal('modal-confirm');
+    showToast('¡Cita confirmada!','La acompañante fue notificada. Ambas partes tienen la confirmación.');
+    setTimeout(()=>{loadClientRequests();},400);
+    setTimeout(()=>navigateTo('appointments'),1800);
+  }catch(e){
+    showToast('Error al confirmar',e.message||'Inténtalo de nuevo.');
+  }finally{
+    btn.disabled=false; btn.textContent='Confirmar cita';
+  }
 }
 
 async function submitRequest(){
@@ -1744,24 +1777,85 @@ async function loadClientRequests(){
   el.innerHTML='<div style="color:var(--text3);font-size:.8rem;padding:1rem">Cargando…</div>';
   try{
     const data=await apiGet('/api/requests/mine');
-    if(!data.length){el.innerHTML='<div style="color:var(--text3);font-size:.85rem;padding:1.5rem 0">No tienes solicitudes aún.</div>';return;}
+    if(!data.length){
+      el.innerHTML='<div style="color:var(--text3);font-size:.85rem;padding:2rem 0;text-align:center">No tienes solicitudes aún.<br><br><button class="btn btn-gold btn-sm" onclick="navigateTo(\'create-request\')">Crear solicitud</button></div>';
+      return;
+    }
     const statusLabel={OPEN:'Abierta',CONFIRMED:'Confirmada',COMPLETED:'Completada',CANCELLED:'Cancelada'};
-    const statusBadge={OPEN:'badge-gold',CONFIRMED:'badge-green',COMPLETED:'badge',CANCELLED:'badge-danger'};
+    const statusBadge={OPEN:'badge-gold',CONFIRMED:'badge-green',COMPLETED:'badge-gray',CANCELLED:'badge-red'};
+
+    // notif: count requests with new applicants
+    const withApplicants=data.filter(r=>r.status==='OPEN'&&r.applicants?.length>0);
+    updateClientNotifBadge(withApplicants.length);
+
     el.innerHTML=data.map(r=>{
       const d=new Date(r.date);
-      return`<div class="request-card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem;margin-bottom:.75rem">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem">
+      const apps=r.applicants||[];
+      const newApps=apps.filter(a=>a.status==='PENDING');
+      const appsBadge=newApps.length?`<span class="badge badge-gold" style="animation:pulse 2s infinite">${newApps.length} postulante${newApps.length>1?'s':''}</span>`:'';
+
+      const applicantRows=apps.length?`
+        <div style="margin-top:1rem;border-top:1px solid var(--gold-border);padding-top:.9rem">
+          <div style="font-size:.72rem;font-weight:500;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.65rem">Postulantes (${apps.length})</div>
+          ${apps.map(a=>{
+            const p=a.profile||{};
+            const initials=(p.displayName||'?').slice(0,2).toUpperCase();
+            const photoUrl=p.photos?.[0]?.url||null;
+            return`<div class="applicant-row" style="margin-bottom:.6rem;padding:.7rem;background:var(--bg3);border-radius:var(--r);border:1px solid var(--gold-border)">
+              <div class="avatar avatar-sm ${a.status==='PENDING'?'avatar-verified-ring':''}" style="${photoUrl?`background:url('${photoUrl}') center/cover no-repeat`:''}">${photoUrl?'':initials}</div>
+              <div style="flex:1;margin-left:.65rem">
+                <div style="font-size:.83rem;color:var(--text);display:flex;align-items:center;gap:.35rem">
+                  ${p.displayName||'Acompañante'}
+                  ${p.identityVerified?'<span class="badge-verified badge" style="font-size:.52rem">✦</span>':''}
+                </div>
+                <div style="font-size:.7rem;color:var(--text3)">${p.location||''}${p.rating?` · ★ ${Number(p.rating).toFixed(1)}`:''}${p.pricePerHour?` · $${p.pricePerHour.toLocaleString('es-CL')}/hr`:''}</div>
+                ${a.message?`<div style="font-size:.72rem;color:var(--text2);margin-top:.25rem;font-style:italic">"${a.message}"</div>`:''}
+              </div>
+              <div style="display:flex;flex-direction:column;gap:.35rem;flex-shrink:0">
+                ${a.status==='PENDING'&&r.status==='OPEN'?
+                  `<button class="btn btn-gold btn-sm" onclick="openConfirmModal('${r.id}','${p.id}',${JSON.stringify(p).replace(/'/g,'&#39;')},${JSON.stringify({duration:r.duration,priceOffer:r.priceOffer})})">Seleccionar</button>`
+                  :`<span class="badge ${a.status==='ACCEPTED'?'badge-green':'badge-gray'}">${a.status==='ACCEPTED'?'Elegida':'Rechazada'}</span>`
+                }
+              </div>
+            </div>`;
+          }).join('')}
+        </div>`:
+        (r.status==='OPEN'?`<div style="margin-top:.75rem;font-size:.75rem;color:var(--text3)">Esperando postulantes…</div>`:'');
+
+      return`<div class="request-card" style="margin-bottom:.9rem">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:.4rem">
           <div>
             <div style="font-family:var(--serif);font-size:1rem;color:var(--text);margin-bottom:.3rem">${r.title||'Solicitud sin título'}</div>
-            <div style="font-size:.73rem;color:var(--text3)">📅 ${d.toLocaleDateString('es-CL')} · ${r.duration}h · $${(r.priceOffer||0).toLocaleString('es-CL')}/hr</div>
+            <div style="font-size:.73rem;color:var(--text3);display:flex;flex-wrap:wrap;gap:.5rem">
+              <span>📅 ${d.toLocaleDateString('es-CL',{weekday:'short',day:'numeric',month:'short'})}</span>
+              ${r.location?`<span>📍 ${r.location}</span>`:''}
+              <span>⏱ ${r.duration} hrs</span>
+              <span>💰 $${(r.priceOffer||0).toLocaleString('es-CL')}/hr</span>
+            </div>
           </div>
-          <span class="badge ${statusBadge[r.status]||'badge'}">${statusLabel[r.status]||r.status}</span>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.4rem;flex-shrink:0">
+            <span class="badge ${statusBadge[r.status]||'badge-gray'}">${statusLabel[r.status]||r.status}</span>
+            ${appsBadge}
+          </div>
         </div>
+        ${applicantRows}
+        ${r.status==='OPEN'?`<div style="margin-top:.75rem;padding-top:.6rem;border-top:1px solid var(--gold-border);display:flex;gap:.5rem">
+          <button class="btn btn-danger btn-sm" onclick="cancelRequest('${r.id}')">Cancelar solicitud</button>
+        </div>`:''}
       </div>`;
     }).join('');
   }catch(e){
     el.innerHTML='<div style="color:var(--danger);font-size:.8rem;padding:1rem">Error al cargar solicitudes.</div>';
   }
+}
+
+async function cancelRequest(requestId){
+  if(!confirm('¿Cancelar esta solicitud?'))return;
+  try{
+    await fetch(API_BASE+`/api/requests/${requestId}`,{method:'DELETE',headers:{Authorization:'Bearer '+authToken}});
+    showToast('Solicitud cancelada','La solicitud fue cerrada.');
+    loadClientRequests();
+  }catch(e){showToast('Error',e.message);}
 }
 
 async function loadCompanionProfile(){
@@ -2137,21 +2231,57 @@ function startNotifPolling(){
   notifPollInterval=setInterval(refreshNotifBadge,30000);
 }
 
+function updateClientNotifBadge(count){
+  setNotifBadge(count);
+}
+
+async function refreshNotifBadge(){
+  if(!authToken)return;
+  try{
+    if(currentRole==='acompanante'){
+      const reqs=await apiGet('/api/requests/open/for-me');
+      setNotifBadge(reqs.filter(r=>!r.alreadyApplied).length);
+    } else {
+      const reqs=await apiGet('/api/requests/mine');
+      const withNew=reqs.filter(r=>r.status==='OPEN'&&(r.applicants||[]).some(a=>a.status==='PENDING')).length;
+      setNotifBadge(withNew);
+    }
+  }catch{}
+}
+
 async function loadNotifications(){
   const body=document.getElementById('notif-panel-body');
   const hdr=document.getElementById('notif-header-count');
   if(!body||!authToken)return;
   try{
-    const reqs=await apiGet('/api/requests/open/for-me').catch(()=>[]);
-    const fresh=reqs.filter(r=>!r.alreadyApplied);
-    if(hdr)hdr.textContent=fresh.length?`${fresh.length} nueva${fresh.length>1?'s':''}` : '';
-    if(!fresh.length){body.innerHTML='<div style="padding:1.5rem;text-align:center;font-size:.8rem;color:var(--text3)">No hay notificaciones nuevas.</div>';return;}
-    body.innerHTML=fresh.slice(0,5).map(r=>`
-      <div class="notif-item" onclick="navigateTo('companion-requests');closeNotifPanel()" style="cursor:pointer">
-        <div class="notif-item-title">Nueva solicitud: ${r.title||'Compañía'}</div>
-        <div class="notif-item-desc">${fmtDate(r.date)}${r.location?' · '+r.location:''} · ${fmtPrice(r.priceOffer)}</div>
-        <div class="notif-item-time">${new Date(r.createdAt).toLocaleDateString('es-CL',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
-      </div>`).join('');
+    if(currentRole==='acompanante'){
+      const reqs=await apiGet('/api/requests/open/for-me').catch(()=>[]);
+      const fresh=reqs.filter(r=>!r.alreadyApplied);
+      if(hdr)hdr.textContent=fresh.length?`${fresh.length} nueva${fresh.length>1?'s':''}` : '';
+      if(!fresh.length){body.innerHTML='<div style="padding:1.5rem;text-align:center;font-size:.8rem;color:var(--text3)">No hay solicitudes nuevas.</div>';return;}
+      body.innerHTML=fresh.slice(0,5).map(r=>`
+        <div class="notif-item" onclick="navigateTo('companion-requests');closeNotifPanel()" style="cursor:pointer">
+          <div class="notif-item-title">Nueva solicitud: ${r.title||'Compañía'}</div>
+          <div class="notif-item-desc">${fmtDate(r.date)}${r.location?' · '+r.location:''} · ${fmtPrice(r.priceOffer)}</div>
+          <div class="notif-item-time">${new Date(r.createdAt).toLocaleDateString('es-CL',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+        </div>`).join('');
+    } else {
+      const reqs=await apiGet('/api/requests/mine').catch(()=>[]);
+      const withApps=reqs.filter(r=>r.status==='OPEN'&&(r.applicants||[]).some(a=>a.status==='PENDING'));
+      if(hdr)hdr.textContent=withApps.length?`${withApps.length} con postulantes` : '';
+      if(!withApps.length){
+        body.innerHTML='<div style="padding:1.5rem;text-align:center;font-size:.8rem;color:var(--text3)">Sin notificaciones nuevas.</div>';
+        return;
+      }
+      body.innerHTML=withApps.slice(0,5).map(r=>{
+        const n=(r.applicants||[]).filter(a=>a.status==='PENDING').length;
+        return`<div class="notif-item" onclick="navigateTo('client-requests');closeNotifPanel()" style="cursor:pointer">
+          <div class="notif-item-title">${n} postulante${n>1?'s':''}: ${r.title||'Solicitud'}</div>
+          <div class="notif-item-desc">📅 ${new Date(r.date).toLocaleDateString('es-CL',{day:'numeric',month:'short'})}${r.location?' · '+r.location:''}</div>
+          <div class="notif-item-time">Haz clic para ver y elegir →</div>
+        </div>`;
+      }).join('');
+    }
   }catch{body.innerHTML='<div style="padding:1.5rem;text-align:center;font-size:.8rem;color:var(--text3)">No se pudieron cargar.</div>';}
 }
 
