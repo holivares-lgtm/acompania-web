@@ -785,12 +785,14 @@ tbody tr:last-child td{border-bottom:none}
       <button class="nav-link" onclick="nav('explore',this)">Explorar</button>
       <button class="nav-link" onclick="nav('client-requests',this)">Mis solicitudes</button>
       <button class="nav-link" onclick="nav('appointments',this)">Citas</button>
+      <button class="nav-link" onclick="nav('messages',this)" style="position:relative">Mensajes<span id="msg-badge-client" style="display:none;position:absolute;top:-4px;right:-6px;background:var(--danger);color:#fff;font-size:.5rem;font-weight:700;min-width:15px;height:15px;border-radius:8px;align-items:center;justify-content:center;padding:0 2px">0</span></button>
     </div>
     <div class="nav-links" id="nav-companion" style="display:none">
       <button class="nav-link" onclick="nav('companion-dashboard',this)">Dashboard</button>
       <button class="nav-link" onclick="nav('companion-requests',this)">Solicitudes</button>
       <button class="nav-link" onclick="nav('appointments',this)">Citas</button>
       <button class="nav-link" onclick="nav('companion-profile',this)">Mi perfil</button>
+      <button class="nav-link" onclick="nav('messages',this)" style="position:relative">Mensajes<span id="msg-badge-companion" style="display:none;position:absolute;top:-4px;right:-6px;background:var(--danger);color:#fff;font-size:.5rem;font-weight:700;min-width:15px;height:15px;border-radius:8px;align-items:center;justify-content:center;padding:0 2px">0</span></button>
     </div>
     <div class="nav-actions">
       <button class="nav-notif" onclick="toggleNotif();loadNotifications()"><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="1.5"/></svg><div id="notif-badge" style="display:none;position:absolute;top:-3px;right:-3px;background:var(--danger);color:#fff;font-size:.5rem;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:none;align-items:center;justify-content:center;padding:0 3px;border:1.5px solid var(--bg)">0</div></button>
@@ -1121,6 +1123,31 @@ tbody tr:last-child td{border-bottom:none}
     </div>
   </div>
 
+  <!-- ── MESSAGES ── -->
+  <div id="page-messages" class="page">
+    <div class="page-container" style="max-width:900px;padding-top:1.5rem">
+      <div style="margin-bottom:1.5rem"><div class="section-eyebrow">Comunicación</div><div class="section-title">Mis <em>mensajes</em></div></div>
+      <div style="display:flex;gap:1rem;height:520px;min-height:0">
+        <!-- Conversation list -->
+        <div style="width:260px;flex-shrink:0;border:1px solid var(--gold-border);border-radius:var(--r);overflow-y:auto;background:var(--bg2)" id="conv-list">
+          <div style="padding:.75rem 1rem;border-bottom:1px solid var(--gold-border);font-size:.72rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)">Conversaciones</div>
+          <div id="conv-list-inner" style="color:var(--text3);font-size:.8rem;padding:1rem">Cargando…</div>
+        </div>
+        <!-- Chat panel -->
+        <div style="flex:1;display:flex;flex-direction:column;border:1px solid var(--gold-border);border-radius:var(--r);overflow:hidden;background:var(--bg2)" id="chat-panel">
+          <div id="chat-header" style="padding:.75rem 1rem;border-bottom:1px solid var(--gold-border);font-family:var(--serif);font-size:.95rem;color:var(--text)">Selecciona una conversación</div>
+          <div id="chat-thread" style="flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.5rem">
+            <div style="color:var(--text3);font-size:.8rem;text-align:center;margin-top:3rem">Selecciona una conversación para ver los mensajes</div>
+          </div>
+          <div id="chat-input-row" style="padding:.65rem .75rem;border-top:1px solid var(--gold-border);display:flex;gap:.5rem;display:none">
+            <input id="chat-input" type="text" class="form-input" placeholder="Escribe un mensaje…" style="flex:1;font-size:.83rem" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"/>
+            <button class="btn btn-gold btn-sm" onclick="sendMessage()">Enviar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ── COMPANION DASHBOARD ── -->
   <div id="page-companion-dashboard" class="page">
     <div class="sidebar-layout">
@@ -1136,6 +1163,7 @@ tbody tr:last-child td{border-bottom:none}
         <button class="sidebar-item active" onclick="navigateTo('companion-dashboard')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>Dashboard</button>
         <button class="sidebar-item" id="dash-sidebar-req-btn" onclick="navigateTo('companion-requests')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5"/></svg>Solicitudes</button>
         <button class="sidebar-item" onclick="navigateTo('appointments')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="1.5"/></svg>Mis citas</button>
+        <button class="sidebar-item" onclick="navigateTo('messages')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.5"/></svg>Mensajes</button>
         <div class="sidebar-section-label">Mi perfil</div>
         <button class="sidebar-item" onclick="navigateTo('companion-profile')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/></svg>Perfil público</button>
         <button class="sidebar-item" onclick="navigateTo('profile-settings')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="1.5"/></svg>Configuración</button>
@@ -1183,6 +1211,7 @@ tbody tr:last-child td{border-bottom:none}
         <button class="sidebar-item" onclick="navigateTo('companion-dashboard')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>Dashboard</button>
         <button class="sidebar-item active"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5"/></svg>Solicitudes</button>
         <button class="sidebar-item" onclick="navigateTo('appointments')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="1.5"/></svg>Citas</button>
+        <button class="sidebar-item" onclick="navigateTo('messages')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.5"/></svg>Mensajes</button>
         <button class="sidebar-item" onclick="navigateTo('companion-profile')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/></svg>Mi perfil</button>
       </nav>
       <div class="main-content">
@@ -1201,6 +1230,7 @@ tbody tr:last-child td{border-bottom:none}
         <button class="sidebar-item" onclick="navigateTo('companion-dashboard')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>Dashboard</button>
         <button class="sidebar-item" onclick="navigateTo('companion-requests')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5"/></svg>Solicitudes</button>
         <button class="sidebar-item active"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/></svg>Mi perfil</button>
+        <button class="sidebar-item" onclick="navigateTo('messages')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.5"/></svg>Mensajes</button>
         <button class="sidebar-item" onclick="navigateTo('profile-settings')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="1.5"/></svg>Configuración</button>
       </nav>
       <div class="main-content">
@@ -1398,6 +1428,7 @@ const PAGES={
   'profile-settings':'page-profile-settings',
   'companion-dashboard':'page-companion-dashboard','companion-requests':'page-companion-requests',
   'companion-profile':'page-companion-profile',
+  'messages':'page-messages',
 };
 
 function navigateTo(name){
@@ -1414,6 +1445,7 @@ function navigateTo(name){
   if(name==='companion-profile'){loadCompanionProfile();loadCompanionPhotos();}
   if(name==='companion-dashboard')loadCompanionDashboard();
   if(name==='companion-requests')loadCompanionRequests();
+  if(name==='messages')loadConversations();
 }
 
 function nav(page,btn){
@@ -1424,7 +1456,7 @@ function nav(page,btn){
 }
 
 function updateNavActive(name){
-  const map={home:0,explore:1,'client-requests':2,appointments:3,'create-request':2,'companion-detail':1,'my-profile':-1,'profile-settings':-1,'companion-dashboard':0,'companion-requests':1,'companion-profile':3};
+  const map={home:0,explore:1,'client-requests':2,appointments:3,messages:4,'create-request':2,'companion-detail':1,'my-profile':-1,'profile-settings':-1,'companion-dashboard':0,'companion-requests':1,'companion-profile':3,messages:4};
   const navId=currentRole==='cliente'?'nav-client':'nav-companion';
   const navEl=document.getElementById(navId);
   if(!navEl)return;
@@ -1752,7 +1784,7 @@ async function loadAppointments(){
           <div style="margin-top:.7rem;display:flex;gap:.5rem"><span class="badge ${statusMap[a.status]||'badge'}">${labelMap[a.status]||a.status}</span></div>
         </div>
         <div style="display:flex;flex-direction:column;gap:.45rem;flex-shrink:0">
-          ${a.status==='CONFIRMED'?`<button class="btn btn-gold btn-sm" onclick="openModal('modal-review')">Reseñar</button><button class="btn btn-danger btn-sm" onclick="cancelAppt('${a.id}')">Cancelar</button>`:''}
+          ${a.status==='CONFIRMED'?`<button class="btn btn-gold btn-sm" onclick="openChatWith('${currentRole==='acompanante'?a.clientId:(a.profile?.userId||'')}','${currentRole==='acompanante'?(a.client?.email||'Cliente'):(a.profile?.displayName||'Acompañante')}','${currentRole==='acompanante'?'':(a.profile?.avatarUrl||'')}')">💬 Chatear</button><button class="btn btn-outline btn-sm" onclick="openModal('modal-review')">Reseñar</button><button class="btn btn-danger btn-sm" onclick="cancelAppt('${a.id}')">Cancelar</button>`:''}
         </div>
       </div>`;
     }).join('');
@@ -1771,7 +1803,15 @@ async function cancelAppt(id){
   }
 }
 
+function openConfirmModalById(requestId, profileId){
+  const key=`${requestId}_${profileId}`;
+  const d=window._reqData&&window._reqData[key];
+  if(!d)return;
+  openConfirmModal(requestId, profileId, d.profile, d.request);
+}
+
 async function loadClientRequests(){
+  window._reqData=window._reqData||{};
   const el=document.getElementById('client-requests-list');
   if(!el||!authToken)return;
   el.innerHTML='<div style="color:var(--text3);font-size:.8rem;padding:1rem">Cargando…</div>';
@@ -1813,7 +1853,8 @@ async function loadClientRequests(){
               </div>
               <div style="display:flex;flex-direction:column;gap:.35rem;flex-shrink:0">
                 ${a.status==='PENDING'&&r.status==='OPEN'?
-                  `<button class="btn btn-gold btn-sm" onclick="openConfirmModal('${r.id}','${p.id}',${JSON.stringify(p).replace(/'/g,'&#39;')},${JSON.stringify({duration:r.duration,priceOffer:r.priceOffer})})">Seleccionar</button>`
+                  (window._reqData[`${r.id}_${p.id}`]={profile:p,request:{duration:r.duration,priceOffer:r.priceOffer,title:r.title}},'')+''+
+                  `<button class="btn btn-gold btn-sm" onclick="openConfirmModalById('${r.id}','${p.id}')">Seleccionar</button>`
                   :`<span class="badge ${a.status==='ACCEPTED'?'badge-green':'badge-gray'}">${a.status==='ACCEPTED'?'Elegida':'Rechazada'}</span>`
                 }
               </div>
@@ -1856,6 +1897,114 @@ async function cancelRequest(requestId){
     showToast('Solicitud cancelada','La solicitud fue cerrada.');
     loadClientRequests();
   }catch(e){showToast('Error',e.message);}
+}
+
+// ────────────────────────────
+//  MESSAGES / CHAT
+// ────────────────────────────
+let _activePartnerId=null;
+let _msgPollInterval=null;
+
+async function loadConversations(){
+  const el=document.getElementById('conv-list-inner');
+  if(!el||!authToken)return;
+  el.innerHTML='<div style="color:var(--text3);font-size:.8rem;padding:.75rem">Cargando…</div>';
+  try{
+    const convs=await apiGet('/api/messages/conversations');
+    if(!convs.length){
+      el.innerHTML='<div style="color:var(--text3);font-size:.8rem;padding:.75rem">Sin conversaciones aún.</div>';
+      return;
+    }
+    el.innerHTML=convs.map(c=>{
+      const initials=(c.partnerName||'?').slice(0,2).toUpperCase();
+      const unreadBadge=c.unread?`<span style="background:var(--danger);color:#fff;font-size:.55rem;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;padding:0 3px">${c.unread}</span>`:'';
+      return`<div class="conv-item" style="display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem;cursor:pointer;border-bottom:1px solid var(--gold-border);transition:background .15s" onclick="openThread('${c.partnerId}','${c.partnerName.replace(/'/g,'&#39;')}','${c.partnerAvatar||''}')" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">
+        <div class="avatar avatar-sm" style="${c.partnerAvatar?`background:url('${c.partnerAvatar}') center/cover no-repeat`:''}">${c.partnerAvatar?'':initials}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.82rem;color:var(--text);display:flex;justify-content:space-between;align-items:center">${c.partnerName||'—'} ${unreadBadge}</div>
+          <div style="font-size:.7rem;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px">${c.lastMessage||''}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    el.innerHTML='<div style="color:var(--danger);font-size:.78rem;padding:.75rem">Error al cargar.</div>';
+  }
+}
+
+async function openThread(partnerId, partnerName, partnerAvatar){
+  _activePartnerId=partnerId;
+  document.getElementById('chat-header').textContent=partnerName||'Conversación';
+  const inputRow=document.getElementById('chat-input-row');
+  if(inputRow)inputRow.style.display='flex';
+  await loadThread(partnerId);
+  // Start polling for new messages
+  clearInterval(_msgPollInterval);
+  _msgPollInterval=setInterval(()=>{
+    if(_activePartnerId===partnerId&&document.getElementById('page-messages')?.classList.contains('active'))
+      loadThread(partnerId,true);
+    else clearInterval(_msgPollInterval);
+  },5000);
+}
+
+async function loadThread(partnerId, silent=false){
+  const el=document.getElementById('chat-thread');
+  if(!el||!authToken)return;
+  if(!silent)el.innerHTML='<div style="color:var(--text3);font-size:.8rem;text-align:center;margin-top:3rem">Cargando…</div>';
+  try{
+    const msgs=await apiGet(`/api/messages/thread/${partnerId}`);
+    const myId=decodeJwt(authToken)?.sub;
+    if(!msgs.length){el.innerHTML='<div style="color:var(--text3);font-size:.8rem;text-align:center;margin-top:3rem">Sin mensajes aún. ¡Sé el primero en escribir!</div>';return;}
+    const wasAtBottom=el.scrollHeight-el.scrollTop-el.clientHeight<40;
+    el.innerHTML=msgs.map(m=>{
+      const mine=m.senderId===myId;
+      const t=new Date(m.createdAt).toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+      return`<div style="display:flex;justify-content:${mine?'flex-end':'flex-start'}">
+        <div style="max-width:70%;background:${mine?'var(--gold)':'var(--bg3)'};color:${mine?'var(--bg)':'var(--text)'};padding:.45rem .75rem;border-radius:${mine?'12px 12px 2px 12px':'12px 12px 12px 2px'};font-size:.82rem;word-break:break-word">
+          ${m.body}
+          <div style="font-size:.6rem;opacity:.65;margin-top:.2rem;text-align:right">${t}</div>
+        </div>
+      </div>`;
+    }).join('');
+    if(!silent||wasAtBottom)el.scrollTop=el.scrollHeight;
+    // refresh unread badge
+    refreshMsgBadge();
+  }catch(e){
+    if(!silent)el.innerHTML='<div style="color:var(--danger);font-size:.78rem;padding:1rem">Error al cargar mensajes.</div>';
+  }
+}
+
+async function sendMessage(){
+  const input=document.getElementById('chat-input');
+  const body=input?.value?.trim();
+  if(!body||!_activePartnerId)return;
+  input.value='';
+  try{
+    await apiPost(`/api/messages/thread/${_activePartnerId}`,{message:body});
+    await loadThread(_activePartnerId,true);
+    loadConversations();
+  }catch(e){
+    showToast('Error','No se pudo enviar el mensaje.');
+    input.value=body;
+  }
+}
+
+async function refreshMsgBadge(){
+  if(!authToken)return;
+  try{
+    const count=await apiGet('/api/messages/unread');
+    const n=typeof count==='number'?count:(count?.count||0);
+    ['msg-badge-client','msg-badge-companion'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(!el)return;
+      if(n>0){el.textContent=n;el.style.display='inline-flex';}
+      else{el.style.display='none';}
+    });
+  }catch(_){}
+}
+
+function openChatWith(partnerId, partnerName, partnerAvatar=''){
+  navigateTo('messages');
+  setTimeout(()=>openThread(partnerId, partnerName, partnerAvatar),100);
 }
 
 async function loadCompanionProfile(){
@@ -2228,7 +2377,8 @@ async function refreshNotifBadge(){
 function startNotifPolling(){
   if(notifPollInterval)clearInterval(notifPollInterval);
   refreshNotifBadge();
-  notifPollInterval=setInterval(refreshNotifBadge,30000);
+  refreshMsgBadge();
+  notifPollInterval=setInterval(()=>{refreshNotifBadge();refreshMsgBadge();},30000);
 }
 
 function updateClientNotifBadge(count){
