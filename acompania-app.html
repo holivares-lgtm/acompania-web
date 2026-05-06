@@ -1233,8 +1233,12 @@ tbody tr:last-child td{border-bottom:none}
         </div>
         <div id="cp-photos" style="display:none">
           <div class="form-section-title" style="margin-bottom:1rem">Fotos de perfil</div>
-          <div class="photo-grid" style="max-width:320px"><div class="photo-thumb" style="font-family:var(--serif);font-size:1.75rem;color:var(--gold)">VM</div><div class="photo-thumb"></div><div class="photo-thumb"></div><div class="photo-thumb add-photo">+</div></div>
-          <div style="font-size:.72rem;color:var(--text3);margin-top:.75rem">Máximo 6 fotos. Revisadas por el equipo antes de publicarse. Las fotos deben mostrar el rostro claramente.</div>
+          <input type="file" id="photo-file-input" accept="image/*" style="display:none" onchange="uploadCompanionPhoto(this)">
+          <div class="photo-grid" id="photo-grid" style="max-width:320px">
+            <div class="photo-thumb add-photo" onclick="document.getElementById('photo-file-input').click()" title="Agregar foto">+</div>
+          </div>
+          <div style="font-size:.72rem;color:var(--text3);margin-top:.75rem">Máximo 6 fotos. Revisadas por el equipo antes de publicarse.</div>
+          <div id="photo-upload-status" style="font-size:.75rem;margin-top:.5rem"></div>
         </div>
         <div id="cp-reviews" style="display:none">
           <div class="form-section-title" style="margin-bottom:1rem">Reseñas de clientes verificados</div>
@@ -1355,6 +1359,7 @@ function navigateTo(name){
   if(name==='appointments')loadAppointments();
   if(name==='client-requests')loadClientRequests();
   if(name==='my-profile')loadMyProfile();
+  if(name==='companion-profile')loadCompanionPhotos();
 }
 
 function nav(page,btn){
@@ -1688,6 +1693,45 @@ async function loadClientRequests(){
   }catch(e){
     el.innerHTML='<div style="color:var(--danger);font-size:.8rem;padding:1rem">Error al cargar solicitudes.</div>';
   }
+}
+
+async function loadCompanionPhotos(){
+  const grid=document.getElementById('photo-grid');
+  if(!grid||!authToken)return;
+  try{
+    const profile=await apiGet('/api/companions/me');
+    const photos=profile.photos||[];
+    const addBtn='<div class="photo-thumb add-photo" onclick="document.getElementById(\'photo-file-input\').click()" title="Agregar foto">+</div>';
+    if(!photos.length){grid.innerHTML=addBtn;return;}
+    grid.innerHTML=photos.map(p=>`<div class="photo-thumb" style="background:url('${p.url}') center/cover no-repeat;position:relative">
+      <span style="position:absolute;top:2px;right:4px;font-size:.6rem;background:rgba(0,0,0,.55);color:#fff;border-radius:3px;padding:1px 4px">${p.isApproved?'✓':'rev'}</span>
+    </div>`).join('')+addBtn;
+  }catch{}
+}
+
+async function uploadCompanionPhoto(input){
+  const file=input.files[0];
+  if(!file)return;
+  if(file.size>8*1024*1024){showToast('Archivo muy grande','Máximo 8MB por foto.');return;}
+  const status=document.getElementById('photo-upload-status');
+  if(status)status.textContent='Subiendo…';
+  const fd=new FormData();
+  fd.append('file',file);
+  try{
+    const r=await fetch(API_BASE+'/api/companions/me/photos/upload',{
+      method:'POST',
+      headers:{Authorization:'Bearer '+authToken},
+      body:fd,
+    });
+    if(!r.ok)throw new Error((await r.json().catch(()=>({}))).message||'Error');
+    if(status)status.textContent='';
+    showToast('Foto subida','Tu foto está en revisión y aparecerá pronto.');
+    await loadCompanionPhotos();
+  }catch(e){
+    if(status)status.textContent='';
+    showToast('Error al subir foto',e.message);
+  }
+  input.value='';
 }
 
 async function loadMyProfile(){
