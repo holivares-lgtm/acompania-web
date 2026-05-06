@@ -231,24 +231,24 @@ tbody tr:last-child td{border-bottom:none}
     <div class="modal-body">
       <div style="display:flex;flex-direction:column;gap:.9rem">
         <div class="form-grid">
-          <div class="input-wrap"><label class="input-label">Nombre</label><input class="input" placeholder="Ej: Fee publicación cliente"></div>
-          <div class="input-wrap"><label class="input-label">Tipo de regla</label><select class="input"><option>Fee de servicio cliente</option><option>Fee de servicio acompañante</option><option>Cobro por publicación</option><option>Cobro por postulación</option><option>Comisión por confirmación</option><option>Recargo por zona</option><option>Recargo por horario</option><option>Descuento automático</option></select></div>
-          <div class="input-wrap"><label class="input-label">Tipo de cobro</label><select class="input"><option>Porcentaje (%)</option><option>Monto fijo (CLP)</option><option>Mixto</option></select></div>
-          <div class="input-wrap"><label class="input-label">Valor</label><input class="input" type="number" placeholder="Ej: 5 (%) o 1000 (CLP)"></div>
-          <div class="input-wrap"><label class="input-label">Aplica a</label><select class="input"><option>Cliente</option><option>Acompañante</option><option>Ambos</option></select></div>
-          <div class="input-wrap"><label class="input-label">Moneda</label><select class="input"><option>CLP</option><option>USD</option></select></div>
+          <div class="input-wrap"><label class="input-label">Nombre</label><input class="input" id="rule-name" placeholder="Ej: Fee publicación cliente"></div>
+          <div class="input-wrap"><label class="input-label">Tipo de regla</label><select class="input" id="rule-type"><option>Fee de servicio cliente</option><option>Fee de servicio acompañante</option><option>Cobro por publicación</option><option>Cobro por postulación</option><option>Comisión por confirmación</option><option>Recargo por zona</option><option>Recargo por horario</option><option>Descuento automático</option></select></div>
+          <div class="input-wrap"><label class="input-label">Tipo de cobro</label><select class="input" id="rule-charge-type"><option value="pct">Porcentaje (%)</option><option value="fixed">Monto fijo (CLP)</option><option value="min">Mínimo (CLP)</option><option value="mixed">Mixto</option></select></div>
+          <div class="input-wrap"><label class="input-label">Valor</label><input class="input" id="rule-value" type="number" placeholder="Ej: 5 (%) o 1000 (CLP)"></div>
+          <div class="input-wrap"><label class="input-label">Monto mínimo cobro</label><input class="input" id="rule-min" type="number" placeholder="Ej: 500 (CLP, opcional)"></div>
+          <div class="input-wrap"><label class="input-label">Aplica a</label><select class="input" id="rule-applies"><option value="cliente">Cliente</option><option value="acompanante">Acompañante</option><option value="ambos">Ambos</option></select></div>
         </div>
         <div class="form-grid">
-          <div class="input-wrap"><label class="input-label">Servicio aplicable</label><select class="input"><option>Todos</option><option>Cenas</option><option>Eventos</option><option>VIP</option><option>Viajes</option></select></div>
-          <div class="input-wrap"><label class="input-label">Zona aplicable</label><select class="input"><option>Todas</option><option>Las Condes</option><option>Vitacura</option><option>Providencia</option></select></div>
-          <div class="input-wrap"><label class="input-label">Fecha inicio</label><input class="input" type="date"></div>
-          <div class="input-wrap"><label class="input-label">Fecha término</label><input class="input" type="date"></div>
+          <div class="input-wrap"><label class="input-label">Servicio aplicable</label><select class="input" id="rule-service"><option value="todos">Todos</option><option>Cenas</option><option>Eventos</option><option>VIP</option><option>Viajes</option></select></div>
+          <div class="input-wrap"><label class="input-label">Zona aplicable</label><select class="input" id="rule-zone"><option value="todas">Todas</option><option>Las Condes</option><option>Vitacura</option><option>Providencia</option></select></div>
+          <div class="input-wrap"><label class="input-label">Fecha inicio</label><input class="input" id="rule-from" type="date"></div>
+          <div class="input-wrap"><label class="input-label">Fecha término</label><input class="input" id="rule-to" type="date"></div>
         </div>
-        <div class="input-wrap"><label class="input-label">Descripción / condiciones</label><textarea class="input" placeholder="Condiciones de aplicación de esta regla..."></textarea></div>
-        <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:.78rem;color:var(--text2)">Activar inmediatamente</span><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+        <div class="input-wrap"><label class="input-label">Descripción / condiciones</label><textarea class="input" id="rule-desc" placeholder="Condiciones de aplicación de esta regla..."></textarea></div>
+        <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:.78rem;color:var(--text2)">Activar inmediatamente</span><label class="toggle"><input type="checkbox" id="rule-active" checked><span class="toggle-slider"></span></label></div>
       </div>
     </div>
-    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-rule')">Cancelar</button><button class="btn btn-gold" onclick="closeModal('modal-rule');showToast('Regla creada','La regla comercial fue guardada y activada.')">Guardar regla</button></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-rule')">Cancelar</button><button class="btn btn-gold" onclick="saveRule()">Guardar regla</button></div>
   </div>
 </div>
 
@@ -327,8 +327,8 @@ tbody tr:last-child td{border-bottom:none}
       <div class="login-logo">Acompañía</div>
       <div class="login-subtitle">Panel de Administración · Acceso restringido</div>
       <div class="login-form">
-        <div class="input-wrap"><label class="input-label">Email de administrador</label><input class="input" type="email" placeholder="admin@acompania.com" value="admin@acompania.com"></div>
-        <div class="input-wrap"><label class="input-label">Contraseña</label><input class="input" type="password" placeholder="••••••••" value="admin123"></div>
+        <div class="input-wrap"><label class="input-label">Contraseña de administrador</label><input class="input" type="password" id="admin-pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')handleAdminLogin()"></div>
+        <div id="login-error" style="display:none;color:var(--danger-red);font-size:.73rem;padding:.4rem .6rem;background:rgba(204,68,68,.08);border-radius:var(--r);border:1px solid rgba(204,68,68,.2)">Contraseña incorrecta. Intenta nuevamente.</div>
         <button class="btn btn-gold" style="width:100%;padding:.75rem" onclick="handleAdminLogin()">Ingresar al panel</button>
         <div class="login-warning">🔒 Este panel es exclusivo para administradores. Los accesos son auditados. Si no eres administrador, <a href="acompania-app.html" style="color:var(--gold)">accede aquí</a>.</div>
       </div>
@@ -432,24 +432,21 @@ tbody tr:last-child td{border-bottom:none}
     <!-- ── SECTION: DASHBOARD ── -->
     <div id="sec-dashboard" class="content" style="display:block">
       <div class="page-header"><div class="section-eyebrow">Visión general</div><div class="section-title">Dashboard <em>operacional</em></div></div>
-      <div class="grid-4" style="margin-bottom:2rem">
-        <div class="stat-card"><div class="stat-label">Usuarios totales</div><div class="stat-value">3.847</div><div class="stat-sub stat-up">↑ 12% mes</div></div>
-        <div class="stat-card"><div class="stat-label">Acompañantes activas</div><div class="stat-value">284</div><div class="stat-sub">Disponibles ahora</div></div>
-        <div class="stat-card"><div class="stat-label">Solicitudes hoy</div><div class="stat-value">47</div><div class="stat-sub stat-up">↑ 8% vs ayer</div></div>
-        <div class="stat-card"><div class="stat-label">Ingresos MTD</div><div class="stat-value">$2.4M</div><div class="stat-sub stat-up">↑ 23%</div></div>
+      <div class="grid-4" style="margin-bottom:2rem" id="dash-stats-row1">
+        <div class="stat-card"><div class="stat-label">Usuarios totales</div><div class="stat-value" id="stat-total-users">—</div><div class="stat-sub">Registrados</div></div>
+        <div class="stat-card"><div class="stat-label">Acompañantes activas</div><div class="stat-value" id="stat-active-companions">—</div><div class="stat-sub">Disponibles ahora</div></div>
+        <div class="stat-card"><div class="stat-label">Solicitudes hoy</div><div class="stat-value" id="stat-requests-today">—</div><div class="stat-sub">Creadas hoy</div></div>
+        <div class="stat-card"><div class="stat-label">Citas este mes</div><div class="stat-value" id="stat-appts-month">—</div><div class="stat-sub">Confirmadas</div></div>
       </div>
       <div class="grid-4" style="margin-bottom:2rem">
-        <div class="stat-card"><div class="stat-label">Citas confirmadas</div><div class="stat-value">1.204</div><div class="stat-sub">Este mes</div></div>
-        <div class="stat-card"><div class="stat-label">Tasa de conversión</div><div class="stat-value">34%</div><div class="stat-sub stat-up">↑ 4pp</div></div>
-        <div class="stat-card"><div class="stat-label">Abandonos hoy</div><div class="stat-value">18</div><div class="stat-sub stat-warn">⚠ Alto</div></div>
-        <div class="stat-card"><div class="stat-label">Cupones usados</div><div class="stat-value">142</div><div class="stat-sub">Valor: $284k</div></div>
+        <div class="stat-card"><div class="stat-label">Pendientes aprobación</div><div class="stat-value" id="stat-pending">—</div><div class="stat-sub stat-warn">Requieren revisión</div></div>
+        <div class="stat-card"><div class="stat-label">Acompañantes total</div><div class="stat-value" id="stat-total-companions">—</div><div class="stat-sub">Registradas</div></div>
+        <div class="stat-card"><div class="stat-label">Clientes total</div><div class="stat-value" id="stat-total-clients">—</div><div class="stat-sub">Registrados</div></div>
+        <div class="stat-card"><div class="stat-label">Usuarios suspendidos</div><div class="stat-value" id="stat-suspended">—</div><div class="stat-sub stat-down">Bloqueados</div></div>
       </div>
       <div class="grid-2">
         <div><div class="form-section-title" style="margin-bottom:.9rem">Pendientes de aprobación</div>
-          <div class="table-wrap"><table><thead><tr><th>Usuario</th><th>Tipo</th><th>Hace</th><th>Acción</th></tr></thead><tbody>
-            <tr><td><div class="flex-gap"><div class="avatar avatar-sm">NP</div>Natalia P.</div></td><td><span class="badge badge-gold">Acompañante</span></td><td style="color:var(--text3)">2h</td><td><div style="display:flex;gap:.35rem"><button class="btn btn-gold btn-xs" onclick="showToast('Aprobada','Perfil aprobado.')">Aprobar</button><button class="btn btn-danger btn-xs">Rechazar</button></div></td></tr>
-            <tr><td><div class="flex-gap"><div class="avatar avatar-sm">MF</div>Marcela F.</div></td><td><span class="badge badge-gold">Acompañante</span></td><td style="color:var(--text3)">5h</td><td><div style="display:flex;gap:.35rem"><button class="btn btn-gold btn-xs" onclick="showToast('Aprobada','Perfil aprobado.')">Aprobar</button><button class="btn btn-danger btn-xs">Rechazar</button></div></td></tr>
-          </tbody></table></div>
+          <div id="dash-pending-list"><div style="color:var(--text3);font-size:.8rem">Cargando…</div></div>
         </div>
         <div><div class="form-section-title" style="margin-bottom:.9rem">Reportes abiertos</div>
           <div class="card" style="padding:.85rem;margin-bottom:.55rem"><div class="flex-between" style="margin-bottom:.3rem"><span style="font-size:.82rem;color:var(--text)">Foto inapropiada</span><span class="badge badge-red">Abierto</span></div><div style="font-size:.72rem;color:var(--text3)">Perfil de acompañante · Revisión requerida</div><button class="btn btn-outline btn-xs" style="margin-top:.55rem">Revisar</button></div>
@@ -460,13 +457,26 @@ tbody tr:last-child td{border-bottom:none}
 
     <!-- ── SECTION: USERS ── -->
     <div id="sec-users" class="content" style="display:none">
-      <div class="page-header flex-between"><div><div class="section-eyebrow">Gestión</div><div class="section-title">Usuarios <em>registrados</em></div></div><div style="display:flex;gap:.65rem"><input class="input" placeholder="Buscar..." style="width:200px"><select class="input" style="width:150px"><option>Todos</option><option>Clientes</option><option>Acompañantes</option></select></div></div>
-      <div class="tabs"><button class="tab active">Todos (3.847)</button><button class="tab">Pendientes (12)</button><button class="tab">Suspendidos (3)</button><button class="tab">Bloqueados (1)</button></div>
-      <div class="table-wrap"><table><thead><tr><th>Usuario</th><th>Rol</th><th>Estado</th><th>Verificación</th><th>Citas</th><th>Registro</th><th>Acciones</th></tr></thead><tbody>
-        <tr><td><div class="flex-gap"><div class="avatar avatar-sm">VM</div><div><div style="font-size:.82rem;color:var(--text)">Valentina Morales</div><div style="font-size:.67rem;color:var(--text3)">valentina@email.com</div></div></div></td><td><span class="badge badge-gold">Acompañante</span></td><td><span class="badge badge-green">Activa</span></td><td><span class="badge badge-green">Verificada</span></td><td style="color:var(--text2)">48</td><td style="color:var(--text3);font-size:.73rem">12 Mar 2025</td><td><div style="display:flex;gap:.3rem"><button class="btn btn-ghost btn-xs">Ver</button><button class="btn btn-ghost btn-xs">Suspender</button></div></td></tr>
-        <tr><td><div class="flex-gap"><div class="avatar avatar-sm">CL</div><div><div style="font-size:.82rem;color:var(--text)">Carlos López</div><div style="font-size:.67rem;color:var(--text3)">carlos@email.com</div></div></div></td><td><span class="badge badge-gray">Cliente</span></td><td><span class="badge badge-green">Activo</span></td><td><span class="badge badge-green">Verificado</span></td><td style="color:var(--text2)">12</td><td style="color:var(--text3);font-size:.73rem">1 Feb 2025</td><td><div style="display:flex;gap:.3rem"><button class="btn btn-ghost btn-xs">Ver</button><button class="btn btn-ghost btn-xs">Suspender</button></div></td></tr>
-        <tr><td><div class="flex-gap"><div class="avatar avatar-sm">NP</div><div><div style="font-size:.82rem;color:var(--text)">Natalia P.</div><div style="font-size:.67rem;color:var(--text3)">natalia@email.com</div></div></div></td><td><span class="badge badge-gold">Acompañante</span></td><td><span class="badge badge-warn">Pendiente</span></td><td><span class="badge badge-gray">Sin verificar</span></td><td style="color:var(--text2)">0</td><td style="color:var(--text3);font-size:.73rem">Hoy</td><td><div style="display:flex;gap:.3rem"><button class="btn btn-gold btn-xs" onclick="showToast('Aprobada','Perfil de Natalia aprobado.')">Aprobar</button><button class="btn btn-danger btn-xs">Rechazar</button></div></td></tr>
-      </tbody></table></div>
+      <div class="page-header flex-between">
+        <div><div class="section-eyebrow">Gestión</div><div class="section-title">Usuarios <em>registrados</em></div></div>
+        <div style="display:flex;gap:.65rem">
+          <input class="input" id="user-search" placeholder="Buscar por email o nombre…" style="width:220px" oninput="filterUsers()">
+          <select class="input" id="user-role-filter" style="width:155px" onchange="loadAdminUsers()">
+            <option value="">Todos</option>
+            <option value="CLIENTE">Clientes</option>
+            <option value="ACOMPANANTE">Acompañantes</option>
+          </select>
+          <select class="input" id="user-status-filter" style="width:155px" onchange="loadAdminUsers()">
+            <option value="">Todos los estados</option>
+            <option value="active">Activos</option>
+            <option value="suspended">Suspendidos</option>
+            <option value="pending">Pendientes aprobación</option>
+          </select>
+        </div>
+      </div>
+      <div id="users-table-wrap">
+        <div style="color:var(--text3);font-size:.8rem;padding:2rem">Cargando usuarios…</div>
+      </div>
     </div>
 
     <!-- ── SECTION: SERVICES ── -->
@@ -485,33 +495,13 @@ tbody tr:last-child td{border-bottom:none}
     <div id="sec-pricing" class="content" style="display:none">
       <div class="page-header flex-between"><div><div class="section-eyebrow">Módulo de Pagos</div><div class="section-title">Reglas <em>comerciales</em></div></div><button class="btn btn-gold" onclick="openModal('modal-rule')">+ Nueva regla</button></div>
       <div style="background:rgba(74,153,102,.07);border:1px solid rgba(74,153,102,.2);border-radius:var(--r);padding:.8rem 1rem;margin-bottom:1.5rem;font-size:.76rem;color:#4a9;display:flex;align-items:center;gap:.5rem"><svg width="14" height="14" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" stroke-width="2"/></svg>Módulo de pagos en modo <strong>preparación</strong>. Las reglas quedan guardadas y se activarán al habilitar el módulo en Configuración.</div>
-      <div class="tabs"><button class="tab active">Todas las reglas</button><button class="tab">Fees cliente</button><button class="tab">Fees acompañante</button><button class="tab">Cobros por acción</button></div>
-
-      <div class="rule-card">
-        <div class="rule-card-header"><div class="rule-card-name">Fee de servicio — Cliente</div><span class="badge badge-green">Activa</span></div>
-        <div class="rule-card-meta"><span>Tipo: Fee de servicio cliente</span><span>Cobro: 5% del valor base</span><span>Aplica a: Todos los servicios</span><span>Zona: Todas</span></div>
-        <div class="rule-card-actions"><button class="btn btn-ghost btn-xs">Editar</button><button class="btn btn-danger btn-xs">Desactivar</button></div>
+      <div class="tabs">
+        <button class="tab active" onclick="renderRules('todas',this)">Todas las reglas</button>
+        <button class="tab" onclick="renderRules('cliente',this)">Fees cliente</button>
+        <button class="tab" onclick="renderRules('acompanante',this)">Fees acompañante</button>
+        <button class="tab" onclick="renderRules('ambos',this)">Ambos</button>
       </div>
-      <div class="rule-card">
-        <div class="rule-card-header"><div class="rule-card-name">Comisión por confirmación — Acompañante</div><span class="badge badge-green">Activa</span></div>
-        <div class="rule-card-meta"><span>Tipo: Comisión por confirmación</span><span>Cobro: 10% del valor base</span><span>Aplica a: Acompañante</span><span>Zona: Todas</span></div>
-        <div class="rule-card-actions"><button class="btn btn-ghost btn-xs">Editar</button><button class="btn btn-danger btn-xs">Desactivar</button></div>
-      </div>
-      <div class="rule-card">
-        <div class="rule-card-header"><div class="rule-card-name">Cobro por publicación de solicitud</div><span class="badge badge-gray">Inactiva</span></div>
-        <div class="rule-card-meta"><span>Tipo: Cobro por publicación</span><span>Cobro: $1.000 fijo</span><span>Aplica a: Cliente</span><span>Servicio: Todos</span></div>
-        <div class="rule-card-actions"><button class="btn btn-ghost btn-xs">Editar</button><button class="btn btn-gold btn-xs" onclick="showToast('Regla activada','La regla fue activada.')">Activar</button></div>
-      </div>
-      <div class="rule-card">
-        <div class="rule-card-header"><div class="rule-card-name">Cobro por postulación</div><span class="badge badge-gray">Inactiva</span></div>
-        <div class="rule-card-meta"><span>Tipo: Cobro por postulación</span><span>Cobro: $500 fijo</span><span>Aplica a: Acompañante</span><span>Primeras 3 del mes: gratis</span></div>
-        <div class="rule-card-actions"><button class="btn btn-ghost btn-xs">Editar</button><button class="btn btn-gold btn-xs" onclick="showToast('Regla activada','La regla fue activada.')">Activar</button></div>
-      </div>
-      <div class="rule-card">
-        <div class="rule-card-header"><div class="rule-card-name">Recargo zona premium</div><span class="badge badge-green">Activa</span></div>
-        <div class="rule-card-meta"><span>Tipo: Recargo por zona</span><span>Cobro: +5% adicional</span><span>Zona: Vitacura, Las Condes</span><span>Aplica a: Cliente</span></div>
-        <div class="rule-card-actions"><button class="btn btn-ghost btn-xs">Editar</button><button class="btn btn-danger btn-xs">Desactivar</button></div>
-      </div>
+      <div id="rules-list"></div>
     </div>
 
     <!-- ── SECTION: VISIBILIDAD PERFILES ── -->
@@ -703,11 +693,22 @@ tbody tr:last-child td{border-bottom:none}
             <div style="display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)"><div class="flex-gap"><div style="font-size:.84rem;color:var(--text)">PayPal</div></div><div style="display:flex;align-items:center;gap:.65rem"><span class="badge badge-warn">Configurar</span><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div></div>
           </div>
           <div style="margin-top:1.25rem;padding:.85rem 1rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)">
-            <div style="font-size:.8rem;font-weight:500;color:var(--text);margin-bottom:.5rem">Datos actuales de configuración</div>
-            <div class="price-line"><span class="price-line-label">Fee de servicio (cliente)</span><span class="price-line-value">5%</span></div>
-            <div class="price-line"><span class="price-line-label">Comisión plataforma (acompañante)</span><span class="price-line-value">10%</span></div>
-            <div class="price-line"><span class="price-line-label">Edad mínima</span><span class="price-line-value">18 años</span></div>
+            <div style="font-size:.8rem;font-weight:500;color:var(--text);margin-bottom:.5rem">Comisiones activas</div>
+            <div class="price-line"><span class="price-line-label">Fee de servicio (cliente)</span><span class="price-line-value" id="cfg-fee-client">—</span></div>
+            <div class="price-line"><span class="price-line-label">Comisión plataforma (acompañante)</span><span class="price-line-value" id="cfg-fee-companion">—</span></div>
+            <div class="price-line"><span class="price-line-label">Mínimo cobro plataforma</span><span class="price-line-value" id="cfg-fee-min">—</span></div>
             <div class="price-line" style="border:none"><span class="price-line-label">Modo de pagos</span><span class="badge badge-warn">Preparación (MVP)</span></div>
+          </div>
+
+          <div style="margin-top:1.5rem">
+            <div class="form-section-title" style="margin-bottom:1rem">Seguridad — Contraseña de administrador</div>
+            <div style="display:flex;flex-direction:column;gap:.75rem;padding:1rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)">
+              <div class="input-wrap"><label class="input-label">Contraseña actual</label><input class="input" type="password" id="pw-current" placeholder="••••••••"></div>
+              <div class="input-wrap"><label class="input-label">Nueva contraseña</label><input class="input" type="password" id="pw-new" placeholder="Mínimo 8 caracteres"></div>
+              <div class="input-wrap"><label class="input-label">Confirmar nueva contraseña</label><input class="input" type="password" id="pw-confirm" placeholder="Repite la nueva contraseña"></div>
+              <div id="pw-change-error" style="display:none;color:var(--danger-red);font-size:.73rem"></div>
+              <button class="btn btn-gold btn-sm" onclick="changeAdminPassword()" style="align-self:flex-start">Cambiar contraseña</button>
+            </div>
           </div>
         </div>
       </div>
@@ -738,30 +739,86 @@ tbody tr:last-child td{border-bottom:none}
 </div><!-- /admin-shell -->
 
 <script>
+// ── CONFIG ──
+const API_BASE = 'https://acompania-backend-production.up.railway.app';
+const DEFAULT_PW = 'Campeado.1409!';
+const PW_KEY = 'aco_admin_pw';
+const RULES_KEY = 'aco_commission_rules';
+
+let adminKey = '';
+let _allUsers = [];
+
 // ── AUTH ──
+function getStoredPw() { return localStorage.getItem(PW_KEY) || DEFAULT_PW; }
+
 function handleAdminLogin() {
+  const input = document.getElementById('admin-pw-input');
+  const err = document.getElementById('login-error');
+  if (!input) return;
+  if (input.value !== getStoredPw()) {
+    err.style.display = 'block';
+    input.value = '';
+    input.focus();
+    return;
+  }
+  err.style.display = 'none';
+  adminKey = input.value;
+  input.value = '';
   document.getElementById('page-login').style.display = 'none';
   document.getElementById('admin-shell').style.display = 'flex';
   goTo('dashboard', document.querySelector('.sidebar-item'));
   startAgentSimulation();
 }
+
 function logout() {
+  adminKey = '';
   document.getElementById('admin-shell').style.display = 'none';
   document.getElementById('page-login').style.display = 'flex';
+  const input = document.getElementById('admin-pw-input');
+  if (input) { input.value = ''; input.focus(); }
+}
+
+function changeAdminPassword() {
+  const cur = document.getElementById('pw-current').value;
+  const nw  = document.getElementById('pw-new').value;
+  const con = document.getElementById('pw-confirm').value;
+  const err = document.getElementById('pw-change-error');
+  err.style.display = 'none';
+  if (cur !== getStoredPw()) { err.textContent = 'La contraseña actual es incorrecta.'; err.style.display = 'block'; return; }
+  if (nw.length < 8) { err.textContent = 'La nueva contraseña debe tener al menos 8 caracteres.'; err.style.display = 'block'; return; }
+  if (nw !== con) { err.textContent = 'Las contraseñas no coinciden.'; err.style.display = 'block'; return; }
+  localStorage.setItem(PW_KEY, nw);
+  adminKey = nw;
+  document.getElementById('pw-current').value = '';
+  document.getElementById('pw-new').value = '';
+  document.getElementById('pw-confirm').value = '';
+  showToast('Contraseña actualizada', 'La nueva contraseña está activa desde ahora.');
+}
+
+// ── API HELPER ──
+async function apiAdmin(path, options = {}) {
+  const res = await fetch(API_BASE + path, {
+    ...options,
+    headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey, ...(options.headers || {}) },
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
 }
 
 // ── NAVIGATION ──
 const SECTIONS = ['dashboard','users','services','pricing','visibility','coupons','billing','revenue','agent','settings','moderation','locations'];
 function goTo(name, btn) {
-  SECTIONS.forEach(s => {
-    const el = document.getElementById('sec-' + s);
-    if (el) el.style.display = 'none';
-  });
-  const target = document.getElementById('sec-' + name);
+  SECTIONS.forEach(s => { const el = document.getElementById('sec-'+s); if(el) el.style.display='none'; });
+  const target = document.getElementById('sec-'+name);
   if (target) target.style.display = 'block';
   document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
+  if (name === 'dashboard') { loadAdminStats(); loadDashboardPending(); }
+  if (name === 'users') loadAdminUsers();
+  if (name === 'pricing') { renderRules('todas'); updateConfigSummary(); }
+  if (name === 'settings') updateConfigSummary();
 }
 
 // ── MODAL ──
@@ -774,22 +831,270 @@ function showToast(title, msg) {
   document.getElementById('toast-title').textContent = title;
   document.getElementById('toast-msg').textContent = msg;
   t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 3500);
+  setTimeout(() => t.classList.remove('show'), 3500);
 }
 
-// ── OPEN PROMO MODAL ──
+// ── ADMIN STATS ──
+async function loadAdminStats() {
+  try {
+    const s = await apiAdmin('/api/admin/stats');
+    const set = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
+    set('stat-total-users', (s.totalUsers||0).toLocaleString('es-CL'));
+    set('stat-active-companions', (s.activeCompanions||0).toLocaleString('es-CL'));
+    set('stat-requests-today', (s.requestsToday||0).toLocaleString('es-CL'));
+    set('stat-appts-month', (s.appointmentsMonth||0).toLocaleString('es-CL'));
+    set('stat-pending', (s.pendingApproval||0).toLocaleString('es-CL'));
+    set('stat-total-companions', (s.totalCompanions||0).toLocaleString('es-CL'));
+    set('stat-total-clients', (s.totalClients||0).toLocaleString('es-CL'));
+    set('stat-suspended', (s.suspended||0).toLocaleString('es-CL'));
+  } catch(e) { console.warn('Stats error:', e.message); }
+}
+
+// ── DASHBOARD PENDING ──
+async function loadDashboardPending() {
+  const el = document.getElementById('dash-pending-list');
+  if (!el) return;
+  try {
+    const users = await apiAdmin('/api/admin/users?role=ACOMPANANTE&suspended=false');
+    const pending = users.filter(u => u.profile && !u.profile.isApproved);
+    if (!pending.length) { el.innerHTML = '<div style="color:var(--text3);font-size:.8rem">No hay perfiles pendientes.</div>'; return; }
+    el.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Usuario</th><th>Tipo</th><th>Registro</th><th>Acción</th></tr></thead><tbody>${
+      pending.slice(0,5).map(u => {
+        const name = u.profile?.displayName || u.email?.split('@')[0] || u.phone || u.id.slice(0,8);
+        const initials = name.slice(0,2).toUpperCase();
+        const since = new Date(u.createdAt).toLocaleDateString('es-CL',{day:'numeric',month:'short'});
+        return `<tr>
+          <td><div class="flex-gap"><div class="avatar avatar-sm">${initials}</div>${name}</div></td>
+          <td><span class="badge badge-gold">Acompañante</span></td>
+          <td style="color:var(--text3);font-size:.73rem">${since}</td>
+          <td><div style="display:flex;gap:.35rem">
+            <button class="btn btn-gold btn-xs" onclick="approveCompanion('${u.profile.id}','${name}')">Aprobar</button>
+            <button class="btn btn-danger btn-xs" onclick="rejectCompanion('${u.profile.id}','${name}')">Rechazar</button>
+          </div></td>
+        </tr>`;
+      }).join('')
+    }</tbody></table></div>`;
+  } catch(e) { el.innerHTML = '<div style="color:var(--danger-red);font-size:.78rem">Error al cargar.</div>'; }
+}
+
+// ── USERS ──
+async function loadAdminUsers() {
+  const wrap = document.getElementById('users-table-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = '<div style="color:var(--text3);font-size:.8rem;padding:2rem">Cargando usuarios…</div>';
+  try {
+    const role = document.getElementById('user-role-filter')?.value || '';
+    const status = document.getElementById('user-status-filter')?.value || '';
+    let url = '/api/admin/users';
+    const params = [];
+    if (role) params.push('role='+role);
+    if (status === 'suspended') params.push('suspended=true');
+    if (params.length) url += '?' + params.join('&');
+    _allUsers = await apiAdmin(url);
+    if (status === 'pending') _allUsers = _allUsers.filter(u => u.profile && !u.profile.isApproved);
+    renderUsersTable(_allUsers);
+  } catch(e) {
+    wrap.innerHTML = `<div style="color:var(--danger-red);font-size:.8rem;padding:2rem">Error: ${e.message}</div>`;
+  }
+}
+
+function filterUsers() {
+  const q = (document.getElementById('user-search')?.value || '').toLowerCase();
+  if (!q) { renderUsersTable(_allUsers); return; }
+  const filtered = _allUsers.filter(u =>
+    (u.email||'').toLowerCase().includes(q) ||
+    (u.phone||'').includes(q) ||
+    (u.profile?.displayName||'').toLowerCase().includes(q)
+  );
+  renderUsersTable(filtered);
+}
+
+function renderUsersTable(users) {
+  const wrap = document.getElementById('users-table-wrap');
+  if (!wrap) return;
+  if (!users.length) { wrap.innerHTML = '<div style="color:var(--text3);font-size:.8rem;padding:2rem">No se encontraron usuarios.</div>'; return; }
+  const roleLabel = { CLIENTE:'Cliente', ACOMPANANTE:'Acompañante', ADMIN:'Admin' };
+  const roleBadge = { CLIENTE:'badge-gray', ACOMPANANTE:'badge-gold', ADMIN:'badge-info' };
+  wrap.innerHTML = `<div class="table-wrap"><table><thead><tr>
+    <th>Usuario</th><th>Rol</th><th>Estado</th><th>Perfil acompañante</th><th>Registro</th><th>Acciones</th>
+  </tr></thead><tbody>${users.map(u => {
+    const name = u.profile?.displayName || u.email?.split('@')[0] || u.phone || u.id.slice(0,8);
+    const initials = name.slice(0,2).toUpperCase();
+    const contact = u.email || u.phone || '—';
+    const since = new Date(u.createdAt).toLocaleDateString('es-CL',{day:'numeric',month:'short',year:'numeric'});
+    const statusBadge = u.suspended ? '<span class="badge badge-red">Suspendido</span>' : '<span class="badge badge-green">Activo</span>';
+    const profileBadge = u.profile
+      ? (u.profile.isApproved ? '<span class="badge badge-green">Aprobada</span>' : '<span class="badge badge-warn">Pendiente</span>')
+      : '<span class="badge badge-gray">—</span>';
+    const actions = u.suspended
+      ? `<button class="btn btn-gold btn-xs" onclick="restoreUser('${u.id}','${name}')">Restaurar</button>`
+      : `<button class="btn btn-danger btn-xs" onclick="suspendUser('${u.id}','${name}')">Suspender</button>`;
+    const approveBtn = (u.profile && !u.profile.isApproved && !u.suspended)
+      ? `<button class="btn btn-gold btn-xs" onclick="approveCompanion('${u.profile.id}','${name}')">Aprobar</button>` : '';
+    return `<tr>
+      <td><div class="flex-gap"><div class="avatar avatar-sm">${initials}</div>
+        <div><div style="font-size:.82rem;color:var(--text)">${name}</div>
+        <div style="font-size:.67rem;color:var(--text3)">${contact}</div></div>
+      </div></td>
+      <td><span class="badge ${roleBadge[u.role]||'badge-gray'}">${roleLabel[u.role]||u.role}</span></td>
+      <td>${statusBadge}</td>
+      <td>${profileBadge}</td>
+      <td style="color:var(--text3);font-size:.73rem">${since}</td>
+      <td><div style="display:flex;gap:.3rem">${approveBtn}${actions}</div></td>
+    </tr>`;
+  }).join('')}</tbody></table></div>`;
+}
+
+async function suspendUser(id, name) {
+  if (!confirm(`¿Suspender a ${name}? No podrá ingresar a la plataforma.`)) return;
+  try {
+    await apiAdmin(`/api/admin/users/${id}/suspend`, { method: 'PATCH' });
+    showToast('Usuario suspendido', `${name} fue suspendido correctamente.`);
+    loadAdminUsers();
+    loadAdminStats();
+  } catch(e) { showToast('Error', e.message); }
+}
+
+async function restoreUser(id, name) {
+  try {
+    await apiAdmin(`/api/admin/users/${id}/restore`, { method: 'PATCH' });
+    showToast('Usuario restaurado', `${name} puede ingresar nuevamente.`);
+    loadAdminUsers();
+    loadAdminStats();
+  } catch(e) { showToast('Error', e.message); }
+}
+
+async function approveCompanion(profileId, name) {
+  try {
+    await apiAdmin(`/api/admin/companions/${profileId}/approve`, { method: 'PATCH' });
+    showToast('Perfil aprobado', `${name} ya está activa en la plataforma.`);
+    loadAdminUsers();
+    loadAdminStats();
+    loadDashboardPending();
+  } catch(e) { showToast('Error', e.message); }
+}
+
+async function rejectCompanion(profileId, name) {
+  if (!confirm(`¿Rechazar el perfil de ${name}?`)) return;
+  try {
+    await apiAdmin(`/api/admin/companions/${profileId}/reject`, { method: 'PATCH' });
+    showToast('Perfil rechazado', `El perfil de ${name} fue rechazado.`);
+    loadAdminUsers();
+    loadDashboardPending();
+  } catch(e) { showToast('Error', e.message); }
+}
+
+// ── COMMISSION RULES ──
+function loadRules() {
+  try { return JSON.parse(localStorage.getItem(RULES_KEY) || '[]'); } catch { return []; }
+}
+function saveRules(rules) { localStorage.setItem(RULES_KEY, JSON.stringify(rules)); updateConfigSummary(); }
+
+function saveRule() {
+  const name = document.getElementById('rule-name')?.value?.trim();
+  if (!name) { showToast('Error', 'El nombre de la regla es obligatorio.'); return; }
+  const rule = {
+    id: Date.now().toString(),
+    name,
+    type: document.getElementById('rule-type')?.value,
+    chargeType: document.getElementById('rule-charge-type')?.value,
+    value: parseFloat(document.getElementById('rule-value')?.value) || 0,
+    min: parseFloat(document.getElementById('rule-min')?.value) || 0,
+    applies: document.getElementById('rule-applies')?.value,
+    service: document.getElementById('rule-service')?.value,
+    zone: document.getElementById('rule-zone')?.value,
+    from: document.getElementById('rule-from')?.value,
+    to: document.getElementById('rule-to')?.value,
+    desc: document.getElementById('rule-desc')?.value,
+    active: document.getElementById('rule-active')?.checked ?? true,
+    createdAt: new Date().toISOString(),
+  };
+  const rules = loadRules();
+  rules.push(rule);
+  saveRules(rules);
+  closeModal('modal-rule');
+  // reset form
+  ['rule-name','rule-value','rule-min','rule-from','rule-to','rule-desc'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  renderRules('todas');
+  showToast('Regla guardada', `"${name}" fue creada y ${rule.active?'activada':'guardada como inactiva'}.`);
+}
+
+function renderRules(filter, btn) {
+  if (btn) { document.querySelectorAll('#sec-pricing .tab').forEach(t=>t.classList.remove('active')); btn.classList.add('active'); }
+  const rules = loadRules();
+  const filtered = filter === 'todas' ? rules : rules.filter(r => r.applies === filter);
+  const el = document.getElementById('rules-list');
+  if (!el) return;
+  if (!filtered.length) {
+    el.innerHTML = '<div style="color:var(--text3);font-size:.8rem;padding:1.5rem 0">No hay reglas en esta categoría. Crea una con "+ Nueva regla".</div>';
+    return;
+  }
+  const chargeLabel = { pct:'Porcentaje', fixed:'Monto fijo', min:'Mínimo', mixed:'Mixto' };
+  el.innerHTML = filtered.map(r => {
+    const valFmt = r.chargeType === 'pct' ? `${r.value}%` : `$${(r.value||0).toLocaleString('es-CL')}`;
+    const minFmt = r.min > 0 ? ` · Mínimo: $${r.min.toLocaleString('es-CL')}` : '';
+    return `<div class="rule-card">
+      <div class="rule-card-header">
+        <div class="rule-card-name">${r.name}</div>
+        <span class="badge ${r.active?'badge-green':'badge-gray'}">${r.active?'Activa':'Inactiva'}</span>
+      </div>
+      <div class="rule-card-meta">
+        <span>${r.type}</span>
+        <span>${chargeLabel[r.chargeType]||r.chargeType}: ${valFmt}${minFmt}</span>
+        <span>Aplica a: ${r.applies}</span>
+        <span>Servicio: ${r.service}</span>
+        ${r.zone && r.zone!=='todas'?`<span>Zona: ${r.zone}</span>`:''}
+        ${r.to?`<span>Vence: ${r.to}</span>`:''}
+      </div>
+      ${r.desc?`<div style="font-size:.72rem;color:var(--text3);margin-top:.4rem;font-style:italic">${r.desc}</div>`:''}
+      <div class="rule-card-actions">
+        ${r.active
+          ? `<button class="btn btn-danger btn-xs" onclick="toggleRule('${r.id}',false)">Desactivar</button>`
+          : `<button class="btn btn-gold btn-xs" onclick="toggleRule('${r.id}',true)">Activar</button>`}
+        <button class="btn btn-ghost btn-xs" onclick="deleteRule('${r.id}')">Eliminar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleRule(id, active) {
+  const rules = loadRules().map(r => r.id === id ? {...r, active} : r);
+  saveRules(rules);
+  renderRules('todas');
+  showToast(active ? 'Regla activada' : 'Regla desactivada', 'El cambio fue guardado.');
+}
+
+function deleteRule(id) {
+  if (!confirm('¿Eliminar esta regla permanentemente?')) return;
+  saveRules(loadRules().filter(r => r.id !== id));
+  renderRules('todas');
+  showToast('Regla eliminada', 'La regla fue eliminada.');
+}
+
+function updateConfigSummary() {
+  const rules = loadRules().filter(r => r.active);
+  const feeClient = rules.find(r => r.applies==='cliente' && r.chargeType==='pct' && r.type.toLowerCase().includes('fee'));
+  const feeComp   = rules.find(r => r.applies==='acompanante' && r.chargeType==='pct');
+  const minRule   = rules.find(r => r.chargeType==='min');
+  const set = (id, v) => { const el=document.getElementById(id); if(el) el.textContent = v; };
+  set('cfg-fee-client',   feeClient ? `${feeClient.value}%` : '—');
+  set('cfg-fee-companion', feeComp  ? `${feeComp.value}%`  : '—');
+  set('cfg-fee-min',       minRule  ? `$${(minRule.value||0).toLocaleString('es-CL')}` : '—');
+}
+
+// ── PROMO MODAL ──
 function openPromoModal(type, segment, code, pct, users) {
   const suggestions = {
-    abandon: `El agente detectó ${users} usuarios que iniciaron una solicitud pero no la completaron. Se recomienda un cupón de ${pct}% de descuento en el fee de servicio con validez de 24 horas para incentivar la conversión. Segmento de alto valor: estos usuarios ya mostraron intención de compra.`,
-    browse: `Se identificaron ${users} clientes que revisaron múltiples perfiles sin crear solicitud. Un cupón de ${pct}% elimina la fricción del precio. Tasa de conversión esperada 12-18% basada en comportamiento histórico similar.`,
-    inactive: `${users} clientes sin actividad en 7+ días. Un incentivo de ${pct}% los reactiva antes de que abandonen la plataforma definitivamente. Retención más eficiente que adquisición de nuevos usuarios.`,
+    abandon: `El agente detectó ${users} usuarios que iniciaron una solicitud pero no la completaron. Se recomienda un cupón de ${pct}% de descuento en el fee con validez de 24 horas.`,
+    browse:  `Se identificaron ${users} clientes que revisaron múltiples perfiles sin crear solicitud. Un cupón de ${pct}% elimina la fricción del precio.`,
+    inactive:`${users} clientes sin actividad en 7+ días. Un incentivo de ${pct}% los reactiva antes de que abandonen la plataforma.`,
   };
   document.getElementById('promo-ai-suggestion').textContent = suggestions[type] || suggestions.abandon;
   document.getElementById('promo-ai-code').value = code;
   document.getElementById('promo-ai-value').value = pct;
   document.getElementById('promo-ai-segment').value = segment;
   const estimates = {abandon:'47', browse:'34', inactive:'67'};
-  document.getElementById('promo-ai-estimate').innerHTML = `Alcance estimado: <strong>${estimates[type]||users} usuarios</strong> · Tasa de conversión esperada: <strong>18-25%</strong>`;
+  document.getElementById('promo-ai-estimate').innerHTML = `Alcance estimado: <strong>${estimates[type]||users} usuarios</strong> · Conversión esperada: <strong>18-25%</strong>`;
   openModal('modal-promo-ai');
 }
 
@@ -797,51 +1102,35 @@ function openPromoModal(type, segment, code, pct, users) {
 const EVENT_TYPES = [
   {type:'abandon',icon:'⚠',label:'Solicitud abandonada — paso presupuesto',user:'Carlos L.',cls:'abandon'},
   {type:'convert',icon:'✓',label:'Solicitud completada — cena Las Condes',user:'Rafael M.',cls:'convert'},
-  {type:'browse',icon:'👁',label:'Revisó 3 perfiles sin solicitar',user:'Ana P.',cls:'browse'},
-  {type:'browse',icon:'👁',label:'Visitó perfil VIP por 4ta vez',user:'Luis R.',cls:'browse'},
+  {type:'browse', icon:'👁',label:'Revisó 3 perfiles sin solicitar',user:'Ana P.',cls:'browse'},
+  {type:'browse', icon:'👁',label:'Visitó perfil VIP por 4ta vez',user:'Luis R.',cls:'browse'},
   {type:'abandon',icon:'⚠',label:'Salió del formulario — paso servicios',user:'Pedro A.',cls:'abandon'},
   {type:'convert',icon:'✓',label:'Cita confirmada — gala Vitacura',user:'Paula V.',cls:'convert'},
-  {type:'browse',icon:'👁',label:'Revisó 5 perfiles en 12 minutos',user:'María J.',cls:'browse'},
+  {type:'browse', icon:'👁',label:'Revisó 5 perfiles en 12 minutos',user:'María J.',cls:'browse'},
   {type:'abandon',icon:'⚠',label:'Abandonó en precio por hora',user:'Roberto C.',cls:'abandon'},
 ];
-
 let eventCount = 0;
 function startAgentSimulation() {
   const feed = document.getElementById('events-feed');
   const counter = document.getElementById('agent-event-count');
   if (!feed) return;
-
-  // Read real events from sessionStorage (from app)
-  let realEvents = [];
-  try {
-    const raw = sessionStorage.getItem('aco_events');
-    if (raw) realEvents = JSON.parse(raw);
-  } catch(e){}
-
-  // Prepopulate with some events
   EVENT_TYPES.slice(0,4).forEach(e => addEventToFeed(feed, e));
-  eventCount = 4 + realEvents.length;
-  if(counter) counter.textContent = eventCount;
-
-  // Simulate live events
-  const interval = setInterval(() => {
+  eventCount = 4;
+  if (counter) counter.textContent = eventCount;
+  setInterval(() => {
     const e = EVENT_TYPES[Math.floor(Math.random()*EVENT_TYPES.length)];
     addEventToFeed(feed, e);
     eventCount++;
-    if(counter) counter.textContent = eventCount;
-    // auto-scroll
+    if (counter) counter.textContent = eventCount;
     feed.scrollTop = feed.scrollHeight;
   }, 4500);
 }
-
 function addEventToFeed(feed, e) {
-  const now = new Date();
-  const time = now.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const time = new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   const div = document.createElement('div');
   div.className = 'behavior-event ' + e.cls;
   div.innerHTML = `<div class="event-icon">${e.icon}</div><div class="event-label">${e.label}</div><div style="text-align:right"><div class="event-user">${e.user}</div><div class="event-time">${time}</div></div>`;
   feed.appendChild(div);
-  // Keep max 20 events
   while (feed.children.length > 20) feed.removeChild(feed.firstChild);
 }
 </script>
