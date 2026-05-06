@@ -720,7 +720,7 @@ tbody tr:last-child td{border-bottom:none}
         </button>
         <div class="auth-divider"><span>o con correo</span></div>
         <div class="grid-2"><div class="input-wrap"><label class="input-label">Nombre</label><input class="input" placeholder="María"></div><div class="input-wrap"><label class="input-label">Apellido</label><input class="input" placeholder="González"></div></div>
-        <div class="input-wrap"><label class="input-label">Correo electrónico</label><input class="input" type="email" placeholder="tu@correo.com"></div>
+        <div class="input-wrap"><label class="input-label">Correo electrónico</label><input class="input" type="email" id="reg-email" placeholder="tu@correo.com"></div>
         <div class="input-wrap"><label class="input-label">Teléfono (opcional)</label><input class="input" type="tel" placeholder="+56 9 1234 5678"></div>
         <div class="input-wrap">
           <label class="input-label">Contraseña</label>
@@ -997,9 +997,8 @@ tbody tr:last-child td{border-bottom:none}
   <div id="page-client-requests" class="page">
     <div class="page-container">
       <div class="flex-between" style="margin-bottom:2rem"><div><div class="section-eyebrow">Gestión</div><div class="section-title">Mis <em>solicitudes</em></div></div><button class="btn btn-gold" onclick="navigateTo('create-request')">+ Nueva solicitud</button></div>
-      <div class="tabs"><button class="tab active">Activas (3)</button><button class="tab">Confirmadas (1)</button><button class="tab">Finalizadas (8)</button><button class="tab">Canceladas (1)</button></div>
-      <div class="request-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.9rem"><div><div class="request-card-title">Cena en restaurante — Viernes 23 Mayo</div><div class="request-card-meta"><span>📅 Vie 23 Mayo 20:00</span><span>📍 Las Condes</span><span>⏱ 3 hrs</span></div></div><span class="badge badge-gold">4 postulantes</span></div><div style="background:var(--bg3);border:1px solid var(--gold-border);border-radius:var(--r);padding:.9rem"><div style="font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:.65rem">Postulantes</div><div class="applicant-row"><div class="avatar avatar-sm avatar-verified-ring">VM</div><div style="flex:1;margin-left:.4rem"><div style="font-size:.83rem;color:var(--text);display:flex;align-items:center;gap:.4rem">Valentina M.<span class="badge-verified badge" style="font-size:.55rem">✦</span></div><div style="font-size:.7rem;color:var(--text3)">★★★★★ 4.9</div></div><div style="font-family:var(--serif);color:var(--gold);margin-right:.6rem">$25k</div><button class="btn btn-gold btn-sm" onclick="openModal('modal-confirm')">Seleccionar</button></div><div class="applicant-row"><div class="avatar avatar-sm">SC</div><div style="flex:1;margin-left:.4rem"><div style="font-size:.83rem;color:var(--text)">Sofía C.</div><div style="font-size:.7rem;color:var(--text3)">★★★★★ 4.8</div></div><div style="font-family:var(--serif);color:var(--gold);margin-right:.6rem">$20k</div><button class="btn btn-outline btn-sm">Ver perfil</button></div></div></div>
-      <div class="request-card"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="request-card-title">Gala benéfica — Sábado 31 Mayo</div><div class="request-card-meta"><span>📅 Sáb 31 Mayo 19:00</span><span>📍 Vitacura</span></div></div><span class="badge badge-gray">1 postulante</span></div></div>
+      <div class="tabs"><button class="tab active">Todas</button></div>
+      <div id="client-requests-list"><div style="color:var(--text3);font-size:.8rem;padding:1rem">Cargando…</div></div>
     </div>
   </div>
 
@@ -1007,12 +1006,8 @@ tbody tr:last-child td{border-bottom:none}
   <div id="page-appointments" class="page">
     <div class="page-container">
       <div style="margin-bottom:2rem"><div class="section-eyebrow">Agenda</div><div class="section-title">Mis <em>citas</em></div></div>
-      <div class="tabs"><button class="tab active">Próximas (1)</button><button class="tab">Historial (12)</button><button class="tab">Canceladas (1)</button></div>
-      <div class="appt-card">
-        <div class="appt-date-box"><div class="appt-date-day">24</div><div class="appt-date-month">Mayo</div></div>
-        <div style="flex:1"><div style="font-family:var(--serif);font-size:1.1rem;color:var(--text);margin-bottom:.3rem">Cena con Sofía C.</div><div style="font-size:.73rem;color:var(--text3);display:flex;gap:1rem;flex-wrap:wrap"><span>🕗 20:00 — 23:00</span><span>📍 Providencia</span></div><div style="margin-top:.7rem;display:flex;gap:.5rem"><span class="badge badge-green">Confirmada</span></div></div>
-        <div style="display:flex;flex-direction:column;gap:.45rem;flex-shrink:0"><button class="btn btn-outline btn-sm">Ver detalle</button><button class="btn btn-gold btn-sm" onclick="openModal('modal-review')">Reseñar</button><button class="btn btn-danger btn-sm">Cancelar</button></div>
-      </div>
+      <div class="tabs"><button class="tab active">Próximas</button><button class="tab">Historial</button><button class="tab">Canceladas</button></div>
+      <div id="appointments-list"><div style="color:var(--text3);font-size:.8rem;padding:1rem">Cargando…</div></div>
     </div>
   </div>
 
@@ -1288,6 +1283,44 @@ const COMPANIONS=[
 const COUPON_MAP={'GOLD10':.10,'BIENVENIDA':1,'RETOMA20':.20,'FEE50':.50,'VIP15':.15};
 const SERVICE_FEE=.05;
 
+// ── API ──
+const API_BASE='https://acompania-backend-production.up.railway.app';
+let authToken=localStorage.getItem('authToken')||null;
+let currentUser=JSON.parse(localStorage.getItem('currentUser')||'null');
+
+function apiHeaders(){
+  const h={'Content-Type':'application/json'};
+  if(authToken)h['Authorization']='Bearer '+authToken;
+  return h;
+}
+async function apiGet(path){
+  const r=await fetch(API_BASE+path,{headers:apiHeaders()});
+  if(!r.ok)throw new Error((await r.json().catch(()=>({message:r.statusText}))).message);
+  return r.json();
+}
+async function apiPost(path,body){
+  const r=await fetch(API_BASE+path,{method:'POST',headers:apiHeaders(),body:JSON.stringify(body)});
+  const data=await r.json().catch(()=>({message:r.statusText}));
+  if(!r.ok)throw new Error(data.message||r.statusText);
+  return data;
+}
+async function apiPut(path,body){
+  const r=await fetch(API_BASE+path,{method:'PUT',headers:apiHeaders(),body:JSON.stringify(body)});
+  const data=await r.json().catch(()=>({message:r.statusText}));
+  if(!r.ok)throw new Error(data.message||r.statusText);
+  return data;
+}
+function saveAuth(token,user){
+  authToken=token;currentUser=user;
+  localStorage.setItem('authToken',token);
+  localStorage.setItem('currentUser',JSON.stringify(user));
+}
+function clearAuth(){
+  authToken=null;currentUser=null;
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('currentUser');
+}
+
 // ────────────────────────────
 //  STATE
 // ────────────────────────────
@@ -1319,6 +1352,9 @@ function navigateTo(name){
   closeNotifPanel();
   window.scrollTo({top:0,behavior:'smooth'});
   updateNavActive(name);
+  if(name==='appointments')loadAppointments();
+  if(name==='client-requests')loadClientRequests();
+  if(name==='my-profile')loadMyProfile();
 }
 
 function nav(page,btn){
@@ -1343,23 +1379,40 @@ function goBack(){
 // ────────────────────────────
 //  AUTH
 // ────────────────────────────
-function handleEmailLogin(){
+async function handleEmailLogin(){
   const email=document.getElementById('login-email').value;
   const pw=document.getElementById('login-password').value;
   if(!email||!pw){showToast('Campos requeridos','Por favor completa email y contraseña.');return}
-  // Detect role from email for demo
-  if(email.includes('acomp')||email.includes('valentina')){currentRole='acompanante'}else{currentRole='cliente'}
-  doLogin();
+  try{
+    const data=await apiPost('/api/auth/login',{email,password:pw});
+    saveAuth(data.access_token,data.user);
+    currentRole=data.user.role==='ACOMPANANTE'?'acompanante':'cliente';
+    doLogin();
+  }catch(e){
+    showToast('Error al iniciar sesión',e.message||'Credenciales incorrectas.');
+  }
 }
 
 function loginWithGoogle(){
-  showToast('Google Auth','Redirigiendo a Google para autenticación…');
-  setTimeout(()=>{currentRole='cliente';doLogin()},1500);
+  showToast('Google Auth','Próximamente disponible.');
 }
 
-function handleRegister(){
-  showToast('Cuenta creada','Bienvenida/o a Acompañía. Verifica tu email para activar tu cuenta.');
-  setTimeout(()=>doLogin(),1200);
+async function handleRegister(){
+  const email=document.getElementById('reg-email')?.value;
+  const pw=document.getElementById('reg-password')?.value;
+  if(!email||!pw){showToast('Campos requeridos','Completa correo y contraseña.');return}
+  if(pw.length<8){showToast('Contraseña corta','Mínimo 8 caracteres.');return}
+  const role=currentRole==='acompanante'?'ACOMPANANTE':'CLIENTE';
+  try{
+    await apiPost('/api/auth/register',{email,password:pw,role});
+    showToast('Cuenta creada','Bienvenida/o a Acompañía. Iniciando sesión…');
+    const data=await apiPost('/api/auth/login',{email,password:pw});
+    saveAuth(data.access_token,data.user);
+    currentRole=data.user.role==='ACOMPANANTE'?'acompanante':'cliente';
+    setTimeout(()=>doLogin(),800);
+  }catch(e){
+    showToast('Error al registrarse',e.message||'Inténtalo de nuevo.');
+  }
 }
 
 function doLogin(){
@@ -1368,15 +1421,16 @@ function doLogin(){
   shell.style.display='flex';
   document.getElementById('nav-client').style.display='none';
   document.getElementById('nav-companion').style.display='none';
+  const initials=currentUser?currentUser.email.slice(0,2).toUpperCase():(currentRole==='acompanante'?'AC':'CL');
   if(currentRole==='cliente'){
     document.getElementById('nav-client').style.display='flex';
-    document.getElementById('nav-avatar').textContent='CL';
+    document.getElementById('nav-avatar').textContent=initials;
     buildCompanionGrid('home-companions',4);
     navigateTo('home');
     setTimeout(()=>showSmartPromo('welcome'),8000);
   } else {
     document.getElementById('nav-companion').style.display='flex';
-    document.getElementById('nav-avatar').textContent='VM';
+    document.getElementById('nav-avatar').textContent=initials;
     document.getElementById('promo-banner').classList.add('hidden');
     navigateTo('companion-dashboard');
   }
@@ -1390,6 +1444,7 @@ function selectRegisterRole(role,card){
 }
 
 function logout(){
+  clearAuth();
   document.getElementById('auth-shell').style.display='none';
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-login').classList.add('active');
@@ -1446,16 +1501,46 @@ function resendOTP(){
 // ────────────────────────────
 //  COMPANION GRIDS
 // ────────────────────────────
-function buildCompanionGrid(id,count){
-  const c=document.getElementById(id);
-  if(!c)return;
-  c.innerHTML=COMPANIONS.slice(0,count).map(companionCard).join('');
+function mapApiCompanion(c){
+  const words=(c.displayName||'').split(' ');
+  const init=(words[0]?.[0]||'')+(words[1]?.[0]||'');
+  return{
+    id:c.id,
+    init:init.toUpperCase()||'AC',
+    name:c.displayName||'Acompañante',
+    loc:c.location||'Santiago',
+    tags:c.tags||[],
+    price:'$'+(c.pricePerHour||25000).toLocaleString('es-CL'),
+    rating:c.rating?c.rating.toFixed(1):'5.0',
+    avail:c.isActive,
+    verified:c.identityVerified,
+  };
 }
 
-function buildExploreGrid(){
+async function buildCompanionGrid(id,count){
+  const c=document.getElementById(id);
+  if(!c)return;
+  c.innerHTML='<div style="color:var(--text3);font-size:.8rem;padding:1rem">Cargando…</div>';
+  try{
+    const data=await apiGet('/api/companions');
+    const list=data.length?data.map(mapApiCompanion):COMPANIONS;
+    c.innerHTML=list.slice(0,count).map(companionCard).join('');
+  }catch{
+    c.innerHTML=COMPANIONS.slice(0,count).map(companionCard).join('');
+  }
+}
+
+async function buildExploreGrid(){
   const c=document.getElementById('explore-grid');
   if(!c)return;
-  c.innerHTML=COMPANIONS.map(companionCard).join('');
+  c.innerHTML='<div style="color:var(--text3);font-size:.8rem;padding:1rem">Cargando…</div>';
+  try{
+    const data=await apiGet('/api/companions');
+    const list=data.length?data.map(mapApiCompanion):COMPANIONS;
+    c.innerHTML=list.map(companionCard).join('');
+  }catch{
+    c.innerHTML=COMPANIONS.map(companionCard).join('');
+  }
 }
 
 function companionCard(c){
@@ -1511,7 +1596,110 @@ function confirmApplicant(){
   setTimeout(()=>navigateTo('appointments'),900);
 }
 
-function submitRequest(){openModal('modal-request-ok')}
+async function submitRequest(){
+  const price=parseInt(document.getElementById('req-price')?.value)||25000;
+  const dur=parseInt(document.getElementById('req-dur')?.value)||3;
+  const dateEl=document.querySelector('#page-create-request input[type="date"]');
+  const timeEl=document.querySelector('#page-create-request input[type="time"]');
+  const dateVal=dateEl?.value||new Date().toISOString().slice(0,10);
+  const timeVal=timeEl?.value||'20:00';
+  try{
+    await apiPost('/api/requests',{
+      date:new Date(dateVal+'T'+timeVal).toISOString(),
+      duration:dur,
+      priceOffer:price,
+      coupon:document.getElementById('req-coupon')?.value||undefined,
+    });
+  }catch(e){
+    console.warn('Request save failed:',e.message);
+  }
+  openModal('modal-request-ok');
+}
+
+// ────────────────────────────
+//  API PAGE LOADERS
+// ────────────────────────────
+function fmtApptDate(iso){
+  const d=new Date(iso);
+  return{day:d.getDate(),month:d.toLocaleString('es-CL',{month:'short'}).replace('.',''),time:d.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'})};
+}
+
+async function loadAppointments(){
+  const el=document.getElementById('appointments-list');
+  if(!el||!authToken)return;
+  el.innerHTML='<div style="color:var(--text3);font-size:.8rem;padding:1rem">Cargando…</div>';
+  try{
+    const data=await apiGet('/api/appointments');
+    if(!data.length){el.innerHTML='<div style="color:var(--text3);font-size:.85rem;padding:1.5rem 0">No tienes citas aún.</div>';return;}
+    el.innerHTML=data.map(a=>{
+      const d=fmtApptDate(a.date);
+      const companion=a.profile?.displayName||'Acompañante';
+      const loc=a.profile?.location||'—';
+      const statusMap={CONFIRMED:'badge-green',COMPLETED:'badge',CANCELLED:'badge-danger',NO_SHOW:'badge-danger'};
+      const labelMap={CONFIRMED:'Confirmada',COMPLETED:'Completada',CANCELLED:'Cancelada',NO_SHOW:'No asistió'};
+      return`<div class="appt-card">
+        <div class="appt-date-box"><div class="appt-date-day">${d.day}</div><div class="appt-date-month">${d.month}</div></div>
+        <div style="flex:1">
+          <div style="font-family:var(--serif);font-size:1.1rem;color:var(--text);margin-bottom:.3rem">Cita con ${companion}</div>
+          <div style="font-size:.73rem;color:var(--text3);display:flex;gap:1rem;flex-wrap:wrap"><span>🕗 ${d.time}</span><span>📍 ${loc}</span></div>
+          <div style="margin-top:.7rem;display:flex;gap:.5rem"><span class="badge ${statusMap[a.status]||'badge'}">${labelMap[a.status]||a.status}</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.45rem;flex-shrink:0">
+          ${a.status==='CONFIRMED'?`<button class="btn btn-gold btn-sm" onclick="openModal('modal-review')">Reseñar</button><button class="btn btn-danger btn-sm" onclick="cancelAppt('${a.id}')">Cancelar</button>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    el.innerHTML='<div style="color:var(--danger);font-size:.8rem;padding:1rem">Error al cargar citas.</div>';
+  }
+}
+
+async function cancelAppt(id){
+  try{
+    await apiPost('/api/appointments/'+id+'/cancel',{});
+    showToast('Cita cancelada','La cita fue cancelada.');
+    loadAppointments();
+  }catch(e){
+    showToast('Error',e.message);
+  }
+}
+
+async function loadClientRequests(){
+  const el=document.getElementById('client-requests-list');
+  if(!el||!authToken)return;
+  el.innerHTML='<div style="color:var(--text3);font-size:.8rem;padding:1rem">Cargando…</div>';
+  try{
+    const data=await apiGet('/api/requests/mine');
+    if(!data.length){el.innerHTML='<div style="color:var(--text3);font-size:.85rem;padding:1.5rem 0">No tienes solicitudes aún.</div>';return;}
+    const statusLabel={OPEN:'Abierta',CONFIRMED:'Confirmada',COMPLETED:'Completada',CANCELLED:'Cancelada'};
+    const statusBadge={OPEN:'badge-gold',CONFIRMED:'badge-green',COMPLETED:'badge',CANCELLED:'badge-danger'};
+    el.innerHTML=data.map(r=>{
+      const d=new Date(r.date);
+      return`<div class="request-card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem;margin-bottom:.75rem">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem">
+          <div>
+            <div style="font-family:var(--serif);font-size:1rem;color:var(--text);margin-bottom:.3rem">${r.title||'Solicitud sin título'}</div>
+            <div style="font-size:.73rem;color:var(--text3)">📅 ${d.toLocaleDateString('es-CL')} · ${r.duration}h · $${(r.priceOffer||0).toLocaleString('es-CL')}/hr</div>
+          </div>
+          <span class="badge ${statusBadge[r.status]||'badge'}">${statusLabel[r.status]||r.status}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    el.innerHTML='<div style="color:var(--danger);font-size:.8rem;padding:1rem">Error al cargar solicitudes.</div>';
+  }
+}
+
+async function loadMyProfile(){
+  if(!authToken||!currentUser)return;
+  try{
+    const user=await apiGet('/api/auth/me');
+    const avatarEl=document.getElementById('profile-avatar-main');
+    const nameEl=document.getElementById('profile-name-display');
+    if(avatarEl)avatarEl.textContent=user.email.slice(0,2).toUpperCase();
+    if(nameEl)nameEl.innerHTML=user.email+' <span class="badge-verified badge">✦</span>';
+  }catch{}
+}
 
 // ────────────────────────────
 //  NOTIF
@@ -1584,7 +1772,14 @@ function toggleAspect(el){
   el.classList.toggle('selected');
 }
 
-function submitReview(){
+async function submitReview(){
+  const text=document.querySelector('#modal-review textarea')?.value||'';
+  const aspects=[...document.querySelectorAll('#modal-review .aspect-chip.selected')].map(el=>el.textContent.trim());
+  try{
+    await apiPost('/api/reviews',{rating:currentStars,text,aspects});
+  }catch(e){
+    console.warn('Review save failed:',e.message);
+  }
   closeModal('modal-review');
   showToast('Reseña publicada','Tu reseña fue publicada y es visible en el perfil.');
 }
@@ -1604,7 +1799,7 @@ const VERIF_API = 'https://acompania-backend-production.up.railway.app/api/verif
 // ── STATE ──
 let verifSession = {
   sessionId:    null,
-  userId:       'user_' + Date.now(),
+  userId:       currentUser?.id || 'user_' + Date.now(),
   frontFile:    null,
   backFile:     null,
   selfieFile:   null,
