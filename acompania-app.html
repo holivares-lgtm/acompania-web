@@ -1194,30 +1194,62 @@ tbody tr:last-child td{border-bottom:none}
         <button class="sidebar-item" onclick="navigateTo('profile-settings')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="1.5"/></svg>Configuración</button>
       </nav>
       <div class="main-content">
-        <div class="flex-between" style="margin-bottom:2rem"><div><div class="section-eyebrow">Editar</div><div class="section-title" style="font-size:1.8rem">Mi <em>perfil público</em></div></div><button class="btn btn-gold" onclick="showToast('Perfil guardado','Enviado a revisión del equipo.')">Guardar cambios</button></div>
-        <div class="tabs">
+        <div class="flex-between" style="margin-bottom:2rem"><div><div class="section-eyebrow">Editar</div><div class="section-title" style="font-size:1.8rem">Mi <em>perfil público</em></div></div><button class="btn btn-gold" onclick="saveCompanionProfile()">Guardar cambios</button></div>
+        <div class="tabs" id="cp-tabs">
           <button class="tab active" onclick="switchSettingsTab(this,'cp-info')">Información</button>
           <button class="tab" onclick="switchSettingsTab(this,'cp-services')">Servicios</button>
           <button class="tab" onclick="switchSettingsTab(this,'cp-avail')">Disponibilidad</button>
-          <button class="tab" onclick="switchSettingsTab(this,'cp-photos')">Fotos</button>
+          <button class="tab" onclick="switchSettingsTab(this,'cp-photos');loadCompanionPhotos()">Fotos & Videos</button>
           <button class="tab" onclick="switchSettingsTab(this,'cp-reviews')">Mis reseñas</button>
           <button class="tab" onclick="switchSettingsTab(this,'cp-verify')">Verificación</button>
         </div>
+
+        <!-- TAB: Información -->
         <div id="cp-info">
+          <!-- Foto de perfil -->
+          <div style="margin-bottom:1.5rem">
+            <div class="form-section-title" style="margin-bottom:.75rem">Foto de perfil</div>
+            <div style="display:flex;align-items:center;gap:1.25rem">
+              <div id="cp-avatar-preview" class="avatar avatar-xl avatar-verified-ring" style="font-size:1.6rem;flex-shrink:0;background-size:cover;background-position:center">?</div>
+              <div>
+                <input type="file" id="avatar-file-input" accept="image/*" style="display:none" onchange="uploadCompanionAvatar(this)">
+                <button class="btn btn-outline btn-sm" onclick="document.getElementById('avatar-file-input').click()">Cambiar foto</button>
+                <div id="avatar-upload-status" style="font-size:.72rem;color:var(--text3);margin-top:.4rem">JPG o PNG · Máx 8 MB</div>
+              </div>
+            </div>
+          </div>
           <div class="grid-2" style="align-items:start">
             <div style="display:flex;flex-direction:column;gap:.9rem">
-              <div class="input-wrap"><label class="input-label">Nombre visible</label><input class="input" value="Valentina Morales"></div>
-              <div class="input-wrap"><label class="input-label">Descripción personal</label><textarea class="input" style="min-height:100px">Soy una profesional del área de comunicaciones con amplio manejo de contextos sociales y culturales. Me apasiona la gastronomía, el arte y los viajes.</textarea></div>
-              <div class="form-grid"><div class="input-wrap"><label class="input-label">Precio/hr</label><input class="input" type="number" value="25000"></div><div class="input-wrap"><label class="input-label">Precio mínimo</label><input class="input" type="number" value="20000"></div></div>
-              <div class="input-wrap"><label class="input-label">Zonas donde acepto citas</label><input class="input" value="Las Condes, Vitacura, Providencia"></div>
-              <div style="display:flex;align-items:center;gap:.7rem"><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label><span style="font-size:.8rem;color:var(--text2)">Perfil activo y visible para solicitudes</span></div>
+              <div class="input-wrap"><label class="input-label">Nombre visible</label><input id="cp-display-name" class="input" placeholder="Tu nombre público"></div>
+              <div class="input-wrap"><label class="input-label">Descripción personal</label><textarea id="cp-bio" class="input" style="min-height:100px" placeholder="Cuéntale a los clientes quién eres…"></textarea></div>
+              <div class="form-grid">
+                <div class="input-wrap"><label class="input-label">Precio/hr (CLP)</label><input id="cp-price" class="input" type="number" placeholder="25000"></div>
+                <div class="input-wrap"><label class="input-label">Precio mínimo</label><input id="cp-price-min" class="input" type="number" placeholder="20000"></div>
+              </div>
+              <div class="input-wrap"><label class="input-label">Zonas donde acepto citas</label><input id="cp-zones" class="input" placeholder="Las Condes, Vitacura, Providencia"></div>
+              <div style="display:flex;align-items:center;gap:.7rem"><label class="toggle"><input type="checkbox" id="cp-is-active"><span class="toggle-slider"></span></label><span style="font-size:.8rem;color:var(--text2)">Perfil activo y visible para solicitudes</span></div>
             </div>
             <div style="display:flex;flex-direction:column;gap:.75rem">
-              <div class="card" style="padding:1.25rem"><div class="form-section-title">Estado de perfil</div><div style="display:flex;flex-direction:column;gap:.55rem"><div class="price-line"><span class="price-line-label">Identidad</span><span class="badge-verified badge">✦ Verificada</span></div><div class="price-line"><span class="price-line-label">Perfil</span><span class="badge badge-green">Aprobado</span></div><div class="price-line"><span class="price-line-label">Email</span><span class="badge badge-green">Verificado</span></div><div class="price-line" style="border:none"><span class="price-line-label">Teléfono</span><span class="badge badge-green">Verificado</span></div></div></div>
+              <div class="card" style="padding:1.25rem"><div class="form-section-title">Estado de perfil</div><div id="cp-status-lines" style="display:flex;flex-direction:column;gap:.55rem"><div class="price-line" style="border:none"><span class="price-line-label">Cargando…</span></div></div></div>
             </div>
           </div>
         </div>
-        <div id="cp-services" style="display:none"><div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;max-width:400px"><label class="service-checkbox"><input type="checkbox" checked><span>Cenas</span></label><label class="service-checkbox"><input type="checkbox" checked><span>Eventos sociales</span></label><label class="service-checkbox"><input type="checkbox" checked><span>Galas</span></label><label class="service-checkbox"><input type="checkbox" checked><span>Negocios</span></label><label class="service-checkbox"><input type="checkbox"><span>Viajes</span></label><label class="service-checkbox"><input type="checkbox" checked><span>Arte y cultura</span></label></div></div>
+
+        <!-- TAB: Servicios -->
+        <div id="cp-services" style="display:none">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;max-width:400px">
+            <label class="service-checkbox"><input type="checkbox" data-service="Cenas"><span>Cenas</span></label>
+            <label class="service-checkbox"><input type="checkbox" data-service="Eventos sociales"><span>Eventos sociales</span></label>
+            <label class="service-checkbox"><input type="checkbox" data-service="Galas"><span>Galas</span></label>
+            <label class="service-checkbox"><input type="checkbox" data-service="Negocios"><span>Negocios</span></label>
+            <label class="service-checkbox"><input type="checkbox" data-service="Viajes"><span>Viajes</span></label>
+            <label class="service-checkbox"><input type="checkbox" data-service="Arte y cultura"><span>Arte y cultura</span></label>
+            <label class="service-checkbox"><input type="checkbox" data-service="Deportes"><span>Deportes</span></label>
+            <label class="service-checkbox"><input type="checkbox" data-service="Turismo"><span>Turismo</span></label>
+          </div>
+        </div>
+
+        <!-- TAB: Disponibilidad -->
         <div id="cp-avail" style="display:none">
           <div class="form-section-title" style="margin-bottom:1rem">Ventanas de disponibilidad</div>
           <div class="availability-grid" style="margin-bottom:1.25rem">
@@ -1231,25 +1263,35 @@ tbody tr:last-child td{border-bottom:none}
           </div>
           <div style="font-size:.72rem;color:var(--text3)">Haz clic en un bloque para activarlo o desactivarlo.</div>
         </div>
+
+        <!-- TAB: Fotos & Videos -->
         <div id="cp-photos" style="display:none">
-          <div class="form-section-title" style="margin-bottom:1rem">Fotos de perfil</div>
+          <div class="form-section-title" style="margin-bottom:1rem">Book de fotos</div>
           <input type="file" id="photo-file-input" accept="image/*" style="display:none" onchange="uploadCompanionPhoto(this)">
-          <div class="photo-grid" id="photo-grid" style="max-width:320px">
+          <div class="photo-grid" id="photo-grid">
             <div class="photo-thumb add-photo" onclick="document.getElementById('photo-file-input').click()" title="Agregar foto">+</div>
           </div>
-          <div style="font-size:.72rem;color:var(--text3);margin-top:.75rem">Máximo 6 fotos. Revisadas por el equipo antes de publicarse.</div>
-          <div id="photo-upload-status" style="font-size:.75rem;margin-top:.5rem"></div>
+          <div style="font-size:.72rem;color:var(--text3);margin-top:.75rem">Máximo 8 fotos · JPG/PNG · Máx 8 MB · Revisadas antes de publicarse</div>
+          <div id="photo-upload-status" style="font-size:.75rem;color:var(--gold);margin-top:.5rem"></div>
+
+          <div class="divider" style="margin:1.5rem 0"></div>
+          <div class="form-section-title" style="margin-bottom:.6rem">Links de videos (YouTube / Vimeo)</div>
+          <div style="font-size:.75rem;color:var(--text3);margin-bottom:.75rem">Pega un link por línea. Se muestran como miniaturas en tu perfil público.</div>
+          <textarea id="cp-video-links" class="input" style="min-height:90px;font-size:.8rem" placeholder="https://youtube.com/watch?v=...&#10;https://vimeo.com/..."></textarea>
         </div>
+
+        <!-- TAB: Reseñas -->
         <div id="cp-reviews" style="display:none">
           <div class="form-section-title" style="margin-bottom:1rem">Reseñas de clientes verificados</div>
-          <div class="review-card"><div class="review-author-info"><div class="avatar avatar-sm avatar-verified-ring">CV</div><div><div class="review-author-name" style="display:flex;align-items:center;gap:.4rem">C. Vásquez <span class="badge-verified badge" style="font-size:.55rem">✦</span></div><div class="review-author-role">Cliente verificado · ★★★★★ · Abril 2025</div></div></div><div class="review-text">"Una experiencia impecable. Elegante, puntual y genuinamente agradable."</div><div class="review-aspects"><span class="review-aspect">Puntualidad</span><span class="review-aspect">Presentación</span><span class="review-aspect">Discreción</span></div></div>
-          <div class="review-card"><div class="review-author-info"><div class="avatar avatar-sm avatar-verified-ring">RM</div><div><div class="review-author-name" style="display:flex;align-items:center;gap:.4rem">R. Morales <span class="badge-verified badge" style="font-size:.55rem">✦</span></div><div class="review-author-role">Cliente verificado · ★★★★★ · Marzo 2025</div></div></div><div class="review-text">"Perfecta para la cena corporativa. Discreta y excelente conversación."</div><div class="review-aspects"><span class="review-aspect">Profesionalismo</span><span class="review-aspect">Conversación</span></div></div>
-          <div style="font-size:.72rem;color:var(--text3);margin-top:.5rem">Solo los usuarios con identidad verificada (✦) pueden dejar reseñas públicas visibles en perfiles.</div>
+          <div id="cp-reviews-list"><div style="color:var(--text3);font-size:.8rem">Aún no tienes reseñas.</div></div>
+          <div style="font-size:.72rem;color:var(--text3);margin-top:.5rem">Solo usuarios con identidad verificada (✦) pueden dejar reseñas públicas.</div>
         </div>
+
+        <!-- TAB: Verificación -->
         <div id="cp-verify" style="display:none">
           <div style="max-width:500px">
-            <div style="background:linear-gradient(135deg,rgba(196,166,110,.1),rgba(196,166,110,.04));border:1px solid var(--gold-border2);border-radius:var(--r-lg);padding:1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:1.25rem"><div style="font-size:2rem;flex-shrink:0">✦</div><div><div style="font-family:var(--serif);font-size:1.1rem;color:var(--gold);margin-bottom:.2rem">Identidad verificada</div><div style="font-size:.78rem;color:var(--text2);line-height:1.6">Verificada el 10 de Marzo, 2025 vía Veriff. Badge activo en perfil público.</div></div></div>
-            <button class="btn btn-outline btn-sm" onclick="openModal('modal-verify-id');startVerifFlow()">Re-verificar identidad</button>
+            <div style="background:linear-gradient(135deg,rgba(196,166,110,.1),rgba(196,166,110,.04));border:1px solid var(--gold-border2);border-radius:var(--r-lg);padding:1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:1.25rem"><div style="font-size:2rem;flex-shrink:0">✦</div><div><div style="font-family:var(--serif);font-size:1.1rem;color:var(--gold);margin-bottom:.2rem">Verificación de identidad</div><div style="font-size:.78rem;color:var(--text2);line-height:1.6">Verifica tu identidad para obtener el badge ✦ y aumentar la confianza en tu perfil.</div></div></div>
+            <button class="btn btn-outline btn-sm" onclick="openModal('modal-verify-id');startVerifFlow()">Iniciar verificación</button>
           </div>
         </div>
       </div>
@@ -1359,7 +1401,7 @@ function navigateTo(name){
   if(name==='appointments')loadAppointments();
   if(name==='client-requests')loadClientRequests();
   if(name==='my-profile')loadMyProfile();
-  if(name==='companion-profile')loadCompanionPhotos();
+  if(name==='companion-profile'){loadCompanionProfile();loadCompanionPhotos();}
 }
 
 function nav(page,btn){
@@ -1710,18 +1752,114 @@ async function loadClientRequests(){
   }
 }
 
+async function loadCompanionProfile(){
+  if(!authToken)return;
+  try{
+    const p=await apiGet('/api/companions/me');
+    // Info tab
+    const set=(id,v)=>{const el=document.getElementById(id);if(el){if(el.tagName==='TEXTAREA'||el.type==='text'||el.type==='number'||el.type==='')el.value=v||'';else if(el.type==='checkbox')el.checked=!!v;}};
+    set('cp-display-name',p.displayName);
+    set('cp-bio',p.bio);
+    set('cp-price',p.pricePerHour);
+    set('cp-price-min',p.priceMin||'');
+    set('cp-zones',(p.zones||[]).join(', '));
+    set('cp-is-active',p.isActive);
+    // Avatar
+    const av=document.getElementById('cp-avatar-preview');
+    if(av){
+      if(p.avatarUrl){av.style.backgroundImage=`url('${p.avatarUrl}')`;av.style.backgroundSize='cover';av.style.backgroundPosition='center';av.textContent='';}
+      else{av.textContent=(p.displayName||'?').slice(0,1).toUpperCase();}
+    }
+    // Sidebar avatar
+    const sb=document.querySelector('#page-companion-profile .sidebar .avatar');
+    if(sb){
+      if(p.avatarUrl){sb.style.backgroundImage=`url('${p.avatarUrl}')`;sb.style.backgroundSize='cover';sb.style.backgroundPosition='center';sb.textContent='';}
+      else{sb.textContent=(p.displayName||'?').slice(0,2).toUpperCase();}
+      const nameEl=sb.parentElement?.querySelector('div');
+      if(nameEl&&nameEl.style.fontFamily)nameEl.textContent=p.displayName||'';
+    }
+    // Services
+    document.querySelectorAll('#cp-services input[data-service]').forEach(cb=>{
+      cb.checked=(p.services||[]).includes(cb.dataset.service);
+    });
+    // Video links
+    const vl=document.getElementById('cp-video-links');
+    if(vl)vl.value=(p.videoLinks||[]).join('\n');
+    // Status card
+    const sl=document.getElementById('cp-status-lines');
+    if(sl)sl.innerHTML=`
+      <div class="price-line"><span class="price-line-label">Identidad</span><span class="badge ${p.identityVerified?'badge-verified':'badge-gray'}">${p.identityVerified?'✦ Verificada':'Pendiente'}</span></div>
+      <div class="price-line"><span class="price-line-label">Perfil</span><span class="badge ${p.isApproved?'badge-green':'badge-warn'}">${p.isApproved?'Aprobado':'En revisión'}</span></div>
+      <div class="price-line" style="border:none"><span class="price-line-label">Activo</span><span class="badge ${p.isActive?'badge-green':'badge-gray'}">${p.isActive?'Visible':'Oculto'}</span></div>`;
+  }catch(e){console.warn('loadCompanionProfile',e);}
+}
+
+async function saveCompanionProfile(){
+  if(!authToken)return;
+  const get=id=>document.getElementById(id);
+  const displayName=get('cp-display-name')?.value?.trim();
+  const bio=get('cp-bio')?.value?.trim();
+  const pricePerHour=parseInt(get('cp-price')?.value)||undefined;
+  const priceMin=parseInt(get('cp-price-min')?.value)||undefined;
+  const zonesRaw=get('cp-zones')?.value||'';
+  const zones=zonesRaw.split(',').map(z=>z.trim()).filter(Boolean);
+  const isActive=get('cp-is-active')?.checked||false;
+  const services=[...document.querySelectorAll('#cp-services input[data-service]:checked')].map(cb=>cb.dataset.service);
+  const vlRaw=get('cp-video-links')?.value||'';
+  const videoLinks=vlRaw.split('\n').map(v=>v.trim()).filter(Boolean);
+  try{
+    await apiPut('/api/companions/me',{displayName,bio,pricePerHour,priceMin,zones,isActive,services,videoLinks});
+    showToast('Perfil guardado','Cambios guardados. Serán revisados antes de publicarse.');
+    await loadCompanionProfile();
+  }catch(e){showToast('Error al guardar',e.message||'Inténtalo de nuevo.');}
+}
+
+async function uploadCompanionAvatar(input){
+  const file=input.files[0];
+  if(!file)return;
+  if(file.size>8*1024*1024){showToast('Archivo muy grande','Máximo 8MB.');return;}
+  const status=document.getElementById('avatar-upload-status');
+  if(status)status.textContent='Subiendo…';
+  const fd=new FormData();fd.append('file',file);
+  try{
+    const r=await fetch(API_BASE+'/api/companions/me/avatar/upload',{method:'POST',headers:{Authorization:'Bearer '+authToken},body:fd});
+    if(!r.ok)throw new Error((await r.json().catch(()=>({}))).message||'Error');
+    const data=await r.json();
+    const av=document.getElementById('cp-avatar-preview');
+    if(av&&data.avatarUrl){av.style.backgroundImage=`url('${data.avatarUrl}')`;av.style.backgroundSize='cover';av.style.backgroundPosition='center';av.textContent='';}
+    if(status)status.textContent='';
+    showToast('Foto actualizada','Tu foto de perfil ha sido actualizada.');
+  }catch(e){
+    if(status)status.textContent='';
+    showToast('Error al subir',e.message);
+  }
+  input.value='';
+}
+
 async function loadCompanionPhotos(){
   const grid=document.getElementById('photo-grid');
   if(!grid||!authToken)return;
+  const addBtn='<div class="photo-thumb add-photo" onclick="document.getElementById(\'photo-file-input\').click()" title="Agregar foto">+</div>';
   try{
     const profile=await apiGet('/api/companions/me');
     const photos=profile.photos||[];
-    const addBtn='<div class="photo-thumb add-photo" onclick="document.getElementById(\'photo-file-input\').click()" title="Agregar foto">+</div>';
     if(!photos.length){grid.innerHTML=addBtn;return;}
-    grid.innerHTML=photos.map(p=>`<div class="photo-thumb" style="background:url('${p.url}') center/cover no-repeat;position:relative">
-      <span style="position:absolute;top:2px;right:4px;font-size:.6rem;background:rgba(0,0,0,.55);color:#fff;border-radius:3px;padding:1px 4px">${p.isApproved?'✓':'rev'}</span>
-    </div>`).join('')+addBtn;
-  }catch{}
+    grid.innerHTML=photos.map(p=>`
+      <div class="photo-thumb" style="background:url('${p.url}') center/cover no-repeat;position:relative">
+        <span style="position:absolute;top:2px;left:4px;font-size:.55rem;background:rgba(0,0,0,.6);color:#fff;border-radius:2px;padding:1px 4px">${p.isApproved?'✓ ok':'⏳'}</span>
+        <button onclick="deleteCompanionPhoto('${p.id}')" style="position:absolute;top:2px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:2px;width:18px;height:18px;cursor:pointer;font-size:.7rem;line-height:1;padding:0">×</button>
+      </div>`).join('')+addBtn;
+  }catch{grid.innerHTML=addBtn;}
+}
+
+async function deleteCompanionPhoto(photoId){
+  if(!confirm('¿Eliminar esta foto?'))return;
+  try{
+    const r=await fetch(API_BASE+'/api/companions/me/photos/'+photoId,{method:'DELETE',headers:{Authorization:'Bearer '+authToken}});
+    if(!r.ok)throw new Error('Error al eliminar');
+    await loadCompanionPhotos();
+    showToast('Foto eliminada','La foto fue eliminada de tu book.');
+  }catch(e){showToast('Error',e.message);}
 }
 
 async function uploadCompanionPhoto(input){
