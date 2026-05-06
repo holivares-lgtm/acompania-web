@@ -1399,6 +1399,7 @@ async function handleEmailLogin(){
 }
 
 function loginWithGoogle(){
+  localStorage.setItem('pendingOAuthRole',currentRole==='acompanante'?'ACOMPANANTE':'CLIENTE');
   window.location.href=API_BASE+'/api/auth/google';
 }
 
@@ -1426,7 +1427,7 @@ function doLogin(){
   shell.style.display='flex';
   document.getElementById('nav-client').style.display='none';
   document.getElementById('nav-companion').style.display='none';
-  const initials=currentUser?currentUser.email.slice(0,2).toUpperCase():(currentRole==='acompanante'?'AC':'CL');
+  const initials=(currentUser?.email?.slice(0,2)??currentUser?.phone?.slice(-2)??currentRole.slice(0,2)).toUpperCase();
   if(currentRole==='cliente'){
     document.getElementById('nav-client').style.display='flex';
     document.getElementById('nav-avatar').textContent=initials;
@@ -2384,15 +2385,25 @@ function decodeJwt(token){
 }
 
 // ── Auto-login from Google OAuth redirect (?token=JWT) or restore session ──
-(function(){
+(async function(){
   const params=new URLSearchParams(window.location.search);
   const token=params.get('token');
   if(token){
     history.replaceState({},'',window.location.pathname);
     const payload=decodeJwt(token);
     if(payload){
-      const user={id:payload.sub,email:payload.email,phone:payload.phone||null,role:payload.role};
+      const pendingRole=localStorage.getItem('pendingOAuthRole');
+      localStorage.removeItem('pendingOAuthRole');
+      let user={id:payload.sub,email:payload.email,phone:payload.phone||null,role:payload.role};
       saveAuth(token,user);
+      // If user selected ACOMPANANTE before Google redirect, upgrade their role in DB
+      if(pendingRole==='ACOMPANANTE'&&user.role!=='ACOMPANANTE'){
+        try{
+          const updated=await apiPost('/api/users/me/role/acompanante',{});
+          user={...user,role:updated.role};
+          saveAuth(token,user);
+        }catch(e){console.warn('Role upgrade failed',e);}
+      }
       currentRole=user.role==='ACOMPANANTE'?'acompanante':'cliente';
       doLogin();
     }else{
