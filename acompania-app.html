@@ -1399,7 +1399,7 @@ async function handleEmailLogin(){
 }
 
 function loginWithGoogle(){
-  showToast('Google Auth','Próximamente disponible.');
+  window.location.href=API_BASE+'/api/auth/google';
 }
 
 async function handleRegister(){
@@ -1465,14 +1465,19 @@ function setupOTP(mode){
   document.getElementById('otp-code-step').style.display='none';
 }
 
-function sendOTP(){
+async function sendOTP(){
   const phone=document.getElementById('otp-phone-input').value;
   if(!phone){showToast('Ingresa tu número','Por favor escribe tu número de teléfono.');return}
-  document.getElementById('otp-phone-display').textContent=phone.replace(/\d(?=\d{4})/g,'·');
-  document.getElementById('otp-phone-step').style.display='none';
-  document.getElementById('otp-code-step').style.display='block';
-  startOTPCountdown(60);
-  showToast('Código enviado','Se envió un código de 6 dígitos a tu teléfono.');
+  try{
+    await apiPost('/api/auth/otp/send',{phone});
+    document.getElementById('otp-phone-display').textContent=phone.replace(/\d(?=\d{4})/g,'·');
+    document.getElementById('otp-phone-step').style.display='none';
+    document.getElementById('otp-code-step').style.display='block';
+    startOTPCountdown(60);
+    showToast('Código enviado','Se envió un código de 6 dígitos a tu teléfono.');
+  }catch(e){
+    showToast('Error',e.message||'No se pudo enviar el código.');
+  }
 }
 
 function startOTPCountdown(sec){
@@ -1491,11 +1496,20 @@ function otpNext(input,idx){
   if(all.length===6)setTimeout(verifyOTP,300);
 }
 
-function verifyOTP(){
+async function verifyOTP(){
   const code=[...Array(6)].map((_,i)=>document.getElementById('otp'+i).value).join('');
   if(code.length<6){showToast('Código incompleto','Ingresa los 6 dígitos.');return}
-  showToast('Teléfono verificado','Tu número fue verificado correctamente.');
-  setTimeout(()=>{currentRole=otpMode==='register'?'cliente':'cliente';doLogin()},1000);
+  const phone=document.getElementById('otp-phone-input').value;
+  const role=otpMode==='register'?(currentRole==='acompanante'?'ACOMPANANTE':'CLIENTE'):'CLIENTE';
+  try{
+    const data=await apiPost('/api/auth/otp/verify',{phone,code,role});
+    saveAuth(data.access_token,data.user);
+    currentRole=data.user.role==='ACOMPANANTE'?'acompanante':'cliente';
+    showToast('Teléfono verificado','Bienvenida/o a Acompañía.');
+    setTimeout(()=>doLogin(),500);
+  }catch(e){
+    showToast('Código incorrecto',e.message||'Inténtalo de nuevo.');
+  }
 }
 
 function resendOTP(){
@@ -2360,6 +2374,31 @@ function checkPwStrength(pw){
     if(el){el.textContent=labels[score];el.style.color=colors[score]}
   });
 }
+
+// ── Auto-login from Google OAuth redirect (?token=JWT) ──
+(function(){
+  const params=new URLSearchParams(window.location.search);
+  const token=params.get('token');
+  if(token){
+    history.replaceState({},'',window.location.pathname);
+    (async()=>{
+      try{
+        saveAuth(token,null);
+        const user=await apiGet('/api/auth/me');
+        saveAuth(token,{id:user.id,email:user.email,phone:user.phone,role:user.role});
+        currentRole=user.role==='ACOMPANANTE'?'acompanante':'cliente';
+        doLogin();
+      }catch(e){
+        clearAuth();
+        showToast('Error de sesión','No se pudo completar el login con Google.');
+      }
+    })();
+  } else if(authToken&&currentUser){
+    // Restore session from localStorage
+    currentRole=currentUser.role==='ACOMPANANTE'?'acompanante':'cliente';
+    doLogin();
+  }
+})();
 </script>
 </body>
 </html>
