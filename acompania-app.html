@@ -374,10 +374,8 @@ tbody tr:last-child td{border-bottom:none}
   GLOBAL UI: NOTIF, TOAST, SMART-PROMO
 ──────────────────────────────────────── -->
 <div class="notif-panel" id="notif-panel">
-  <div class="notif-header"><span class="notif-title">Notificaciones</span><span style="font-size:.7rem;color:var(--text3)">3 nuevas</span></div>
-  <div class="notif-item"><div class="notif-item-title">4 postulaciones recibidas</div><div class="notif-item-desc">Valentina M. y 3 más postularon a tu solicitud del viernes</div><div class="notif-item-time">Hace 8 min</div></div>
-  <div class="notif-item"><div class="notif-item-title">Cita confirmada</div><div class="notif-item-desc">Tu cita con Sofía C. está confirmada para el sábado</div><div class="notif-item-time">Hace 2 hrs</div></div>
-  <div class="notif-item"><div class="notif-item-title">Identidad verificada ✦</div><div class="notif-item-desc">Tu verificación de identidad fue aprobada. Ahora eres un usuario verificado.</div><div class="notif-item-time">Ayer</div></div>
+  <div class="notif-header"><span class="notif-title">Notificaciones</span><span id="notif-header-count" style="font-size:.7rem;color:var(--text3)"></span></div>
+  <div id="notif-panel-body"><div style="padding:1.5rem;text-align:center;font-size:.8rem;color:var(--text3)">Cargando…</div></div>
 </div>
 
 <div class="toast" id="toast"><div class="toast-title" id="toast-title"></div><div class="toast-msg" id="toast-msg"></div></div>
@@ -794,7 +792,7 @@ tbody tr:last-child td{border-bottom:none}
       <button class="nav-link" onclick="nav('companion-profile',this)">Mi perfil</button>
     </div>
     <div class="nav-actions">
-      <button class="nav-notif" onclick="toggleNotif()"><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="1.5"/></svg><div class="notif-dot"></div></button>
+      <button class="nav-notif" onclick="toggleNotif();loadNotifications()"><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="1.5"/></svg><div id="notif-badge" style="display:none;position:absolute;top:-3px;right:-3px;background:var(--danger);color:#fff;font-size:.5rem;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:none;align-items:center;justify-content:center;padding:0 3px;border:1.5px solid var(--bg)">0</div></button>
       <div class="avatar avatar-sm avatar-verified-ring" style="cursor:pointer" id="nav-avatar" onclick="navigateTo('my-profile')">CL</div>
       <button class="btn btn-ghost btn-sm" onclick="logout()">Salir</button>
     </div>
@@ -1125,37 +1123,46 @@ tbody tr:last-child td{border-bottom:none}
   <!-- ── COMPANION DASHBOARD ── -->
   <div id="page-companion-dashboard" class="page">
     <div class="sidebar-layout">
-      <nav class="sidebar">
-        <div style="padding:.9rem 1.4rem 1.3rem;border-bottom:1px solid var(--gold-border)"><div class="avatar avatar-md avatar-verified-ring" style="margin-bottom:.65rem">VM</div><div style="font-family:var(--serif);font-size:.95rem;color:var(--text)">Valentina Morales</div><div style="font-size:.7rem;color:var(--text3);margin:.15rem 0">valentina@email.com</div><div class="badge-verified badge" style="margin-bottom:.45rem">✦ Identidad verificada</div><div style="display:flex;align-items:center;gap:.4rem;font-size:.7rem;color:#4a9"><div class="status-dot status-available"></div>Disponible</div></div>
+      <nav class="sidebar" id="sidebar-dashboard">
+        <div style="padding:.9rem 1.4rem 1.3rem;border-bottom:1px solid var(--gold-border)">
+          <div id="dash-sidebar-avatar" class="avatar avatar-md avatar-verified-ring" style="margin-bottom:.65rem;background-size:cover;background-position:center"></div>
+          <div id="dash-sidebar-name" style="font-family:var(--serif);font-size:.95rem;color:var(--text)">—</div>
+          <div id="dash-sidebar-email" style="font-size:.7rem;color:var(--text3);margin:.15rem 0"></div>
+          <div id="dash-sidebar-verified" style="display:none" class="badge-verified badge" style="margin-bottom:.45rem">✦ Identidad verificada</div>
+          <div id="dash-sidebar-status" style="display:flex;align-items:center;gap:.4rem;font-size:.7rem;color:#4a9;margin-top:.4rem"><div class="status-dot status-available"></div>—</div>
+        </div>
         <div class="sidebar-section-label">Principal</div>
         <button class="sidebar-item active" onclick="navigateTo('companion-dashboard')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>Dashboard</button>
-        <button class="sidebar-item" onclick="navigateTo('companion-requests')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5"/></svg>Solicitudes (3)</button>
+        <button class="sidebar-item" id="dash-sidebar-req-btn" onclick="navigateTo('companion-requests')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5"/></svg>Solicitudes</button>
         <button class="sidebar-item" onclick="navigateTo('appointments')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="1.5"/></svg>Mis citas</button>
         <div class="sidebar-section-label">Mi perfil</div>
         <button class="sidebar-item" onclick="navigateTo('companion-profile')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/></svg>Perfil público</button>
         <button class="sidebar-item" onclick="navigateTo('profile-settings')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="1.5"/></svg>Configuración</button>
       </nav>
       <div class="main-content">
-        <div class="flex-between" style="margin-bottom:2rem"><div><div class="section-eyebrow">Panel acompañante</div><div class="section-title" style="font-size:1.8rem">Hola, <em>Valentina</em></div></div><div style="display:flex;align-items:center;gap:.75rem"><span style="font-size:.76rem;color:var(--text3)">Estado:</span><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label><span style="font-size:.76rem;color:#4a9">Disponible</span></div></div>
+        <div class="flex-between" style="margin-bottom:2rem">
+          <div><div class="section-eyebrow">Panel acompañante</div><div class="section-title" style="font-size:1.8rem">Hola, <em id="dash-greeting-name">—</em></div></div>
+          <div style="display:flex;align-items:center;gap:.75rem">
+            <span style="font-size:.76rem;color:var(--text3)">Estado:</span>
+            <label class="toggle"><input type="checkbox" id="dash-active-toggle" onchange="toggleCompanionActive(this)"><span class="toggle-slider"></span></label>
+            <span id="dash-active-label" style="font-size:.76rem;color:var(--text3)">—</span>
+          </div>
+        </div>
         <div class="grid-4" style="margin-bottom:2rem">
-          <div class="stat-card"><div class="stat-label">Solicitudes nuevas</div><div class="stat-value">3</div><div class="stat-sub stat-up">↑ Esta semana</div></div>
-          <div class="stat-card"><div class="stat-label">Postulaciones activas</div><div class="stat-value">5</div></div>
-          <div class="stat-card"><div class="stat-label">Citas este mes</div><div class="stat-value">2</div></div>
-          <div class="stat-card"><div class="stat-label">Calificación</div><div class="stat-value">4.9</div><div class="stat-sub">★ 48 reseñas</div></div>
+          <div class="stat-card"><div class="stat-label">Solicitudes abiertas</div><div class="stat-value" id="stat-open-reqs">—</div><div class="stat-sub stat-up">Sin postular</div></div>
+          <div class="stat-card"><div class="stat-label">Mis postulaciones</div><div class="stat-value" id="stat-my-apps">—</div></div>
+          <div class="stat-card"><div class="stat-label">Citas confirmadas</div><div class="stat-value" id="stat-appts">—</div></div>
+          <div class="stat-card"><div class="stat-label">Calificación</div><div class="stat-value" id="stat-rating">—</div><div class="stat-sub" id="stat-reviews"></div></div>
         </div>
         <div class="grid-2">
           <div>
             <div style="font-family:var(--serif);font-size:1.1rem;color:var(--gold);margin-bottom:.9rem">Solicitudes recientes</div>
-            <div class="request-card" style="margin-bottom:.75rem"><div class="flex-between" style="margin-bottom:.45rem"><div style="font-size:.84rem;font-weight:500;color:var(--text)">Cena · Viernes 23 Mayo</div><span class="badge badge-gold">Nueva</span></div><div style="font-size:.73rem;color:var(--text3)">📍 Las Condes · 20:00 · 3hrs · $25.000/hr</div><div style="display:flex;gap:.5rem;margin-top:.7rem"><button class="btn btn-gold btn-sm" onclick="showToast('Postulación enviada','El cliente fue notificado.')">Postularme</button><button class="btn btn-ghost btn-sm">Rechazar</button></div></div>
-            <div class="request-card"><div class="flex-between" style="margin-bottom:.45rem"><div style="font-size:.84rem;font-weight:500;color:var(--text)">Gala · Sábado 31 Mayo</div><span class="badge badge-gold">Nueva</span></div><div style="font-size:.73rem;color:var(--text3)">📍 Vitacura · 19:00 · 4hrs · $30.000/hr</div><div style="display:flex;gap:.5rem;margin-top:.7rem"><button class="btn btn-gold btn-sm" onclick="showToast('Postulación enviada','El cliente fue notificado.')">Postularme</button><button class="btn btn-ghost btn-sm">Rechazar</button></div></div>
+            <div id="dash-recent-requests"><div style="color:var(--text3);font-size:.8rem">Cargando…</div></div>
+            <button class="btn btn-outline btn-sm" style="margin-top:.75rem" onclick="navigateTo('companion-requests')">Ver todas →</button>
           </div>
           <div>
-            <div style="font-family:var(--serif);font-size:1.1rem;color:var(--gold);margin-bottom:.9rem">Próxima cita</div>
-            <div class="appt-card" style="flex-direction:column"><div style="display:flex;gap:1rem;align-items:flex-start;width:100%"><div class="appt-date-box"><div class="appt-date-day">24</div><div class="appt-date-month">Mayo</div></div><div><div style="font-family:var(--serif);font-size:1.05rem;color:var(--text);margin-bottom:.3rem">Cena — R. Morales</div><div style="font-size:.73rem;color:var(--text3);display:flex;gap:.75rem"><span>🕗 20:00</span><span>📍 Providencia</span></div><span class="badge badge-green" style="margin-top:.5rem">Confirmada</span></div></div></div>
-            <div style="margin-top:1.25rem">
-              <div style="font-family:var(--serif);font-size:1.1rem;color:var(--gold);margin-bottom:.9rem">Reseñas recibidas</div>
-              <div class="review-card" style="margin-bottom:0"><div class="review-author-info"><div class="avatar avatar-sm avatar-verified-ring">RM</div><div><div class="review-author-name" style="display:flex;align-items:center;gap:.4rem">R. Morales <span class="badge-verified badge" style="font-size:.55rem">✦</span></div><div class="review-author-role">★★★★★ · Abril 2025</div></div></div><div class="review-text">"Valentina es excepcional. Puntual, elegante y encantadora."</div></div>
-            </div>
+            <div style="font-family:var(--serif);font-size:1.1rem;color:var(--gold);margin-bottom:.9rem">Próximas citas</div>
+            <div id="dash-next-appts"><div style="color:var(--text3);font-size:.8rem">Cargando…</div></div>
           </div>
         </div>
       </div>
@@ -1166,18 +1173,20 @@ tbody tr:last-child td{border-bottom:none}
   <div id="page-companion-requests" class="page">
     <div class="sidebar-layout">
       <nav class="sidebar">
-        <div style="padding:.9rem 1.4rem 1.3rem;border-bottom:1px solid var(--gold-border)"><div class="avatar avatar-md avatar-verified-ring" style="margin-bottom:.65rem">VM</div><div style="font-family:var(--serif);font-size:.95rem;color:var(--text)">Valentina Morales</div><div class="badge-verified badge" style="margin-top:.3rem">✦ Verificada</div></div>
+        <div style="padding:.9rem 1.4rem 1.3rem;border-bottom:1px solid var(--gold-border)">
+          <div id="req-sidebar-avatar" class="avatar avatar-md avatar-verified-ring" style="margin-bottom:.65rem;background-size:cover;background-position:center"></div>
+          <div id="req-sidebar-name" style="font-family:var(--serif);font-size:.95rem;color:var(--text)">—</div>
+          <div id="req-sidebar-verified" style="display:none" class="badge-verified badge" style="margin-top:.3rem">✦ Verificada</div>
+        </div>
         <div class="sidebar-section-label">Principal</div>
         <button class="sidebar-item" onclick="navigateTo('companion-dashboard')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>Dashboard</button>
-        <button class="sidebar-item active"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5"/></svg>Solicitudes (3)</button>
+        <button class="sidebar-item active"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5"/></svg>Solicitudes</button>
         <button class="sidebar-item" onclick="navigateTo('appointments')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="1.5"/></svg>Citas</button>
         <button class="sidebar-item" onclick="navigateTo('companion-profile')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/></svg>Mi perfil</button>
       </nav>
       <div class="main-content">
-        <div style="margin-bottom:2rem"><div class="section-eyebrow">Bandeja</div><div class="section-title" style="font-size:1.8rem">Solicitudes <em>compatibles</em></div></div>
-        <div class="tabs"><button class="tab active">Nuevas (3)</button><button class="tab">Postuladas (5)</button><button class="tab">Seleccionada (1)</button></div>
-        <div class="request-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem"><div><div class="request-card-title">Cena en restaurante — Viernes 23 Mayo</div><div class="request-card-meta"><span>📅 Vie 23 Mayo 20:00</span><span>📍 Las Condes</span><span>⏱ 3 hrs</span><span>💰 $25.000/hr</span></div></div><span class="badge badge-green">Compatible</span></div><div style="font-size:.78rem;color:var(--text3);margin:.6rem 0">El cliente busca compañía para cena formal. Zona y horario compatibles.</div><div style="display:flex;gap:.7rem"><button class="btn btn-gold btn-sm" onclick="showToast('Postulación enviada','El cliente fue notificado.')">Postularme</button><button class="btn btn-outline btn-sm" onclick="navigateTo('companion-detail')">Ver detalle</button><button class="btn btn-danger btn-sm">Rechazar</button></div></div>
-        <div class="request-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem"><div><div class="request-card-title">Gala benéfica — Sábado 31 Mayo</div><div class="request-card-meta"><span>📅 Sáb 31 Mayo 19:00</span><span>📍 Vitacura</span><span>⏱ 4 hrs</span><span>💰 $30.000/hr</span></div></div><span class="badge badge-green">Compatible</span></div><div style="display:flex;gap:.7rem;margin-top:.7rem"><button class="btn btn-gold btn-sm" onclick="showToast('Postulación enviada','El cliente fue notificado.')">Postularme</button><button class="btn btn-danger btn-sm">Rechazar</button></div></div>
+        <div style="margin-bottom:2rem"><div class="section-eyebrow">Bandeja</div><div class="section-title" style="font-size:1.8rem">Solicitudes <em>disponibles</em></div></div>
+        <div id="companion-requests-list"><div style="color:var(--text3);font-size:.8rem;padding:2rem 0;text-align:center">Cargando solicitudes…</div></div>
       </div>
     </div>
   </div>
@@ -1402,6 +1411,8 @@ function navigateTo(name){
   if(name==='client-requests')loadClientRequests();
   if(name==='my-profile')loadMyProfile();
   if(name==='companion-profile'){loadCompanionProfile();loadCompanionPhotos();}
+  if(name==='companion-dashboard')loadCompanionDashboard();
+  if(name==='companion-requests')loadCompanionRequests();
 }
 
 function nav(page,btn){
@@ -1481,6 +1492,7 @@ function doLogin(){
     document.getElementById('nav-avatar').textContent=initials;
     document.getElementById('promo-banner').classList.add('hidden');
     navigateTo('companion-dashboard');
+    startNotifPolling();
   }
   buildExploreGrid();
 }
@@ -1893,14 +1905,256 @@ async function loadMyProfile(){
     const user=await apiGet('/api/auth/me');
     const avatarEl=document.getElementById('profile-avatar-main');
     const nameEl=document.getElementById('profile-name-display');
-    if(avatarEl)avatarEl.textContent=user.email.slice(0,2).toUpperCase();
-    if(nameEl)nameEl.innerHTML=user.email+' <span class="badge-verified badge">✦</span>';
+    const display=user.email||user.phone||'—';
+    if(avatarEl)avatarEl.textContent=display.slice(0,2).toUpperCase();
+    if(nameEl)nameEl.innerHTML=display+' <span class="badge-verified badge">✦</span>';
   }catch{}
 }
 
 // ────────────────────────────
-//  NOTIF
+//  COMPANION DASHBOARD
 // ────────────────────────────
+function fmtDate(d){
+  const dt=new Date(d);
+  return dt.toLocaleDateString('es-CL',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+}
+function fmtPrice(n){return '$'+(n||0).toLocaleString('es-CL')+'/hr';}
+
+function updateCompanionSidebars(profile){
+  const name=profile?.displayName||currentUser?.email?.split('@')[0]||'—';
+  const email=currentUser?.email||currentUser?.phone||'';
+  const verified=profile?.identityVerified||false;
+  const active=profile?.isActive||false;
+  const avatar=profile?.avatarUrl||null;
+  const initials=name.slice(0,2).toUpperCase();
+
+  [['dash-sidebar-avatar','dash-sidebar-name','dash-sidebar-email','dash-sidebar-verified','dash-sidebar-status'],
+   ['req-sidebar-avatar','req-sidebar-name',null,'req-sidebar-verified',null]].forEach(([avId,nameId,emailId,verifiedId,statusId])=>{
+    const avEl=document.getElementById(avId);
+    if(avEl){
+      if(avatar){avEl.style.backgroundImage=`url('${avatar}')`;avEl.textContent='';}
+      else{avEl.style.backgroundImage='';avEl.textContent=initials;}
+    }
+    const nameEl=document.getElementById(nameId);if(nameEl)nameEl.textContent=name;
+    if(emailId){const el=document.getElementById(emailId);if(el)el.textContent=email;}
+    if(verifiedId){const el=document.getElementById(verifiedId);if(el)el.style.display=verified?'inline-flex':'none';}
+    if(statusId){const el=document.getElementById(statusId);if(el){el.innerHTML=`<div class="status-dot ${active?'status-available':''}"></div>${active?'Disponible':'No disponible'}`;el.style.color=active?'#4a9':'var(--text3)';}}
+  });
+
+  // nav avatar
+  const navAv=document.getElementById('nav-avatar');
+  if(navAv){
+    if(avatar){navAv.style.backgroundImage=`url('${avatar}')`;navAv.style.backgroundSize='cover';navAv.style.backgroundPosition='center';navAv.textContent='';}
+    else{navAv.style.backgroundImage='';navAv.textContent=initials;}
+  }
+}
+
+async function loadCompanionDashboard(){
+  if(!authToken)return;
+  try{
+    const [profile,requests,appts]=await Promise.all([
+      apiGet('/api/companions/me').catch(()=>null),
+      apiGet('/api/requests/open/for-me').catch(()=>[]),
+      apiGet('/api/appointments/mine').catch(()=>[]),
+    ]);
+
+    updateCompanionSidebars(profile);
+
+    // greeting
+    const gName=document.getElementById('dash-greeting-name');
+    if(gName)gName.textContent=profile?.displayName?.split(' ')[0]||currentUser?.email?.split('@')[0]||'—';
+
+    // active toggle
+    const tog=document.getElementById('dash-active-toggle');
+    const lbl=document.getElementById('dash-active-label');
+    if(tog)tog.checked=profile?.isActive||false;
+    if(lbl){lbl.textContent=profile?.isActive?'Disponible':'No disponible';lbl.style.color=profile?.isActive?'#4a9':'var(--text3)';}
+
+    // stats
+    const newReqs=requests.filter(r=>!r.alreadyApplied).length;
+    const myApps=requests.filter(r=>r.alreadyApplied).length;
+    const s=id=>document.getElementById(id);
+    if(s('stat-open-reqs'))s('stat-open-reqs').textContent=newReqs;
+    if(s('stat-my-apps'))s('stat-my-apps').textContent=myApps;
+    if(s('stat-appts'))s('stat-appts').textContent=appts.length;
+    if(s('stat-rating'))s('stat-rating').textContent=profile?.rating?Number(profile.rating).toFixed(1):'—';
+    if(s('stat-reviews'))s('stat-reviews').textContent=profile?.reviewCount?`★ ${profile.reviewCount} reseñas`:'';
+
+    // recent requests (first 3 not applied)
+    const recEl=document.getElementById('dash-recent-requests');
+    if(recEl){
+      const fresh=requests.filter(r=>!r.alreadyApplied).slice(0,3);
+      if(!fresh.length){recEl.innerHTML='<div style="color:var(--text3);font-size:.8rem">No hay solicitudes nuevas.</div>';}
+      else{recEl.innerHTML=fresh.map(r=>requestCard(r,true)).join('');}
+    }
+
+    // next appointments
+    const apptEl=document.getElementById('dash-next-appts');
+    if(apptEl){
+      const upcoming=appts.filter(a=>a.status==='CONFIRMED'&&new Date(a.date)>new Date()).slice(0,2);
+      if(!upcoming.length){apptEl.innerHTML='<div style="color:var(--text3);font-size:.8rem">No tienes citas próximas.</div>';}
+      else{apptEl.innerHTML=upcoming.map(a=>{
+        const dt=new Date(a.date);
+        return `<div class="appt-card" style="flex-direction:column;margin-bottom:.75rem">
+          <div style="display:flex;gap:.75rem;align-items:flex-start;width:100%">
+            <div class="appt-date-box"><div class="appt-date-day">${dt.getDate()}</div><div class="appt-date-month">${dt.toLocaleDateString('es-CL',{month:'short'})}</div></div>
+            <div><div style="font-family:var(--serif);font-size:1rem;color:var(--text);margin-bottom:.25rem">${a.request?.title||'Cita confirmada'}</div>
+            <div style="font-size:.72rem;color:var(--text3)">🕗 ${dt.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'})}${a.request?.location?' · 📍 '+a.request.location:''}</div>
+            <span class="badge badge-green" style="margin-top:.4rem">Confirmada</span></div>
+          </div></div>`;
+      }).join('');}
+    }
+
+    // notif badge
+    setNotifBadge(newReqs);
+    updateRequestsBadge(newReqs);
+  }catch(e){console.warn('loadCompanionDashboard',e);}
+}
+
+function requestCard(r,compact=false){
+  const dt=new Date(r.date);
+  const dateStr=dt.toLocaleDateString('es-CL',{weekday:'short',day:'numeric',month:'short'});
+  const timeStr=dt.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+  return `<div class="request-card" style="margin-bottom:.75rem">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem">
+      <div style="font-size:.84rem;font-weight:500;color:var(--text)">${r.title||'Solicitud de compañía'}</div>
+      <span class="badge badge-gold">Nueva</span>
+    </div>
+    <div style="font-size:.72rem;color:var(--text3);display:flex;flex-wrap:wrap;gap:.5rem">
+      <span>📅 ${dateStr} ${timeStr}</span>${r.location?`<span>📍 ${r.location}</span>`:''}
+      <span>⏱ ${r.duration} hrs</span><span>💰 ${fmtPrice(r.priceOffer)}</span>
+    </div>
+    ${r.description&&!compact?`<div style="font-size:.76rem;color:var(--text3);margin:.5rem 0">${r.description}</div>`:''}
+    <div style="display:flex;gap:.5rem;margin-top:.65rem">
+      <button class="btn btn-gold btn-sm" onclick="applyToRequest('${r.id}',this)">Postularme</button>
+      ${!compact?`<button class="btn btn-danger btn-sm" style="margin-left:auto">Rechazar</button>`:''}
+    </div>
+  </div>`;
+}
+
+async function loadCompanionRequests(){
+  if(!authToken)return;
+  const el=document.getElementById('companion-requests-list');
+  if(!el)return;
+  try{
+    const [profile,requests]=await Promise.all([
+      apiGet('/api/companions/me').catch(()=>null),
+      apiGet('/api/requests/open/for-me'),
+    ]);
+    updateCompanionSidebars(profile);
+
+    if(!requests.length){
+      el.innerHTML='<div style="text-align:center;padding:3rem 0;color:var(--text3);font-size:.85rem">No hay solicitudes abiertas en este momento.<br>Vuelve pronto.</div>';
+      return;
+    }
+
+    const fresh=requests.filter(r=>!r.alreadyApplied);
+    const applied=requests.filter(r=>r.alreadyApplied);
+
+    let html=`<div style="font-size:.75rem;color:var(--text3);margin-bottom:1rem">${fresh.length} sin postular · ${applied.length} postuladas</div>`;
+    if(fresh.length){
+      html+=`<div style="font-family:var(--serif);font-size:.9rem;color:var(--gold);margin-bottom:.75rem">Nuevas (${fresh.length})</div>`;
+      html+=fresh.map(r=>requestCard(r,false)).join('');
+    }
+    if(applied.length){
+      html+=`<div class="divider" style="margin:1.5rem 0"></div>`;
+      html+=`<div style="font-family:var(--serif);font-size:.9rem;color:var(--text3);margin-bottom:.75rem">Ya postuladas (${applied.length})</div>`;
+      html+=applied.map(r=>`<div class="request-card" style="margin-bottom:.75rem;opacity:.65">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem">
+          <div style="font-size:.84rem;font-weight:500;color:var(--text)">${r.title||'Solicitud de compañía'}</div>
+          <span class="badge badge-gray">Postulada</span>
+        </div>
+        <div style="font-size:.72rem;color:var(--text3)">${fmtDate(r.date)}${r.location?' · 📍 '+r.location:''} · ⏱ ${r.duration} hrs · 💰 ${fmtPrice(r.priceOffer)}</div>
+      </div>`).join('');
+    }
+    el.innerHTML=html;
+    setNotifBadge(fresh.length);
+    updateRequestsBadge(fresh.length);
+  }catch(e){
+    if(el)el.innerHTML='<div style="color:var(--danger);font-size:.8rem;padding:1rem">Error al cargar solicitudes.</div>';
+  }
+}
+
+async function applyToRequest(requestId, btn){
+  if(!authToken)return;
+  btn.disabled=true;btn.textContent='Enviando…';
+  try{
+    await apiPost(`/api/requests/${requestId}/apply`,{});
+    btn.closest('.request-card').querySelector('.badge').className='badge badge-gray';
+    btn.closest('.request-card').querySelector('.badge').textContent='Postulada';
+    btn.closest('.request-card').style.opacity='.65';
+    btn.remove();
+    showToast('Postulación enviada','El cliente recibirá tu candidatura.');
+    refreshNotifBadge();
+  }catch(e){
+    btn.disabled=false;btn.textContent='Postularme';
+    showToast('Error',e.message||'No se pudo enviar la postulación.');
+  }
+}
+
+async function toggleCompanionActive(checkbox){
+  const lbl=document.getElementById('dash-active-label');
+  try{
+    await apiPut('/api/companions/me',{isActive:checkbox.checked});
+    if(lbl){lbl.textContent=checkbox.checked?'Disponible':'No disponible';lbl.style.color=checkbox.checked?'#4a9':'var(--text3)';}
+    showToast('Estado actualizado',checkbox.checked?'Tu perfil ahora es visible para clientes.':'Perfil oculto temporalmente.');
+  }catch(e){
+    checkbox.checked=!checkbox.checked;
+    showToast('Error',e.message);
+  }
+}
+
+// ────────────────────────────
+//  NOTIF BADGE & PANEL
+// ────────────────────────────
+let notifPollInterval=null;
+
+function setNotifBadge(count){
+  const badge=document.getElementById('notif-badge');
+  if(!badge)return;
+  if(count>0){badge.textContent=count>9?'9+':count;badge.style.display='flex';}
+  else{badge.style.display='none';}
+}
+
+function updateRequestsBadge(count){
+  const btn=document.getElementById('dash-sidebar-req-btn');
+  if(btn)btn.innerHTML=btn.innerHTML.replace(/ \(\d+\)/,'')+( count>0?` (${count})`:'');
+}
+
+async function refreshNotifBadge(){
+  if(!authToken||currentRole!=='acompanante')return;
+  try{
+    const reqs=await apiGet('/api/requests/open/for-me');
+    const fresh=reqs.filter(r=>!r.alreadyApplied).length;
+    setNotifBadge(fresh);
+    updateRequestsBadge(fresh);
+  }catch{}
+}
+
+function startNotifPolling(){
+  if(notifPollInterval)clearInterval(notifPollInterval);
+  refreshNotifBadge();
+  notifPollInterval=setInterval(refreshNotifBadge,30000);
+}
+
+async function loadNotifications(){
+  const body=document.getElementById('notif-panel-body');
+  const hdr=document.getElementById('notif-header-count');
+  if(!body||!authToken)return;
+  try{
+    const reqs=await apiGet('/api/requests/open/for-me').catch(()=>[]);
+    const fresh=reqs.filter(r=>!r.alreadyApplied);
+    if(hdr)hdr.textContent=fresh.length?`${fresh.length} nueva${fresh.length>1?'s':''}` : '';
+    if(!fresh.length){body.innerHTML='<div style="padding:1.5rem;text-align:center;font-size:.8rem;color:var(--text3)">No hay notificaciones nuevas.</div>';return;}
+    body.innerHTML=fresh.slice(0,5).map(r=>`
+      <div class="notif-item" onclick="navigateTo('companion-requests');closeNotifPanel()" style="cursor:pointer">
+        <div class="notif-item-title">Nueva solicitud: ${r.title||'Compañía'}</div>
+        <div class="notif-item-desc">${fmtDate(r.date)}${r.location?' · '+r.location:''} · ${fmtPrice(r.priceOffer)}</div>
+        <div class="notif-item-time">${new Date(r.createdAt).toLocaleDateString('es-CL',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+      </div>`).join('');
+  }catch{body.innerHTML='<div style="padding:1.5rem;text-align:center;font-size:.8rem;color:var(--text3)">No se pudieron cargar.</div>';}
+}
+
 function toggleNotif(){document.getElementById('notif-panel').classList.toggle('open')}
 function closeNotifPanel(){document.getElementById('notif-panel').classList.remove('open')}
 document.addEventListener('click',e=>{
