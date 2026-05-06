@@ -2375,26 +2375,30 @@ function checkPwStrength(pw){
   });
 }
 
-// ── Auto-login from Google OAuth redirect (?token=JWT) ──
+// ── Decode JWT payload without network call ──
+function decodeJwt(token){
+  try{
+    const payload=token.split('.')[1];
+    return JSON.parse(atob(payload.replace(/-/g,'+').replace(/_/g,'/')));
+  }catch{return null;}
+}
+
+// ── Auto-login from Google OAuth redirect (?token=JWT) or restore session ──
 (function(){
   const params=new URLSearchParams(window.location.search);
   const token=params.get('token');
   if(token){
     history.replaceState({},'',window.location.pathname);
-    (async()=>{
-      try{
-        saveAuth(token,null);
-        const user=await apiGet('/api/auth/me');
-        saveAuth(token,{id:user.id,email:user.email,phone:user.phone,role:user.role});
-        currentRole=user.role==='ACOMPANANTE'?'acompanante':'cliente';
-        doLogin();
-      }catch(e){
-        clearAuth();
-        showToast('Error de sesión','No se pudo completar el login con Google.');
-      }
-    })();
+    const payload=decodeJwt(token);
+    if(payload){
+      const user={id:payload.sub,email:payload.email,phone:payload.phone||null,role:payload.role};
+      saveAuth(token,user);
+      currentRole=user.role==='ACOMPANANTE'?'acompanante':'cliente';
+      doLogin();
+    }else{
+      showToast('Error de sesión','Token inválido. Intenta de nuevo.');
+    }
   } else if(authToken&&currentUser){
-    // Restore session from localStorage
     currentRole=currentUser.role==='ACOMPANANTE'?'acompanante':'cliente';
     doLogin();
   }
