@@ -1237,7 +1237,7 @@ tbody tr:last-child td{border-bottom:none}
         <div class="flex-between" style="margin-bottom:2rem"><div><div class="section-eyebrow">Editar</div><div class="section-title" style="font-size:1.8rem">Mi <em>perfil público</em></div></div><button class="btn btn-gold" onclick="saveCompanionProfile()">Guardar cambios</button></div>
         <div class="tabs" id="cp-tabs">
           <button class="tab active" onclick="switchSettingsTab(this,'cp-info')">Información</button>
-          <button class="tab" onclick="switchSettingsTab(this,'cp-services')">Servicios</button>
+          <button class="tab" onclick="switchSettingsTab(this,'cp-services');loadCompanionServices()">Servicios</button>
           <button class="tab" onclick="switchSettingsTab(this,'cp-avail')">Disponibilidad</button>
           <button class="tab" onclick="switchSettingsTab(this,'cp-photos');loadCompanionPhotos()">Fotos & Videos</button>
           <button class="tab" onclick="switchSettingsTab(this,'cp-reviews')">Mis reseñas</button>
@@ -1277,15 +1277,8 @@ tbody tr:last-child td{border-bottom:none}
 
         <!-- TAB: Servicios -->
         <div id="cp-services" style="display:none">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;max-width:400px">
-            <label class="service-checkbox"><input type="checkbox" data-service="Cenas"><span>Cenas</span></label>
-            <label class="service-checkbox"><input type="checkbox" data-service="Eventos sociales"><span>Eventos sociales</span></label>
-            <label class="service-checkbox"><input type="checkbox" data-service="Galas"><span>Galas</span></label>
-            <label class="service-checkbox"><input type="checkbox" data-service="Negocios"><span>Negocios</span></label>
-            <label class="service-checkbox"><input type="checkbox" data-service="Viajes"><span>Viajes</span></label>
-            <label class="service-checkbox"><input type="checkbox" data-service="Arte y cultura"><span>Arte y cultura</span></label>
-            <label class="service-checkbox"><input type="checkbox" data-service="Deportes"><span>Deportes</span></label>
-            <label class="service-checkbox"><input type="checkbox" data-service="Turismo"><span>Turismo</span></label>
+          <div id="cp-services-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;max-width:480px">
+            <div style="color:var(--text3);font-size:.8rem;grid-column:1/-1">Cargando servicios…</div>
           </div>
         </div>
 
@@ -2033,10 +2026,8 @@ async function loadCompanionProfile(){
       const nameEl=sb.parentElement?.querySelector('div');
       if(nameEl&&nameEl.style.fontFamily)nameEl.textContent=p.displayName||'';
     }
-    // Services
-    document.querySelectorAll('#cp-services input[data-service]').forEach(cb=>{
-      cb.checked=(p.services||[]).includes(cb.dataset.service);
-    });
+    // Services — load dynamically and pre-check selected ones
+    loadCompanionServices(p.services||[]);
     // Video links
     const vl=document.getElementById('cp-video-links');
     if(vl)vl.value=(p.videoLinks||[]).join('\n');
@@ -2047,6 +2038,30 @@ async function loadCompanionProfile(){
       <div class="price-line"><span class="price-line-label">Perfil</span><span class="badge ${p.isApproved?'badge-green':'badge-warn'}">${p.isApproved?'Aprobado':'En revisión'}</span></div>
       <div class="price-line" style="border:none"><span class="price-line-label">Activo</span><span class="badge ${p.isActive?'badge-green':'badge-gray'}">${p.isActive?'Visible':'Oculto'}</span></div>`;
   }catch(e){console.warn('loadCompanionProfile',e);}
+}
+
+async function loadCompanionServices(preSelected){
+  const grid=document.getElementById('cp-services-grid');
+  if(!grid)return;
+  try{
+    const services=await fetch(API_BASE+'/api/services').then(r=>r.json());
+    let selected=preSelected;
+    if(!selected){
+      const p=await apiGet('/api/companions/me');
+      selected=p.services||[];
+    }
+    const sel=new Set(selected);
+    grid.innerHTML=services.length?services.map(s=>`
+      <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;padding:.4rem .6rem;border-radius:.5rem;background:var(--bg2);font-size:.82rem;">
+        <input type="checkbox" data-service="${s.name}" ${sel.has(s.name)?'checked':''} style="accent-color:var(--accent)">
+        <span>${s.name}</span>
+        ${s.requiresVerification?'<span style="font-size:.6rem;color:var(--warn);margin-left:auto">✦ Ver.</span>':''}
+      </label>`).join('')
+    :'<div style="color:var(--text3);font-size:.8rem;grid-column:1/-1">No hay servicios disponibles aún.</div>';
+  }catch(e){
+    const grid2=document.getElementById('cp-services-grid');
+    if(grid2)grid2.innerHTML='<div style="color:var(--danger);font-size:.78rem;grid-column:1/-1">Error al cargar servicios.</div>';
+  }
 }
 
 async function saveCompanionProfile(){

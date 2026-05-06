@@ -225,6 +225,48 @@ tbody tr:last-child td{border-bottom:none}
 <div class="toast" id="toast"><div class="toast-title" id="toast-title"></div><div class="toast-msg" id="toast-msg"></div></div>
 
 <!-- MODALS -->
+
+<!-- SERVICE MODAL -->
+<div class="modal-backdrop" id="modal-service">
+  <div class="modal">
+    <div class="modal-header">
+      <div><div class="modal-title" id="svc-modal-title">Nuevo servicio</div></div>
+      <button class="modal-close" onclick="closeServiceModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:.9rem">
+        <input type="hidden" id="svc-id">
+        <div class="form-grid">
+          <div class="input-wrap" style="grid-column:1/-1"><label class="input-label">Nombre del servicio *</label><input class="input" id="svc-name" placeholder="Ej: Cenas y restaurantes"></div>
+          <div class="input-wrap"><label class="input-label">Categoría *</label><select class="input" id="svc-category">
+            <option value="Social">Social</option>
+            <option value="Formal">Formal</option>
+            <option value="Negocios">Negocios</option>
+            <option value="Viajes">Viajes</option>
+            <option value="Deportes">Deportes</option>
+            <option value="Arte y Cultura">Arte y Cultura</option>
+            <option value="Turismo">Turismo</option>
+            <option value="Otro">Otro</option>
+          </select></div>
+          <div class="input-wrap"><label class="input-label">Monto extra fijo (CLP)</label><input class="input" type="number" id="svc-fee-fixed" placeholder="Ej: 2500 (opcional)"></div>
+          <div class="input-wrap"><label class="input-label">Fee extra porcentual (%)</label><input class="input" type="number" id="svc-fee-pct" placeholder="Ej: 8 (opcional)"></div>
+        </div>
+        <div class="input-wrap"><label class="input-label">Descripción</label><textarea class="input" id="svc-desc" placeholder="Descripción pública del servicio…"></textarea></div>
+        <div style="display:flex;flex-direction:column;gap:.6rem">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:.8rem;color:var(--text2)">Cobro extra habilitado</span><label class="toggle"><input type="checkbox" id="svc-extra-charge"><span class="toggle-slider"></span></label></div>
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:.8rem;color:var(--text2)">Requiere verificación de identidad</span><label class="toggle"><input type="checkbox" id="svc-requires-verif"><span class="toggle-slider"></span></label></div>
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:.8rem;color:var(--text2)">Activo (visible para acompañantes)</span><label class="toggle"><input type="checkbox" id="svc-active" checked><span class="toggle-slider"></span></label></div>
+        </div>
+        <div id="svc-error" style="display:none;color:var(--danger-red);font-size:.73rem"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeServiceModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="saveService()">Guardar servicio</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-backdrop" id="modal-rule">
   <div class="modal">
     <div class="modal-header"><div><div class="modal-title">Nueva regla comercial</div></div><button class="modal-close" onclick="closeModal('modal-rule')">✕</button></div>
@@ -481,14 +523,22 @@ tbody tr:last-child td{border-bottom:none}
 
     <!-- ── SECTION: SERVICES ── -->
     <div id="sec-services" class="content" style="display:none">
-      <div class="page-header flex-between"><div><div class="section-eyebrow">Catálogo</div><div class="section-title">Servicios <em>disponibles</em></div></div><button class="btn btn-gold" onclick="showToast('Servicio creado','El nuevo servicio fue añadido al catálogo.')">+ Nuevo servicio</button></div>
-      <div class="table-wrap"><table><thead><tr><th>Servicio</th><th>Categoría</th><th>Estado</th><th>Fee especial</th><th>Cobro extra</th><th>Rev. especial</th><th>Acciones</th></tr></thead><tbody>
-        <tr><td style="color:var(--text)">Cenas y restaurantes</td><td><span class="badge badge-gray">Social</span></td><td><span class="badge badge-green">Activo</span></td><td style="color:var(--text3)">—</td><td style="color:var(--text3)">No</td><td style="color:var(--text3)">No</td><td><button class="btn btn-ghost btn-xs">Editar</button></td></tr>
-        <tr><td style="color:var(--text)">Eventos sociales</td><td><span class="badge badge-gray">Social</span></td><td><span class="badge badge-green">Activo</span></td><td style="color:var(--text3)">—</td><td style="color:var(--text3)">No</td><td style="color:var(--text3)">No</td><td><button class="btn btn-ghost btn-xs">Editar</button></td></tr>
-        <tr><td style="color:var(--text)">Galas y premiaciones</td><td><span class="badge badge-gray">Formal</span></td><td><span class="badge badge-green">Activo</span></td><td><span class="badge badge-gold">+$2.500</span></td><td style="color:var(--success)">Sí</td><td style="color:var(--text3)">No</td><td><button class="btn btn-ghost btn-xs">Editar</button></td></tr>
-        <tr><td style="color:var(--text)">Viajes (día completo)</td><td><span class="badge badge-gray">Viajes</span></td><td><span class="badge badge-green">Activo</span></td><td><span class="badge badge-gold">+8%</span></td><td style="color:var(--success)">Sí</td><td><span class="badge badge-warn">Sí</span></td><td><button class="btn btn-ghost btn-xs">Editar</button></td></tr>
-        <tr><td style="color:var(--text)">Cenas de negocios</td><td><span class="badge badge-gray">Negocios</span></td><td><span class="badge badge-green">Activo</span></td><td style="color:var(--text3)">—</td><td style="color:var(--text3)">No</td><td style="color:var(--text3)">No</td><td><button class="btn btn-ghost btn-xs">Editar</button></td></tr>
-      </tbody></table></div>
+      <div class="page-header flex-between">
+        <div><div class="section-eyebrow">Catálogo</div><div class="section-title">Servicios <em>disponibles</em></div></div>
+        <div style="display:flex;gap:.65rem;align-items:center">
+          <input class="input" id="svc-search" placeholder="Buscar servicio…" style="width:200px" oninput="filterServices()">
+          <select class="input" id="svc-cat-filter" style="width:140px" onchange="filterServices()">
+            <option value="">Todas las categorías</option>
+            <option>Social</option><option>Formal</option><option>Negocios</option>
+            <option>Viajes</option><option>Deportes</option><option>Arte y Cultura</option>
+            <option>Turismo</option><option>Otro</option>
+          </select>
+          <button class="btn btn-gold" onclick="openServiceModal()">+ Nuevo servicio</button>
+        </div>
+      </div>
+      <div id="services-table-wrap">
+        <div style="color:var(--text3);font-size:.8rem;padding:2rem">Cargando servicios…</div>
+      </div>
     </div>
 
     <!-- ── SECTION: PRICING / REGLAS COMERCIALES ── -->
@@ -593,59 +643,14 @@ tbody tr:last-child td{border-bottom:none}
     <div id="sec-agent" class="content" style="display:none">
       <div class="agent-header">
         <div class="agent-title">Agente de <em>comportamiento</em></div>
-        <div style="font-size:.78rem;color:var(--text3);margin-bottom:.75rem">Monitorea el comportamiento de usuarios en tiempo real para sugerir y activar promociones personalizadas</div>
+        <div style="font-size:.78rem;color:var(--text3);margin-bottom:.75rem">Monitorea el estado de la plataforma en tiempo real y sugiere acciones para mejorar la conversión</div>
         <div class="agent-status"><div class="agent-dot"></div>Analizando · <span id="agent-event-count">0</span> eventos en sesión actual</div>
       </div>
 
       <div class="grid-2" style="align-items:start">
         <div>
           <div class="form-section-title" style="margin-bottom:1rem">Insights y oportunidades</div>
-          <div class="insight-card" id="insight-1">
-            <div class="insight-header">
-              <div><div class="insight-type">Abandono de solicitud</div><div class="insight-title">18 usuarios dejaron solicitudes incompletas hoy</div></div>
-              <span class="badge badge-red">Alto impacto</span>
-            </div>
-            <div class="insight-desc">Usuarios que iniciaron el formulario de solicitud pero no lo completaron en las últimas 12 horas. El abandono ocurre principalmente en el paso de precio/presupuesto.</div>
-            <div class="insight-users">
-              <div class="insight-user-chip"><div class="insight-chip-dot"></div>Carlos L.</div>
-              <div class="insight-user-chip"><div class="insight-chip-dot"></div>Rafael M.</div>
-              <div class="insight-user-chip"><div class="insight-chip-dot"></div>Pedro A.</div>
-              <div class="insight-user-chip" style="color:var(--text3)">+15 más</div>
-            </div>
-            <div class="insight-action-row">
-              <button class="btn btn-gold btn-sm" onclick="openPromoModal('abandon','Usuarios con solicitud incompleta','RETOMA20','20','47')">Crear promoción</button>
-              <button class="btn btn-ghost btn-sm">Ver usuarios</button>
-              <span style="font-size:.68rem;color:var(--text4);margin-left:.5rem">Conversión esperada: 18–25%</span>
-            </div>
-          </div>
-          <div class="insight-card">
-            <div class="insight-header">
-              <div><div class="insight-type">Exploración sin acción</div><div class="insight-title">34 clientes vieron 3+ perfiles sin solicitar</div></div>
-              <span class="badge badge-warn">Medio impacto</span>
-            </div>
-            <div class="insight-desc">Clientes activos revisando perfiles pero sin convertir. Patrón típico de indecisión o barrera de precio. Mayor concentración en segmento de servicio "VIP y Viajes".</div>
-            <div class="insight-users">
-              <div class="insight-user-chip"><div class="insight-chip-dot" style="background:var(--warn)"></div>Ana P.</div>
-              <div class="insight-user-chip"><div class="insight-chip-dot" style="background:var(--warn)"></div>Luis R.</div>
-              <div class="insight-user-chip" style="color:var(--text3)">+32 más</div>
-            </div>
-            <div class="insight-action-row">
-              <button class="btn btn-gold btn-sm" onclick="openPromoModal('browse','Usuarios que vieron 3+ perfiles sin solicitar','EXPLORA15','15','34')">Crear promoción</button>
-              <button class="btn btn-ghost btn-sm">Ver usuarios</button>
-              <span style="font-size:.68rem;color:var(--text4);margin-left:.5rem">Conversión esperada: 12–18%</span>
-            </div>
-          </div>
-          <div class="insight-card">
-            <div class="insight-header">
-              <div><div class="insight-type">Inactividad prolongada</div><div class="insight-title">67 clientes sin actividad en 7+ días</div></div>
-              <span class="badge badge-gray">Bajo impacto</span>
-            </div>
-            <div class="insight-desc">Clientes registrados sin actividad reciente. Podrían reactivarse con un incentivo personalizado.</div>
-            <div class="insight-action-row">
-              <button class="btn btn-gold btn-sm" onclick="openPromoModal('inactive','Clientes sin actividad 7+ días','VUELVE10','10','67')">Crear promoción</button>
-              <button class="btn btn-ghost btn-sm">Ver usuarios</button>
-            </div>
-          </div>
+          <div id="agent-insights-list"><div style="color:var(--text3);font-size:.8rem">Cargando datos…</div></div>
         </div>
 
         <div>
@@ -819,6 +824,8 @@ function goTo(name, btn) {
   if (name === 'users') loadAdminUsers();
   if (name === 'pricing') { renderRules('todas'); updateConfigSummary(); }
   if (name === 'settings') updateConfigSummary();
+  if (name === 'services') loadAdminServices();
+  if (name === 'agent') { loadAgentInsights(); startAgentSimulation(); }
 }
 
 // ── MODAL ──
@@ -1080,6 +1087,191 @@ function updateConfigSummary() {
   set('cfg-fee-client',   feeClient ? `${feeClient.value}%` : '—');
   set('cfg-fee-companion', feeComp  ? `${feeComp.value}%`  : '—');
   set('cfg-fee-min',       minRule  ? `$${(minRule.value||0).toLocaleString('es-CL')}` : '—');
+}
+
+// ── SERVICES ──
+let _allServices = [];
+
+async function loadAdminServices() {
+  const wrap = document.getElementById('services-table-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = '<div style="color:var(--text3);font-size:.8rem;padding:2rem">Cargando…</div>';
+  try {
+    _allServices = await apiAdmin('/api/admin/services');
+    renderServicesTable(_allServices);
+    // Sync dropdown in rules modal
+    const sel = document.getElementById('rule-service');
+    if (sel) {
+      const current = sel.value;
+      sel.innerHTML = '<option value="todos">Todos</option>' +
+        _allServices.filter(s=>s.isActive).map(s=>`<option value="${s.name}">${s.name}</option>`).join('');
+      sel.value = current || 'todos';
+    }
+  } catch(e) {
+    wrap.innerHTML = `<div style="color:var(--danger-red);font-size:.8rem;padding:2rem">Error: ${e.message}</div>`;
+  }
+}
+
+function filterServices() {
+  const q = (document.getElementById('svc-search')?.value || '').toLowerCase();
+  const cat = document.getElementById('svc-cat-filter')?.value || '';
+  const filtered = _allServices.filter(s =>
+    (!q || s.name.toLowerCase().includes(q) || (s.description||'').toLowerCase().includes(q)) &&
+    (!cat || s.category === cat)
+  );
+  renderServicesTable(filtered);
+}
+
+function renderServicesTable(services) {
+  const wrap = document.getElementById('services-table-wrap');
+  if (!wrap) return;
+  if (!services.length) {
+    wrap.innerHTML = '<div style="color:var(--text3);font-size:.8rem;padding:2rem">No hay servicios. Crea uno con "+ Nuevo servicio".</div>';
+    return;
+  }
+  wrap.innerHTML = `<div class="table-wrap"><table><thead><tr>
+    <th>Servicio</th><th>Categoría</th><th>Estado</th><th>Fee extra fijo</th><th>Fee extra %</th><th>Cobro extra</th><th>Verif. requerida</th><th>Acciones</th>
+  </tr></thead><tbody>${services.map(s => `<tr>
+    <td style="color:var(--text);font-weight:500">${s.name}</td>
+    <td><span class="badge badge-gray">${s.category}</span></td>
+    <td>${s.isActive ? '<span class="badge badge-green">Activo</span>' : '<span class="badge badge-red">Inactivo</span>'}</td>
+    <td style="color:var(--text3)">${s.feeExtraFixed ? `<span class="badge badge-gold">+$${s.feeExtraFixed.toLocaleString('es-CL')}</span>` : '—'}</td>
+    <td style="color:var(--text3)">${s.feeExtraPct ? `<span class="badge badge-gold">+${s.feeExtraPct}%</span>` : '—'}</td>
+    <td style="color:${s.extraCharge?'var(--success)':'var(--text3)'}">${s.extraCharge ? 'Sí' : 'No'}</td>
+    <td>${s.requiresVerification ? '<span class="badge badge-warn">Sí</span>' : '<span style="color:var(--text3)">No</span>'}</td>
+    <td><div style="display:flex;gap:.3rem">
+      <button class="btn btn-ghost btn-xs" onclick="openServiceModal('${s.id}')">Editar</button>
+      ${s.isActive
+        ? `<button class="btn btn-danger btn-xs" onclick="toggleService('${s.id}',false,'${s.name}')">Desactivar</button>`
+        : `<button class="btn btn-gold btn-xs" onclick="toggleService('${s.id}',true,'${s.name}')">Activar</button>`}
+      <button class="btn btn-ghost btn-xs" style="color:var(--danger-red)" onclick="deleteService('${s.id}','${s.name}')">✕</button>
+    </div></td>
+  </tr>`).join('')}</tbody></table></div>`;
+}
+
+function openServiceModal(editId) {
+  const svc = editId ? _allServices.find(s => s.id === editId) : null;
+  document.getElementById('svc-modal-title').textContent = svc ? 'Editar servicio' : 'Nuevo servicio';
+  document.getElementById('svc-id').value = svc?.id || '';
+  document.getElementById('svc-name').value = svc?.name || '';
+  document.getElementById('svc-category').value = svc?.category || 'Social';
+  document.getElementById('svc-fee-fixed').value = svc?.feeExtraFixed || '';
+  document.getElementById('svc-fee-pct').value = svc?.feeExtraPct || '';
+  document.getElementById('svc-desc').value = svc?.description || '';
+  document.getElementById('svc-extra-charge').checked = svc?.extraCharge ?? false;
+  document.getElementById('svc-requires-verif').checked = svc?.requiresVerification ?? false;
+  document.getElementById('svc-active').checked = svc?.isActive ?? true;
+  document.getElementById('svc-error').style.display = 'none';
+  openModal('modal-service');
+}
+
+function closeServiceModal() {
+  closeModal('modal-service');
+}
+
+async function saveService() {
+  const errEl = document.getElementById('svc-error');
+  errEl.style.display = 'none';
+  const id = document.getElementById('svc-id').value;
+  const name = document.getElementById('svc-name').value.trim();
+  const category = document.getElementById('svc-category').value;
+  if (!name) { errEl.textContent = 'El nombre del servicio es obligatorio.'; errEl.style.display = 'block'; return; }
+  if (!category) { errEl.textContent = 'Selecciona una categoría.'; errEl.style.display = 'block'; return; }
+  const body = {
+    name, category,
+    description: document.getElementById('svc-desc').value.trim() || undefined,
+    feeExtraFixed: parseInt(document.getElementById('svc-fee-fixed').value) || undefined,
+    feeExtraPct: parseFloat(document.getElementById('svc-fee-pct').value) || undefined,
+    extraCharge: document.getElementById('svc-extra-charge').checked,
+    requiresVerification: document.getElementById('svc-requires-verif').checked,
+    isActive: document.getElementById('svc-active').checked,
+  };
+  try {
+    if (id) {
+      await apiAdmin(`/api/admin/services/${id}`, { method: 'PATCH', body });
+      showToast('Servicio actualizado', `"${name}" fue guardado.`);
+    } else {
+      await apiAdmin('/api/admin/services', { method: 'POST', body });
+      showToast('Servicio creado', `"${name}" fue añadido al catálogo y ya está disponible para las acompañantes.`);
+    }
+    closeServiceModal();
+    loadAdminServices();
+  } catch(e) {
+    errEl.textContent = e.message || 'Error al guardar.';
+    errEl.style.display = 'block';
+  }
+}
+
+async function toggleService(id, active, name) {
+  try {
+    await apiAdmin(`/api/admin/services/${id}`, { method: 'PATCH', body: { isActive: active } });
+    showToast(active ? 'Servicio activado' : 'Servicio desactivado', `"${name}" fue ${active ? 'activado' : 'desactivado'}.`);
+    loadAdminServices();
+  } catch(e) { showToast('Error', e.message); }
+}
+
+async function deleteService(id, name) {
+  if (!confirm(`¿Eliminar permanentemente el servicio "${name}"? Las acompañantes que lo tenían seleccionado perderán esa entrada.`)) return;
+  try {
+    await apiAdmin(`/api/admin/services/${id}`, { method: 'DELETE' });
+    showToast('Servicio eliminado', `"${name}" fue eliminado del catálogo.`);
+    loadAdminServices();
+  } catch(e) { showToast('Error', e.message); }
+}
+
+// ── AGENT INSIGHTS (datos reales) ──
+async function loadAgentInsights() {
+  const el = document.getElementById('agent-insights-list');
+  if (!el) return;
+  try {
+    const stats = await apiAdmin('/api/admin/stats');
+    const clients = stats.totalClients || 0;
+    const companions = stats.totalCompanions || 0;
+    const pending = stats.pendingApproval || 0;
+    const reqToday = stats.requestsToday || 0;
+
+    const insights = [
+      {
+        type: 'Acompañantes pendientes', impact: pending > 0 ? 'badge-red' : 'badge-gray', impactLabel: pending > 0 ? 'Requiere atención' : 'Sin pendientes',
+        title: `${pending} acompañante${pending !== 1 ? 's' : ''} esperan aprobación`,
+        desc: 'Perfiles completados que aún no han sido revisados. Aprobarlos aumenta la oferta disponible para los clientes.',
+        count: pending, code: null,
+        action: () => goTo('users', document.querySelector('[onclick*="goTo(\'users\'"]')),
+        actionLabel: 'Ir a usuarios',
+      },
+      {
+        type: 'Actividad del día', impact: reqToday > 0 ? 'badge-green' : 'badge-warn', impactLabel: reqToday > 0 ? 'Activo' : 'Poco movimiento',
+        title: `${reqToday} solicitud${reqToday !== 1 ? 'es' : ''} creada${reqToday !== 1 ? 's' : ''} hoy`,
+        desc: reqToday === 0 ? 'No se han creado solicitudes hoy. Considera activar una promoción para incentivar a los clientes.' : 'La plataforma está generando solicitudes. Asegúrate de que haya acompañantes disponibles.',
+        count: reqToday, code: reqToday === 0 ? 'SOLICITA10' : null,
+        promoArgs: ['inactive', 'Clientes sin actividad reciente', 'ACTIVA10', '10', clients],
+        actionLabel: reqToday === 0 ? 'Crear promoción' : null,
+      },
+      {
+        type: 'Cobertura de oferta', impact: companions > 0 ? 'badge-green' : 'badge-red', impactLabel: 'Oferta',
+        title: `${stats.activeCompanions || 0} de ${companions} acompañante${companions !== 1 ? 's' : ''} activa${companions !== 1 ? 's' : ''}`,
+        desc: companions > 0
+          ? `${Math.round(((stats.activeCompanions||0)/companions)*100)}% de las acompañantes registradas están disponibles actualmente.`
+          : 'No hay acompañantes registradas aún.',
+        count: companions, code: null, actionLabel: null,
+      },
+    ];
+
+    el.innerHTML = insights.map((ins, i) => `
+      <div class="insight-card">
+        <div class="insight-header">
+          <div><div class="insight-type">${ins.type}</div><div class="insight-title">${ins.title}</div></div>
+          <span class="badge ${ins.impact}">${ins.impactLabel}</span>
+        </div>
+        <div class="insight-desc">${ins.desc}</div>
+        <div class="insight-action-row">
+          ${ins.promoArgs ? `<button class="btn btn-gold btn-sm" onclick="openPromoModal(${ins.promoArgs.map(a=>`'${a}'`).join(',')})">Crear promoción</button>` : ''}
+          ${ins.actionLabel && !ins.promoArgs ? `<button class="btn btn-ghost btn-sm" onclick="goTo('users',null)">Ver usuarios</button>` : ''}
+        </div>
+      </div>`).join('');
+  } catch(e) {
+    if (el) el.innerHTML = '<div style="color:var(--danger-red);font-size:.78rem">Error al cargar insights.</div>';
+  }
 }
 
 // ── PROMO MODAL ──
