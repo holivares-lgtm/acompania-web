@@ -897,7 +897,7 @@ tbody tr:last-child td{border-bottom:none}
         <button class="tab active" onclick="switchTab(this,'dtab-about')">Sobre mí</button>
         <button class="tab" onclick="switchTab(this,'dtab-services')">Servicios</button>
         <button class="tab" onclick="switchTab(this,'dtab-avail')">Disponibilidad</button>
-        <button class="tab" onclick="switchTab(this,'dtab-reviews')">Reseñas</button>
+        <button id="detail-reviews-tab" class="tab" onclick="switchTab(this,'dtab-reviews')">Reseñas</button>
       </div>
       <div id="dtab-about" class="tab-content">
         <div class="grid-2">
@@ -922,42 +922,10 @@ tbody tr:last-child td{border-bottom:none}
       </div>
       <div id="dtab-reviews" class="tab-content" style="display:none">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
-          <div style="font-family:var(--serif);font-size:1rem;color:var(--text2);font-style:italic">48 reseñas de usuarios con citas verificadas</div>
+          <div id="detail-reviews-header" style="font-family:var(--serif);font-size:1rem;color:var(--text2);font-style:italic">Cargando reseñas…</div>
           <button class="btn btn-outline btn-sm" onclick="openModal('modal-review')">+ Escribir reseña</button>
         </div>
-        <div class="review-card">
-          <div class="review-author-info">
-            <div class="avatar avatar-sm avatar-verified-ring">CV</div>
-            <div>
-              <div class="review-author-name" style="display:flex;align-items:center;gap:.45rem">C. Vásquez <span class="badge-verified badge" style="font-size:.55rem">✦ Verificado</span></div>
-              <div class="review-author-role">Cliente verificado · ★★★★★ · Abril 2025</div>
-            </div>
-          </div>
-          <div class="review-text">"Una experiencia impecable. Valentina es elegante, puntual y genuinamente agradable. La volvería a elegir sin dudarlo."</div>
-          <div class="review-aspects"><span class="review-aspect">Puntualidad</span><span class="review-aspect">Presentación</span><span class="review-aspect">Discreción</span></div>
-        </div>
-        <div class="review-card">
-          <div class="review-author-info">
-            <div class="avatar avatar-sm avatar-verified-ring">RM</div>
-            <div>
-              <div class="review-author-name" style="display:flex;align-items:center;gap:.45rem">R. Morales <span class="badge-verified badge" style="font-size:.55rem">✦ Verificado</span></div>
-              <div class="review-author-role">Cliente verificado · ★★★★★ · Marzo 2025</div>
-            </div>
-          </div>
-          <div class="review-text">"Perfecta para la cena corporativa. Discreta y con excelente manejo de la conversación en todo momento."</div>
-          <div class="review-aspects"><span class="review-aspect">Profesionalismo</span><span class="review-aspect">Conversación</span></div>
-        </div>
-        <div class="review-card">
-          <div class="review-author-info">
-            <div class="avatar avatar-sm">JH</div>
-            <div>
-              <div class="review-author-name">J. Herrera</div>
-              <div class="review-author-role">Cliente · ★★★★☆ · Febrero 2025</div>
-            </div>
-          </div>
-          <div class="review-text">"Muy buena experiencia. La recomiendo para eventos formales."</div>
-          <div style="font-size:.68rem;color:var(--text4);margin-top:.5rem">⚠ Solo los usuarios verificados pueden dejar reseñas visibles en perfiles públicos.</div>
-        </div>
+        <div id="detail-reviews-list"></div>
       </div>
     </div>
   </div>
@@ -2013,10 +1981,11 @@ async function loadCompanionDetail(){
   const set=(elId,val)=>{const e=document.getElementById(elId);if(e)e.textContent=val;};
   if(!id){set('detail-name','Perfil no disponible');return;}
   try{
-    // Fetch companion data and all services in parallel
-    const [companions,allServices]=await Promise.all([
+    // Fetch companion data, services and reviews in parallel
+    const [companions,allServices,reviews]=await Promise.all([
       apiGet('/api/companions'),
       fetch(API_BASE+'/api/services').then(r=>r.json()).catch(()=>[]),
+      fetch(API_BASE+`/api/reviews/profile/${id}`).then(r=>r.json()).catch(()=>[]),
     ]);
     const c=companions.find(x=>x.id===id);
     if(!c){set('detail-name','Perfil no encontrado');return;}
@@ -2054,6 +2023,39 @@ async function loadCompanionDetail(){
       ${c.priceMin?`<div class="price-line"><span class="price-line-label">Mínimo</span><span class="price-line-value">$${Number(c.priceMin).toLocaleString('es-CL')}</span></div>`:''}
       ${c.zones?.length?`<div class="price-line"><span class="price-line-label">Zonas</span><span class="price-line-value">${c.zones.join(', ')}</span></div>`:''}
       <div class="price-line" style="border:none"><span class="price-line-label">Verificación</span><span class="${c.identityVerified?'badge-verified badge':'badge badge-gray'}">${c.identityVerified?'✦ Identidad confirmada':'Pendiente'}</span></div>`;
+
+    // Reviews tab
+    const rh=document.getElementById('detail-reviews-header');
+    const rl=document.getElementById('detail-reviews-list');
+    const rc2=Array.isArray(reviews)?reviews:[];
+    if(rh)rh.textContent=rc2.length?`${rc2.length} reseña${rc2.length!==1?'s':''} de citas verificadas`:'Sin reseñas aún';
+    const rt=document.getElementById('detail-reviews-tab');
+    if(rt)rt.textContent=`Reseñas${rc2.length?` (${rc2.length})`:''}`;
+    if(rl){
+      rl.innerHTML=rc2.length?rc2.map(r=>{
+        const email=r.client?.email||'';
+        const init=email.slice(0,2).toUpperCase()||'CL';
+        const stars='★'.repeat(Math.round(r.rating||5))+'☆'.repeat(5-Math.round(r.rating||5));
+        const verified=r.client?.emailVerified;
+        const date=r.createdAt?new Date(r.createdAt).toLocaleDateString('es-CL',{month:'long',year:'numeric'}):'';
+        const aspects=r.aspects||[];
+        return`<div class="review-card">
+          <div class="review-author-info">
+            <div class="avatar avatar-sm${verified?' avatar-verified-ring':''}">${init}</div>
+            <div>
+              <div class="review-author-name" style="display:flex;align-items:center;gap:.45rem">
+                ${email.split('@')[0]}
+                ${verified?'<span class="badge-verified badge" style="font-size:.55rem">✦ Verificado</span>':''}
+              </div>
+              <div class="review-author-role">${verified?'Cliente verificado':'Cliente'} · ${stars} · ${date}</div>
+            </div>
+          </div>
+          ${r.text?`<div class="review-text">"${r.text}"</div>`:''}
+          ${aspects.length?`<div class="review-aspects">${aspects.map(a=>`<span class="review-aspect">${a}</span>`).join('')}</div>`:''}
+        </div>`;
+      }).join('')
+      :'<div style="color:var(--text3);font-size:.85rem">Esta acompañante no tiene reseñas aún. ¡Sé el primero!</div>';
+    }
 
     // Services tab — show only services this companion selected
     const sw=document.getElementById('detail-services-wrap');
