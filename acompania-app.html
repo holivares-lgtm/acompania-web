@@ -850,7 +850,7 @@ tbody tr:last-child td{border-bottom:none}
       <div style="margin-bottom:1.75rem"><div class="section-eyebrow">Catálogo completo</div><div class="section-title">Explorar <em>acompañantes</em></div></div>
       <div style="background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r-lg);padding:1.2rem 1.5rem;margin-bottom:1.75rem;display:flex;gap:.85rem;align-items:flex-end;flex-wrap:wrap">
         <div class="input-wrap" style="flex:2;min-width:150px"><label class="input-label">Zona o comuna</label><input class="input" placeholder="Ej: Las Condes..."></div>
-        <div class="input-wrap" style="min-width:150px"><label class="input-label">Servicio</label><select class="input"><option>Todos</option><option>Cenas</option><option>Eventos</option><option>Viajes</option><option>Negocios</option></select></div>
+        <div class="input-wrap" style="min-width:150px"><label class="input-label">Servicio</label><select id="explore-service-filter" class="input"><option value="">Todos</option></select></div>
         <div class="input-wrap" style="min-width:140px"><label class="input-label">Precio máx/hr</label><input class="input" type="number" placeholder="$35.000"></div>
         <div class="input-wrap" style="min-width:130px"><label class="input-label">Verificación</label><select class="input"><option>Todas</option><option>Solo verificadas</option></select></div>
         <div class="input-wrap" style="min-width:120px"><label class="input-label">Calificación</label><select class="input"><option>Todas</option><option>★ 4.5+</option><option>★ 4.8+</option></select></div>
@@ -1403,11 +1403,19 @@ function navigateTo(name){
   if(name==='appointments')loadAppointments();
   if(name==='client-requests')loadClientRequests();
   if(name==='my-profile')loadMyProfile();
-  if(name==='companion-profile'){loadCompanionProfile();loadCompanionPhotos();}
+  if(name==='companion-profile'){
+    // Reset settings tabs to Información
+    const cpTabs=document.getElementById('cp-tabs');
+    if(cpTabs){cpTabs.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===0));}
+    ['cp-services','cp-avail','cp-photos'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+    const ci=document.getElementById('cp-info');if(ci)ci.style.display='';
+    loadCompanionProfile();loadCompanionPhotos();
+  }
   if(name==='companion-dashboard')loadCompanionDashboard();
   if(name==='companion-requests')loadCompanionRequests();
   if(name==='messages')loadConversations();
   if(name==='companion-detail')loadCompanionDetail();
+  if(name==='explore')loadExploreServiceFilter();
 }
 
 function nav(page,btn){
@@ -1579,7 +1587,7 @@ function mapApiCompanion(c){
     init:init.toUpperCase()||'AC',
     name:c.displayName||'Acompañante',
     loc:c.location||'Santiago',
-    tags:c.tags||[],
+    tags:(c.services&&c.services.length?c.services:c.tags)||[],
     price:'$'+(c.pricePerHour||25000).toLocaleString('es-CL'),
     rating:c.rating?c.rating.toFixed(1):'5.0',
     avail:c.isActive,
@@ -1598,6 +1606,16 @@ async function buildCompanionGrid(id,count){
   }catch{
     c.innerHTML=COMPANIONS.slice(0,count).map(companionCard).join('');
   }
+}
+
+async function loadExploreServiceFilter(){
+  const sel=document.getElementById('explore-service-filter');
+  if(!sel||sel.options.length>1)return; // already loaded
+  try{
+    const services=await fetch(API_BASE+'/api/services').then(r=>r.json());
+    const cats=[...new Set(services.map(s=>s.name))].sort();
+    cats.forEach(name=>{const o=document.createElement('option');o.value=name;o.textContent=name;sel.appendChild(o);});
+  }catch(e){console.warn('loadExploreServiceFilter',e);}
 }
 
 async function buildExploreGrid(){
