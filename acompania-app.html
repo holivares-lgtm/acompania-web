@@ -869,45 +869,45 @@ tbody tr:last-child td{border-bottom:none}
     <div class="page-container">
       <button class="btn btn-ghost btn-sm" onclick="goBack()" style="margin-bottom:1.4rem">← Volver</button>
       <div style="display:flex;gap:2rem;align-items:flex-start;margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid var(--gold-border);flex-wrap:wrap">
-        <div class="avatar avatar-xl avatar-verified-ring" style="width:110px;height:110px;font-size:2.4rem;flex-shrink:0">VM</div>
+        <div id="detail-avatar" class="avatar avatar-xl" style="width:110px;height:110px;font-size:2.4rem;flex-shrink:0;background-size:cover;background-position:center">?</div>
         <div style="flex:1;min-width:200px">
           <div style="display:flex;align-items:center;gap:.85rem;margin-bottom:.2rem;flex-wrap:wrap">
-            <div style="font-family:var(--serif);font-size:2rem;font-weight:300;color:var(--text)">Valentina Morales</div>
-            <span class="badge-verified badge">✦ Identidad verificada</span>
+            <div id="detail-name" style="font-family:var(--serif);font-size:2rem;font-weight:300;color:var(--text)">Cargando…</div>
+            <span id="detail-verified-badge" class="badge-verified badge" style="display:none">✦ Identidad verificada</span>
           </div>
-          <div style="font-family:var(--serif);font-size:.95rem;font-style:italic;color:var(--gold3);margin-bottom:.7rem">"Compañía elegante para cada ocasión especial"</div>
+          <div id="detail-bio" style="font-family:var(--serif);font-size:.95rem;font-style:italic;color:var(--gold3);margin-bottom:.7rem"></div>
           <div style="display:flex;gap:1.4rem;flex-wrap:wrap;font-size:.75rem;color:var(--text3);margin-bottom:1.2rem">
-            <span style="display:flex;align-items:center;gap:.35rem"><div class="status-dot status-available"></div> Disponible ahora</span>
-            <span>📍 Las Condes</span>
-            <span>★ 4.9 · 48 citas</span>
-            <span>Desde $25.000/hr</span>
+            <span id="detail-avail" style="display:flex;align-items:center;gap:.35rem"></span>
+            <span id="detail-loc"></span>
+            <span id="detail-rating-line"></span>
+            <span id="detail-price-line"></span>
           </div>
           <div style="display:flex;gap:.7rem;flex-wrap:wrap">
             <button class="btn btn-gold" onclick="navigateTo('create-request')">Crear solicitud</button>
             <button class="btn btn-outline" onclick="openModal('modal-review')">Escribir reseña</button>
           </div>
         </div>
-        <div class="card-elevated" style="padding:1.1rem;text-align:center;min-width:130px;flex-shrink:0"><div style="font-family:var(--serif);font-size:1.9rem;color:var(--gold);font-weight:300">4.9</div><div style="color:var(--gold);font-size:.9rem;margin:.3rem 0">★★★★★</div><div style="font-size:.68rem;color:var(--text3)">48 reseñas</div></div>
+        <div class="card-elevated" style="padding:1.1rem;text-align:center;min-width:130px;flex-shrink:0">
+          <div id="detail-rating-big" style="font-family:var(--serif);font-size:1.9rem;color:var(--gold);font-weight:300">—</div>
+          <div id="detail-stars" style="color:var(--gold);font-size:.9rem;margin:.3rem 0">★★★★★</div>
+          <div id="detail-review-count" style="font-size:.68rem;color:var(--text3)">0 reseñas</div>
+        </div>
       </div>
       <div class="tabs">
         <button class="tab active" onclick="switchTab(this,'dtab-about')">Sobre mí</button>
         <button class="tab" onclick="switchTab(this,'dtab-services')">Servicios</button>
         <button class="tab" onclick="switchTab(this,'dtab-avail')">Disponibilidad</button>
-        <button class="tab" onclick="switchTab(this,'dtab-reviews')">Reseñas (48)</button>
+        <button class="tab" onclick="switchTab(this,'dtab-reviews')">Reseñas</button>
       </div>
       <div id="dtab-about" class="tab-content">
         <div class="grid-2">
-          <div><div class="form-section-title">Descripción personal</div><div style="font-family:var(--serif);font-style:italic;color:var(--text2);line-height:1.8;margin-bottom:1.25rem;font-size:.98rem">Soy una profesional del área de comunicaciones con amplio manejo de contextos sociales y culturales. Me apasiona la gastronomía, el arte contemporáneo y los viajes. Ofrezco compañía refinada y discreta.</div></div>
-          <div><div class="form-section-title" style="margin-bottom:.9rem">Información</div><div style="display:flex;flex-direction:column;gap:.55rem"><div class="price-line"><span class="price-line-label">Precio / hr</span><span style="font-family:var(--serif);font-size:1rem;color:var(--gold)">$25.000</span></div><div class="price-line"><span class="price-line-label">Mínimo</span><span class="price-line-value">$20.000/hr</span></div><div class="price-line"><span class="price-line-label">Zonas</span><span class="price-line-value">Las Condes, Vitacura</span></div><div class="price-line" style="border:none"><span class="price-line-label">Verificación</span><span class="badge-verified badge">✦ Identidad confirmada</span></div></div></div>
+          <div><div class="form-section-title">Descripción personal</div><div id="detail-bio-long" style="font-family:var(--serif);font-style:italic;color:var(--text2);line-height:1.8;margin-bottom:1.25rem;font-size:.98rem"></div></div>
+          <div><div class="form-section-title" style="margin-bottom:.9rem">Información</div><div id="detail-info-lines" style="display:flex;flex-direction:column;gap:.55rem"></div></div>
         </div>
       </div>
-      <div id="dtab-services" class="tab-content" style="display:none"><div class="grid-3">
-        <div class="card" style="padding:1.1rem"><div style="font-size:1.3rem;margin-bottom:.45rem">🍽️</div><div style="font-weight:500;color:var(--text);margin-bottom:.2rem">Cenas</div><div style="font-size:.73rem;color:var(--text3)">Restaurantes y eventos gastronómicos</div></div>
-        <div class="card" style="padding:1.1rem"><div style="font-size:1.3rem;margin-bottom:.45rem">🎭</div><div style="font-weight:500;color:var(--text);margin-bottom:.2rem">Eventos sociales</div><div style="font-size:.73rem;color:var(--text3)">Galas, premiaciones, cócteles</div></div>
-        <div class="card" style="padding:1.1rem"><div style="font-size:1.3rem;margin-bottom:.45rem">✈️</div><div style="font-weight:500;color:var(--text);margin-bottom:.2rem">Viajes</div><div style="font-size:.73rem;color:var(--text3)">Dentro y fuera de la ciudad</div></div>
-        <div class="card" style="padding:1.1rem"><div style="font-size:1.3rem;margin-bottom:.45rem">💼</div><div style="font-weight:500;color:var(--text);margin-bottom:.2rem">Negocios</div><div style="font-size:.73rem;color:var(--text3)">Cenas corporativas y eventos formales</div></div>
-        <div class="card" style="padding:1.1rem"><div style="font-size:1.3rem;margin-bottom:.45rem">🎨</div><div style="font-weight:500;color:var(--text);margin-bottom:.2rem">Arte y cultura</div><div style="font-size:.73rem;color:var(--text3)">Museos, teatro, ópera</div></div>
-      </div></div>
+      <div id="dtab-services" class="tab-content" style="display:none">
+        <div id="detail-services-wrap" class="grid-3"></div>
+      </div>
       <div id="dtab-avail" class="tab-content" style="display:none">
         <div class="section-eyebrow" style="margin-bottom:.9rem">Disponibilidad semanal</div>
         <div class="availability-grid" style="margin-bottom:1.25rem">
@@ -1439,6 +1439,7 @@ function navigateTo(name){
   if(name==='companion-dashboard')loadCompanionDashboard();
   if(name==='companion-requests')loadCompanionRequests();
   if(name==='messages')loadConversations();
+  if(name==='companion-detail')loadCompanionDetail();
 }
 
 function nav(page,btn){
@@ -1645,7 +1646,9 @@ async function buildExploreGrid(){
 }
 
 function companionCard(c){
-  return`<div class="companion-card" onclick="navigateTo('companion-detail')">
+  window._compData=window._compData||{};
+  if(c.id)window._compData[c.id]=c;
+  return`<div class="companion-card" onclick="openCompanionDetail('${c.id||''}')">
     <div class="companion-card-img">
       <div class="avatar avatar-xl${c.verified?' avatar-verified-ring':''}">${c.init}</div>
       <div class="companion-card-avail">
@@ -1998,6 +2001,77 @@ async function refreshMsgBadge(){
 function openChatWith(partnerId, partnerName, partnerAvatar=''){
   navigateTo('messages');
   setTimeout(()=>openThread(partnerId, partnerName, partnerAvatar),100);
+}
+
+function openCompanionDetail(id){
+  window._detailCompanionId=id;
+  navigateTo('companion-detail');
+}
+
+async function loadCompanionDetail(){
+  const id=window._detailCompanionId;
+  const set=(elId,val)=>{const e=document.getElementById(elId);if(e)e.textContent=val;};
+  if(!id){set('detail-name','Perfil no disponible');return;}
+  try{
+    // Fetch companion data and all services in parallel
+    const [companions,allServices]=await Promise.all([
+      apiGet('/api/companions'),
+      fetch(API_BASE+'/api/services').then(r=>r.json()).catch(()=>[]),
+    ]);
+    const c=companions.find(x=>x.id===id);
+    if(!c){set('detail-name','Perfil no encontrado');return;}
+
+    // Header
+    const av=document.getElementById('detail-avatar');
+    if(av){
+      if(c.avatarUrl){av.style.backgroundImage=`url('${c.avatarUrl}')`;av.style.backgroundSize='cover';av.style.backgroundPosition='center';av.textContent='';}
+      else{const w=(c.displayName||'?').split(' ');av.textContent=((w[0]?.[0]||'')+(w[1]?.[0]||'')).toUpperCase()||'?';}
+      av.className='avatar avatar-xl'+(c.identityVerified?' avatar-verified-ring':'');
+      av.style.width='110px';av.style.height='110px';av.style.fontSize='2.4rem';av.style.flexShrink='0';
+    }
+    set('detail-name',c.displayName||'Acompañante');
+    const vb=document.getElementById('detail-verified-badge');
+    if(vb)vb.style.display=c.identityVerified?'':'none';
+    const bio=document.getElementById('detail-bio');
+    if(bio)bio.textContent=c.bio?`"${c.bio}"`:'';
+    const avail=document.getElementById('detail-avail');
+    if(avail)avail.innerHTML=`<div class="status-dot ${c.isActive?'status-available':'status-busy'}"></div>${c.isActive?'Disponible':'No disponible'}`;
+    const loc=document.getElementById('detail-loc');
+    if(loc)loc.textContent=c.location?`📍 ${c.location}`:'';
+    const rat=c.rating?Number(c.rating).toFixed(1):null;
+    const rc=c.reviewCount||0;
+    set('detail-rating-line',rat?`★ ${rat} · ${rc} citas`:'Sin reseñas aún');
+    set('detail-price-line',c.pricePerHour?`Desde $${Number(c.pricePerHour).toLocaleString('es-CL')}/hr`:'');
+    set('detail-rating-big',rat||'—');
+    set('detail-review-count',`${rc} reseña${rc!==1?'s':''}`);
+
+    // About tab
+    const bl=document.getElementById('detail-bio-long');
+    if(bl)bl.textContent=c.bio||'Sin descripción.';
+    const il=document.getElementById('detail-info-lines');
+    if(il)il.innerHTML=`
+      <div class="price-line"><span class="price-line-label">Precio / hr</span><span style="font-family:var(--serif);font-size:1rem;color:var(--gold)">${c.pricePerHour?'$'+Number(c.pricePerHour).toLocaleString('es-CL'):'-'}</span></div>
+      ${c.priceMin?`<div class="price-line"><span class="price-line-label">Mínimo</span><span class="price-line-value">$${Number(c.priceMin).toLocaleString('es-CL')}</span></div>`:''}
+      ${c.zones?.length?`<div class="price-line"><span class="price-line-label">Zonas</span><span class="price-line-value">${c.zones.join(', ')}</span></div>`:''}
+      <div class="price-line" style="border:none"><span class="price-line-label">Verificación</span><span class="${c.identityVerified?'badge-verified badge':'badge badge-gray'}">${c.identityVerified?'✦ Identidad confirmada':'Pendiente'}</span></div>`;
+
+    // Services tab — show only services this companion selected
+    const sw=document.getElementById('detail-services-wrap');
+    if(sw){
+      const selected=new Set(c.services||[]);
+      const myServices=allServices.filter(s=>selected.has(s.name));
+      sw.innerHTML=myServices.length
+        ?myServices.map(s=>`<div class="card" style="padding:1.1rem">
+            <div style="font-weight:500;color:var(--text);margin-bottom:.2rem">${s.name}</div>
+            ${s.description?`<div style="font-size:.73rem;color:var(--text3)">${s.description}</div>`:''}
+            ${s.requiresVerification?'<div style="font-size:.65rem;color:var(--warn);margin-top:.3rem">✦ Requiere verificación</div>':''}
+          </div>`).join('')
+        :'<div style="color:var(--text3);font-size:.85rem">Esta acompañante no ha configurado sus servicios aún.</div>';
+    }
+  }catch(e){
+    console.warn('loadCompanionDetail',e);
+    document.getElementById('detail-name').textContent='Error al cargar perfil';
+  }
 }
 
 async function loadCompanionProfile(){
