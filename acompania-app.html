@@ -1331,7 +1331,7 @@ const COUPON_MAP={'GOLD10':.10,'BIENVENIDA':1,'RETOMA20':.20,'FEE50':.50,'VIP15'
 const SERVICE_FEE=.05;
 
 // ── API ──
-const API_BASE='https://acompania-backend-production.up.railway.app';
+const API_BASE='https://acompania-api.vercel.app';
 let authToken=localStorage.getItem('authToken')||null;
 let currentUser=JSON.parse(localStorage.getItem('currentUser')||'null');
 
@@ -2634,7 +2634,7 @@ async function submitReview(){
 // En desarrollo local con el backend corriendo:
 // const VERIF_API = 'http://localhost:3001/verify';
 // Para esta demo usamos modo simulado que refleja exactamente las llamadas reales:
-const VERIF_API = 'https://acompania-backend-production.up.railway.app/api/verify';
+const VERIF_API = 'https://acompania-api.vercel.app/api/verify';
 
 // ── STATE ──
 let verifSession = {
