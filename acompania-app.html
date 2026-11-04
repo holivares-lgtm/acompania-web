@@ -827,7 +827,7 @@ tbody tr:last-child td{border-bottom:none}
   <div id="page-home" class="page">
     <div class="page-container">
       <div class="hero-banner">
-        <div class="hero-banner-label" id="hero-greeting">Bienvenido, Carlos</div>
+        <div class="hero-banner-label" id="hero-greeting">Bienvenido</div>
         <div class="hero-banner-title">¿Para qué ocasión<br>buscas <em>compañía hoy?</em></div>
         <div class="hero-banner-sub">Define tu solicitud con fecha, lugar y presupuesto. Las acompañantes compatibles se postulan y tú eliges.</div>
         <div style="display:flex;gap:.75rem;flex-wrap:wrap">
@@ -999,7 +999,7 @@ tbody tr:last-child td{border-bottom:none}
     <div class="profile-cover"><div class="profile-cover-pattern"></div><div class="profile-avatar-wrap"><div class="avatar avatar-xl avatar-verified-ring" id="profile-avatar-main">CL</div></div></div>
     <div class="profile-info-bar">
       <div class="profile-name-block">
-        <div class="profile-name" id="profile-name-display">Carlos López <span class="badge-verified badge">✦ Verificado</span></div>
+        <div class="profile-name" id="profile-name-display">—</div>
         <div class="profile-meta-row"><span class="profile-meta-item">👤 Cliente</span><span class="profile-meta-item">📅 Miembro desde Feb 2025</span><span class="profile-meta-item">⭐ 12 citas realizadas</span></div>
       </div>
       <div style="display:flex;gap:.65rem;flex-wrap:wrap">
@@ -1009,16 +1009,8 @@ tbody tr:last-child td{border-bottom:none}
     </div>
     <div class="page-container" style="padding-top:1.5rem">
       <div class="grid-4" style="margin-bottom:2rem">
-        <div class="stat-card"><div class="stat-label">Solicitudes</div><div class="stat-value">15</div></div>
-        <div class="stat-card"><div class="stat-label">Citas</div><div class="stat-value">12</div></div>
-        <div class="stat-card"><div class="stat-label">Reseñas dadas</div><div class="stat-value">8</div></div>
-        <div class="stat-card"><div class="stat-label">Calificación promedio</div><div class="stat-value">4.8</div></div>
-      </div>
-      <div class="form-section-title" style="margin-bottom:1.1rem">Reseñas recibidas</div>
-      <div class="review-card">
-        <div class="review-author-info"><div class="avatar avatar-sm avatar-verified-ring">VM</div><div><div class="review-author-name" style="display:flex;align-items:center;gap:.4rem">Valentina Morales <span class="badge-verified badge" style="font-size:.55rem">✦</span></div><div class="review-author-role">Acompañante verificada · ★★★★★ · Abril 2025</div></div></div>
-        <div class="review-text">"Carlos es muy amable y puntual. Una persona con quien es genuinamente placentero pasar el tiempo."</div>
-        <div class="review-aspects"><span class="review-aspect">Puntualidad</span><span class="review-aspect">Amabilidad</span><span class="review-aspect">Respeto</span></div>
+        <div class="stat-card"><div class="stat-label">Solicitudes</div><div class="stat-value" id="cli-stat-solicitudes">—</div></div>
+        <div class="stat-card"><div class="stat-label">Citas</div><div class="stat-value" id="cli-stat-citas">—</div></div>
       </div>
     </div>
   </div>
@@ -1028,7 +1020,7 @@ tbody tr:last-child td{border-bottom:none}
     <div class="page-container">
       <div class="flex-between" style="margin-bottom:2rem">
         <div><button class="btn btn-ghost btn-sm" onclick="goBack()" style="margin-bottom:.75rem">← Volver</button><div class="section-eyebrow">Mi cuenta</div><div class="section-title">Configurar <em>perfil</em></div></div>
-        <button class="btn btn-gold" onclick="showToast('Cambios guardados','Tu perfil fue actualizado.')">Guardar cambios</button>
+        
       </div>
       <div class="tabs" id="settings-tabs">
         <button class="tab active" onclick="switchSettingsTab(this,'st-personal')">Datos personales</button>
@@ -1042,20 +1034,15 @@ tbody tr:last-child td{border-bottom:none}
         <div class="grid-2" style="align-items:start">
           <div style="display:flex;flex-direction:column;gap:1rem">
             <div style="display:flex;align-items:center;gap:1.25rem;margin-bottom:.5rem">
-              <div class="avatar avatar-xl avatar-verified-ring">CL</div>
-              <div><button class="btn btn-outline btn-sm">Cambiar foto</button><div style="font-size:.68rem;color:var(--text3);margin-top:.35rem">JPG o PNG, máx 5 MB</div></div>
+              <div class="avatar avatar-xl" id="cli-avatar">—</div>
+              <div><div style="font-size:.68rem;color:var(--text3)">La foto de perfil del cliente aún no está disponible.</div></div>
             </div>
-            <div class="form-grid">
-              <div class="input-wrap"><label class="input-label">Nombre</label><input class="input" value="Carlos"></div>
-              <div class="input-wrap"><label class="input-label">Apellido</label><input class="input" value="López"></div>
-            </div>
-            <div class="input-wrap"><label class="input-label">Correo electrónico</label><input class="input" type="email" value="carlos@email.com"></div>
-            <div class="input-wrap"><label class="input-label">Teléfono</label><input class="input" type="tel" value="+56 9 8765 4321"></div>
-            <div class="input-wrap"><label class="input-label">Fecha de nacimiento</label><input class="input" type="date" value="1990-06-15"></div>
-            <div class="input-wrap"><label class="input-label">Descripción personal (visible en tu perfil)</label><textarea class="input" placeholder="Una breve presentación sobre ti…">Profesional del sector tecnológico. Me gustan las cenas interesantes y las conversaciones de fondo.</textarea></div>
+            <div class="input-wrap"><label class="input-label">Correo electrónico</label><input class="input" type="email" id="cli-email" disabled></div>
+            <div class="input-wrap"><label class="input-label">Teléfono</label><input class="input" type="tel" id="cli-tel" placeholder="Sin teléfono registrado" disabled></div>
+            <div class="input-wrap"><label class="input-label">Cuenta creada</label><input class="input" id="cli-creada" disabled></div>
           </div>
           <div style="display:flex;flex-direction:column;gap:.75rem">
-            <div class="card" style="padding:1.25rem"><div class="form-section-title">Estado de la cuenta</div><div style="display:flex;flex-direction:column;gap:.55rem"><div class="price-line"><span class="price-line-label">Correo</span><span class="badge badge-green">Verificado</span></div><div class="price-line"><span class="price-line-label">Teléfono</span><span class="badge badge-green">Verificado</span></div><div class="price-line"><span class="price-line-label">Identidad</span><span class="badge-verified badge">✦ Verificado</span></div><div class="price-line" style="border:none"><span class="price-line-label">Estado</span><span class="badge badge-green">Activo</span></div></div></div>
+            <div class="card" style="padding:1.25rem"><div class="form-section-title">Estado de la cuenta</div><div style="display:flex;flex-direction:column;gap:.55rem"><div class="price-line"><span class="price-line-label">Correo</span><span id="cli-st-email" class="badge badge-gray">—</span></div><div class="price-line"><span class="price-line-label">Teléfono</span><span id="cli-st-tel" class="badge badge-gray">—</span></div><div class="price-line" style="border:none"><span class="price-line-label">Estado</span><span id="cli-st-cuenta" class="badge badge-gray">—</span></div></div></div>
           </div>
         </div>
       </div>
@@ -1097,10 +1084,7 @@ tbody tr:last-child td{border-bottom:none}
 
       <div id="st-reviews" style="display:none">
         <div class="form-section-title" style="margin-bottom:1.1rem">Reseñas que he escrito</div>
-        <div class="review-card"><div class="review-author-info"><div class="avatar avatar-sm">VM</div><div><div class="review-author-name">Para: Valentina Morales</div><div class="review-author-role">★★★★★ · 24 Abril 2025</div></div></div><div class="review-text">"Una experiencia impecable. Elegante y genuinamente agradable."</div></div>
-        <div class="review-card"><div class="review-author-info"><div class="avatar avatar-sm">SC</div><div><div class="review-author-name">Para: Sofía Contreras</div><div class="review-author-role">★★★★★ · 10 Marzo 2025</div></div></div><div class="review-text">"Perfecta para la ocasión. Muy profesional en todo momento."</div></div>
-        <div class="form-section-title" style="margin-bottom:1.1rem;margin-top:1.5rem">Reseñas que he recibido</div>
-        <div class="review-card"><div class="review-author-info"><div class="avatar avatar-sm avatar-verified-ring">VM</div><div><div class="review-author-name" style="display:flex;align-items:center;gap:.4rem">De: Valentina Morales <span class="badge-verified badge" style="font-size:.55rem">✦</span></div><div class="review-author-role">★★★★★ · 24 Abril 2025</div></div></div><div class="review-text">"Carlos es muy amable, puntual y un cliente ejemplar."</div></div>
+        <div style="font-size:.78rem;color:var(--text3);padding:1rem 0">Las reseñas que escribas sobre tus acompañantes aparecerán en el perfil de cada una.</div>
       </div>
     </div>
   </div>
@@ -1510,6 +1494,13 @@ async function handleRegister(){
   }
 }
 
+function actualizarSaludo(){
+  const el=document.getElementById('hero-greeting');
+  if(!el)return;
+  const quien=(currentUser&&(currentUser.email||currentUser.phone))||'';
+  el.textContent=quien?`Bienvenido, ${quien.split('@')[0]}`:'Bienvenido';
+}
+
 function doLogin(){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const shell=document.getElementById('auth-shell');
@@ -1520,6 +1511,7 @@ function doLogin(){
   if(currentRole==='cliente'){
     document.getElementById('nav-client').style.display='flex';
     document.getElementById('nav-avatar').textContent=initials;
+    actualizarSaludo();
     buildCompanionGrid('home-companions',4);
     navigateTo('home');
     setTimeout(()=>showSmartPromo('welcome'),8000);
@@ -1632,7 +1624,7 @@ function mapApiCompanion(c){
     tags:(c.services&&c.services.length?c.services:c.tags)||[],
     price:'$'+(c.pricePerHour||25000).toLocaleString('es-CL'),
     rating:c.rating?c.rating.toFixed(1):'5.0',
-    avail:c.isActive,
+    avail:disponibleAhora(c),
     verified:c.identityVerified,
     img:c.avatarUrl||c.photos?.[0]?.url||null,
   };
@@ -2155,7 +2147,8 @@ async function loadCompanionDetail(){
     const bio=document.getElementById('detail-bio');
     if(bio)bio.textContent=c.bio?`"${c.bio}"`:'';
     const avail=document.getElementById('detail-avail');
-    if(avail)avail.innerHTML=`<div class="status-dot ${c.isActive?'status-available':'status-busy'}"></div>${c.isActive?'Disponible':'No disponible'}`;
+    const libre=disponibleAhora(c);
+    if(avail)avail.innerHTML=`<div class="status-dot ${libre?'status-available':'status-busy'}"></div>${libre?'Disponible':'No disponible'}`;
     const loc=document.getElementById('detail-loc');
     if(loc)loc.textContent=c.location?`📍 ${c.location}`:'';
     const rat=c.rating?Number(c.rating).toFixed(1):null;
@@ -2409,11 +2402,38 @@ async function loadMyProfile(){
   if(!authToken||!currentUser)return;
   try{
     const user=await apiGet('/api/auth/me');
+    const display=user.email||user.phone||'—';
+    const iniciales=display.slice(0,2).toUpperCase();
+
+    const set=(id,val)=>{const e=document.getElementById(id);if(e){if('value' in e&&e.tagName==='INPUT')e.value=val;else e.textContent=val;}};
     const avatarEl=document.getElementById('profile-avatar-main');
     const nameEl=document.getElementById('profile-name-display');
-    const display=user.email||user.phone||'—';
-    if(avatarEl)avatarEl.textContent=display.slice(0,2).toUpperCase();
-    if(nameEl)nameEl.innerHTML=display+' <span class="badge-verified badge">✦</span>';
+    if(avatarEl)avatarEl.textContent=iniciales;
+    // La insignia de verificado solo si de verdad lo está.
+    if(nameEl)nameEl.innerHTML=display+(user.emailVerified?' <span class="badge-verified badge">✦</span>':'');
+
+    set('cli-avatar',iniciales);
+    set('cli-email',user.email||'');
+    set('cli-tel',user.phone||'');
+    set('cli-creada',user.createdAt?new Date(user.createdAt).toLocaleDateString('es-CL',{day:'numeric',month:'long',year:'numeric'}):'');
+
+    const insignia=(id,ok,siTxt,noTxt)=>{
+      const e=document.getElementById(id);
+      if(!e)return;
+      e.textContent=ok?siTxt:noTxt;
+      e.className='badge '+(ok?'badge-green':'badge-gray');
+    };
+    insignia('cli-st-email',user.emailVerified,'Verificado','Sin verificar');
+    insignia('cli-st-tel',user.phoneVerified,'Verificado','Sin verificar');
+    insignia('cli-st-cuenta',!user.suspended,'Activa','Suspendida');
+
+    // Cifras reales en vez de las fijas que traía la maqueta.
+    const [solicitudes,citas]=await Promise.all([
+      apiGet('/api/requests/mine').catch(()=>[]),
+      apiGet('/api/appointments').catch(()=>[]),
+    ]);
+    set('cli-stat-solicitudes',String(solicitudes.length));
+    set('cli-stat-citas',String(citas.length));
   }catch{}
 }
 
@@ -3295,6 +3315,19 @@ function switchSettingsTab(btn,targetId){
 const DIAS_SEMANA=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 const BLOQUE_HORAS=2;
 const BLOQUES_DIA=24/BLOQUE_HORAS;
+
+// El badge "Disponible" salía de isActive, que el catálogo ni siquiera
+// devolvía. Ahora además respeta la grilla semanal: si declaró horarios,
+// está disponible solo dentro de ellos.
+function disponibleAhora(c){
+  if(!c.isActive)return false;
+  const slots=c.availability||[];
+  if(!slots.length)return true; // sin horarios declarados, manda el interruptor
+  const ahora=new Date();
+  const dia=(ahora.getDay()+6)%7; // getDay(): 0=domingo; aquí 0=lunes
+  const hora=ahora.getHours()+ahora.getMinutes()/60;
+  return slots.some(s=>s.dayOfWeek===dia&&hora>=s.slotStart&&hora<s.slotEnd);
+}
 
 function etiquetaBloque(i){
   const dosDigitos=n=>String(n).padStart(2,'0');
