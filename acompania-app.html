@@ -913,7 +913,7 @@ tbody tr:last-child td{border-bottom:none}
       <div class="tabs">
         <button class="tab active" onclick="switchTab(this,'dtab-about')">Sobre mí</button>
         <button class="tab" onclick="switchTab(this,'dtab-services')">Servicios</button>
-        <button id="detail-photos-tab" class="tab" onclick="switchTab(this,'dtab-photos')">Fotos</button>
+        <button id="detail-photos-tab" class="tab" onclick="switchTab(this,'dtab-photos')">Fotos y videos</button>
         <button class="tab" onclick="switchTab(this,'dtab-avail')">Disponibilidad</button>
         <button id="detail-reviews-tab" class="tab" onclick="switchTab(this,'dtab-reviews')">Reseñas</button>
       </div>
@@ -925,6 +925,10 @@ tbody tr:last-child td{border-bottom:none}
       </div>
       <div id="dtab-photos" class="tab-content" style="display:none">
         <div id="detail-photo-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.75rem"></div>
+        <div id="detail-video-wrap" style="display:none;margin-top:1.5rem">
+          <div class="section-eyebrow" style="margin-bottom:.9rem">Videos</div>
+          <div id="detail-video-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.9rem"></div>
+        </div>
       </div>
 
       <div id="dtab-services" class="tab-content" style="display:none">
@@ -1933,10 +1937,12 @@ async function loadClientRequests(){
                   ${p.displayName||'Acompañante'}
                   ${p.identityVerified?'<span class="badge-verified badge" style="font-size:.52rem">✦</span>':''}
                 </div>
-                <div style="font-size:.7rem;color:var(--text3)">${p.location||''}${p.rating?` · ★ ${Number(p.rating).toFixed(1)}`:''}${p.pricePerHour?` · $${p.pricePerHour.toLocaleString('es-CL')}/hr`:''}</div>
+                <div style="font-size:.7rem;color:var(--text3)">${p.location||''}${p.rating?` · ★ ${Number(p.rating).toFixed(1)} (${p.reviewCount||0})`:' · Sin reseñas'}${p.pricePerHour?` · $${p.pricePerHour.toLocaleString('es-CL')}/hr`:''}</div>
+                ${(p.services&&p.services.length)?`<div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.3rem">${p.services.slice(0,4).map(sv=>`<span class="companion-card-tag">${sv}</span>`).join('')}${p.services.length>4?`<span style="font-size:.62rem;color:var(--text4);align-self:center">+${p.services.length-4}</span>`:''}</div>`:''}
                 ${a.message?`<div style="font-size:.72rem;color:var(--text2);margin-top:.25rem;font-style:italic">"${a.message}"</div>`:''}
               </div>
               <div style="display:flex;flex-direction:column;gap:.35rem;flex-shrink:0">
+                <button class="btn btn-outline btn-sm" onclick="openCompanionDetail('${p.id}')">Ver perfil</button>
                 ${a.status==='PENDING'&&r.status==='OPEN'?
                   (window._reqData[`${r.id}_${p.id}`]={profile:p,request:{duration:r.duration,priceOffer:r.priceOffer,title:r.title}},'')+''+
                   `<button class="btn btn-gold btn-sm" onclick="openConfirmModalById('${r.id}','${p.id}')">Seleccionar</button>`
@@ -2114,8 +2120,10 @@ async function loadCompanionDetail(){
       // el listado no trae el book: hay que pedir el perfil completo
       fetch(API_BASE+`/api/companions/${id}`).then(r=>r.json()).catch(()=>null),
     ]);
-    const c=companions.find(x=>x.id===id);
-    if(!c){set('detail-name','Perfil no encontrado');return;}
+    // El listado solo trae perfiles aprobados y activos. Una postulante puede
+    // no estar ahí, así que el perfil completo manda y el listado complementa.
+    const c=Object.assign({},full||{},companions.find(x=>x.id===id)||{});
+    if(!c.id){set('detail-name','Perfil no encontrado');return;}
 
     // Disponibilidad real de la acompañante (antes era una grilla fija en el HTML)
     pintarDisponibilidad(document.getElementById('detail-avail-grid'),(full&&full.availability)||[],false);
@@ -2128,7 +2136,17 @@ async function loadCompanionDetail(){
     if(pg)pg.innerHTML=fotos.length
       ? fotos.map((f,i)=>`<div class="photo-zoomable" onclick="openLightbox(window._detailFotos,${i})" style="aspect-ratio:3/4;border-radius:var(--r);border:1px solid var(--gold-border);background:url('${f.url}') center/cover no-repeat"></div>`).join('')
       : '<div style="color:var(--text3);font-size:.8rem;padding:1.5rem 0">Sin fotos publicadas.</div>';
-    if(pt)pt.style.display=fotos.length?'':'none';
+    const videos=(full&&Array.isArray(full.videoLinks))?full.videoLinks.filter(Boolean):[];
+    const vw=document.getElementById('detail-video-wrap');
+    const vg=document.getElementById('detail-video-grid');
+    if(vg)vg.innerHTML=videos.map(url=>{
+      const emb=urlVideoEmbebido(url);
+      return emb
+        ? `<div style="aspect-ratio:16/9;border-radius:var(--r);overflow:hidden;border:1px solid var(--gold-border)"><iframe src="${emb}" style="width:100%;height:100%;border:0" allowfullscreen loading="lazy"></iframe></div>`
+        : `<a href="${url}" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="justify-content:flex-start">▶ Ver video</a>`;
+    }).join('');
+    if(vw)vw.style.display=videos.length?'':'none';
+    if(pt)pt.style.display=(fotos.length||videos.length)?'':'none';
 
     // Header
     const av=document.getElementById('detail-avatar');
@@ -3319,6 +3337,25 @@ const BLOQUES_DIA=24/BLOQUE_HORAS;
 // El badge "Disponible" salía de isActive, que el catálogo ni siquiera
 // devolvía. Ahora además respeta la grilla semanal: si declaró horarios,
 // está disponible solo dentro de ellos.
+// YouTube y Vimeo se incrustan; cualquier otro enlace se abre aparte.
+function urlVideoEmbebido(url){
+  try{
+    const u=new URL(url);
+    const host=u.hostname.replace(/^www\./,'');
+    if(host==='youtu.be')return `https://www.youtube.com/embed/${u.pathname.slice(1)}`;
+    if(host.endsWith('youtube.com')){
+      const v=u.searchParams.get('v');
+      if(v)return `https://www.youtube.com/embed/${v}`;
+      if(u.pathname.startsWith('/embed/'))return url;
+    }
+    if(host.endsWith('vimeo.com')){
+      const id=u.pathname.split('/').filter(Boolean)[0];
+      if(/^\d+$/.test(id))return `https://player.vimeo.com/video/${id}`;
+    }
+  }catch(e){}
+  return null;
+}
+
 function disponibleAhora(c){
   if(!c.isActive)return false;
   const slots=c.availability||[];
