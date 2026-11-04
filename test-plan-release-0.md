@@ -29,7 +29,7 @@
 **Variables de entorno necesarias para pruebas:**
 ```
 API_BASE = https://acompania-backend-production.up.railway.app
-ADMIN_KEY = Campeado.1409!
+ADMIN_KEY = <ver variables de entorno del proyecto acompania-api en Vercel>
 TEST_CLIENT_EMAIL = testclient@test.com
 TEST_CLIENT_PW = Test1234!
 TEST_COMP_EMAIL = testcomp@test.com
@@ -336,7 +336,7 @@ flowchart TD
 
 | ID | Nombre | Pasos | Resultado esperado |
 |---|---|---|---|
-| ADM-01 | Login admin correcto | 1. Abrir admin.html → PW: `Campeado.1409!` | Accede al dashboard |
+| ADM-01 | Login admin correcto | 1. Abrir admin.html → PW: la ADMIN_KEY del backend | Accede al dashboard |
 | ADM-02 | Login admin incorrecto | 1. PW incorrecta → Ingresar | Error visible, no accede |
 | ADM-03 | Cambiar clave admin | 1. Configuración → Nueva clave → Guardar → Cerrar sesión → Login con nueva clave | Accede con la nueva clave |
 | ADM-04 | Stats del dashboard | 1. Dashboard → ver métricas | Usuarios totales, activos, pendientes, solicitudes hoy — datos reales del backend |
@@ -388,12 +388,12 @@ curl -s https://acompania-backend-production.up.railway.app/api/services | pytho
 # API-06: Crear servicio (admin)
 curl -s -X POST https://acompania-backend-production.up.railway.app/api/admin/services \
   -H "Content-Type: application/json" \
-  -H "x-admin-key: Campeado.1409!" \
+  -H "x-admin-key: $ADMIN_KEY" \
   -d '{"name":"Test Servicio","category":"Test","isActive":true}' | python3 -m json.tool
 
 # API-07: Listar servicios admin (incluye inactivos)
 curl -s https://acompania-backend-production.up.railway.app/api/admin/services \
-  -H "x-admin-key: Campeado.1409!" | python3 -m json.tool
+  -H "x-admin-key: $ADMIN_KEY" | python3 -m json.tool
 ```
 
 ### Solicitudes y citas
@@ -413,11 +413,11 @@ curl -s https://acompania-backend-production.up.railway.app/api/requests \
 ```bash
 # API-10: Stats del admin
 curl -s https://acompania-backend-production.up.railway.app/api/admin/stats \
-  -H "x-admin-key: Campeado.1409!" | python3 -m json.tool
+  -H "x-admin-key: $ADMIN_KEY" | python3 -m json.tool
 
 # API-11: Listar todos los usuarios
 curl -s https://acompania-backend-production.up.railway.app/api/admin/users \
-  -H "x-admin-key: Campeado.1409!" | python3 -m json.tool
+  -H "x-admin-key: $ADMIN_KEY" | python3 -m json.tool
 
 # API-12: Admin sin clave (debe fallar 401)
 curl -s https://acompania-backend-production.up.railway.app/api/admin/stats | python3 -m json.tool

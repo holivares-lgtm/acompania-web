@@ -707,12 +707,10 @@ tbody tr:last-child td{border-bottom:none}
 
           <div style="margin-top:1.5rem">
             <div class="form-section-title" style="margin-bottom:1rem">Seguridad — Contraseña de administrador</div>
-            <div style="display:flex;flex-direction:column;gap:.75rem;padding:1rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r)">
-              <div class="input-wrap"><label class="input-label">Contraseña actual</label><input class="input" type="password" id="pw-current" placeholder="••••••••"></div>
-              <div class="input-wrap"><label class="input-label">Nueva contraseña</label><input class="input" type="password" id="pw-new" placeholder="Mínimo 8 caracteres"></div>
-              <div class="input-wrap"><label class="input-label">Confirmar nueva contraseña</label><input class="input" type="password" id="pw-confirm" placeholder="Repite la nueva contraseña"></div>
-              <div id="pw-change-error" style="display:none;color:var(--danger-red);font-size:.73rem"></div>
-              <button class="btn btn-gold btn-sm" onclick="changeAdminPassword()" style="align-self:flex-start">Cambiar contraseña</button>
+            <div style="padding:1rem;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r);font-size:.78rem;color:var(--text3);line-height:1.6">
+              La clave de administrador es la variable <code>ADMIN_KEY</code> del backend.
+              Se cambia en las variables de entorno del proyecto <strong>acompania-api</strong>
+              en Vercel y requiere volver a desplegar.
             </div>
           </div>
         </div>
@@ -746,28 +744,36 @@ tbody tr:last-child td{border-bottom:none}
 <script>
 // ── CONFIG ──
 const API_BASE = 'https://acompania-api.vercel.app';
-const DEFAULT_PW = 'Campeado.1409!';
-const PW_KEY = 'aco_admin_pw';
+
 const RULES_KEY = 'aco_commission_rules';
 
 let adminKey = '';
 let _allUsers = [];
 
 // ── AUTH ──
-function getStoredPw() { return localStorage.getItem(PW_KEY) || DEFAULT_PW; }
-
-function handleAdminLogin() {
+// La clave la valida el backend, no esta página: antes estaba escrita en el
+// código y este archivo se sirve público, así que cualquiera podía leerla.
+// Solo vive en memoria mientras dura la sesión; nunca se guarda.
+async function handleAdminLogin() {
   const input = document.getElementById('admin-pw-input');
   const err = document.getElementById('login-error');
   if (!input) return;
-  if (input.value !== getStoredPw()) {
+
+  const key = input.value;
+  if (!key) { err.style.display = 'block'; input.focus(); return; }
+
+  try {
+    const res = await fetch(API_BASE + '/api/admin/stats', { headers: { 'x-admin-key': key } });
+    if (!res.ok) throw new Error('clave inválida');
+  } catch (e) {
     err.style.display = 'block';
     input.value = '';
     input.focus();
     return;
   }
+
   err.style.display = 'none';
-  adminKey = input.value;
+  adminKey = key;
   input.value = '';
   document.getElementById('page-login').style.display = 'none';
   document.getElementById('admin-shell').style.display = 'flex';
@@ -781,23 +787,6 @@ function logout() {
   document.getElementById('page-login').style.display = 'flex';
   const input = document.getElementById('admin-pw-input');
   if (input) { input.value = ''; input.focus(); }
-}
-
-function changeAdminPassword() {
-  const cur = document.getElementById('pw-current').value;
-  const nw  = document.getElementById('pw-new').value;
-  const con = document.getElementById('pw-confirm').value;
-  const err = document.getElementById('pw-change-error');
-  err.style.display = 'none';
-  if (cur !== getStoredPw()) { err.textContent = 'La contraseña actual es incorrecta.'; err.style.display = 'block'; return; }
-  if (nw.length < 8) { err.textContent = 'La nueva contraseña debe tener al menos 8 caracteres.'; err.style.display = 'block'; return; }
-  if (nw !== con) { err.textContent = 'Las contraseñas no coinciden.'; err.style.display = 'block'; return; }
-  localStorage.setItem(PW_KEY, nw);
-  adminKey = nw;
-  document.getElementById('pw-current').value = '';
-  document.getElementById('pw-new').value = '';
-  document.getElementById('pw-confirm').value = '';
-  showToast('Contraseña actualizada', 'La nueva contraseña está activa desde ahora.');
 }
 
 // ── API HELPER ──
