@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ACOMPAÑÍA — Plataforma de Compañía Exclusiva</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -152,6 +154,11 @@ textarea.input{resize:vertical;min-height:80px}
 .lightbox-prev{left:1.25rem}.lightbox-next{right:1.25rem}
 .lightbox-count{position:absolute;bottom:1.25rem;left:50%;transform:translateX(-50%);font-size:.75rem;color:var(--text3);letter-spacing:.08em}
 .photo-zoomable{cursor:zoom-in}
+#mapa-cerca{height:380px;border-radius:var(--r-lg);border:1px solid var(--gold-border);overflow:hidden}
+.leaflet-container{background:var(--bg3);font-family:var(--sans)}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--bg2);color:var(--text);border:1px solid var(--gold-border)}
+.leaflet-popup-content{margin:.7rem .85rem;font-size:.78rem}
+.mapa-aviso{font-size:.72rem;color:var(--text3);margin-top:.6rem;line-height:1.5}
 @keyframes modalIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
 .modal-header{padding:1.4rem 1.75rem 1rem;border-bottom:1px solid var(--gold-border);display:flex;justify-content:space-between;align-items:flex-start}
 .modal-title{font-family:var(--serif);font-size:1.5rem;color:var(--text)}
@@ -872,9 +879,14 @@ tbody tr:last-child td{border-bottom:none}
         <div class="input-wrap" style="min-width:130px"><label class="input-label">Verificación</label><select class="input"><option>Todas</option><option>Solo verificadas</option></select></div>
         <div class="input-wrap" style="min-width:120px"><label class="input-label">Calificación</label><select class="input"><option>Todas</option><option>★ 4.5+</option><option>★ 4.8+</option></select></div>
         <button class="btn btn-gold" style="align-self:flex-end">Buscar</button>
+        <button class="btn btn-outline" style="align-self:flex-end" onclick="activarMapaCercania(this)">📍 Cerca de mí</button>
+      </div>
+      <div id="mapa-wrap" style="display:none;margin-bottom:1.75rem">
+        <div id="mapa-cerca"></div>
+        <div class="mapa-aviso">Las acompañantes aparecen como una zona aproximada, no como un punto exacto. Tu ubicación no se guarda ni se comparte: solo se usa en tu navegador para ordenar los resultados.</div>
       </div>
       <div class="flex-between" style="margin-bottom:1.1rem">
-        <div style="font-size:.78rem;color:var(--text3)">Mostrando <strong style="color:var(--text2)">12</strong> acompañantes</div>
+        <div style="font-size:.78rem;color:var(--text3)">Mostrando <strong id="explore-count" style="color:var(--text2)">—</strong> acompañantes</div>
         <select class="input" style="width:180px;font-size:.75rem"><option>Mejor calificación</option><option>Precio ↑</option><option>Precio ↓</option></select>
       </div>
       <div id="explore-grid" class="grid-4"></div>
@@ -1237,6 +1249,15 @@ tbody tr:last-child td{border-bottom:none}
                 <div class="input-wrap"><label class="input-label">Precio mínimo</label><input id="cp-price-min" class="input" type="number" placeholder="20000"></div>
               </div>
               <div class="input-wrap"><label class="input-label">Zonas donde acepto citas</label><input id="cp-zones" class="input" placeholder="Las Condes, Vitacura, Providencia"></div>
+              <div class="input-wrap">
+                <label class="input-label">Zona en el mapa</label>
+                <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+                  <button class="btn btn-outline btn-sm" onclick="fijarZonaMapa(this)">📍 Usar mi ubicación actual</button>
+                  <button class="btn btn-danger btn-sm" id="cp-geo-quitar" style="display:none" onclick="quitarZonaMapa(this)">Quitar</button>
+                  <span id="cp-geo-estado" style="font-size:.72rem;color:var(--text3)"></span>
+                </div>
+                <div class="input-hint">Se guarda una zona aproximada de alrededor de 1 km, nunca tu dirección exacta. Los clientes ven un círculo en el mapa y la distancia, no un punto.</div>
+              </div>
               <div style="display:flex;align-items:center;gap:.7rem"><label class="toggle"><input type="checkbox" id="cp-is-active"><span class="toggle-slider"></span></label><span style="font-size:.8rem;color:var(--text2)">Perfil activo y visible para solicitudes</span></div>
             </div>
             <div style="display:flex;flex-direction:column;gap:.75rem">
@@ -1631,6 +1652,7 @@ function mapApiCompanion(c){
     avail:disponibleAhora(c),
     verified:c.identityVerified,
     img:c.avatarUrl||c.photos?.[0]?.url||null,
+    dist:c.distanceKm,
   };
 }
 
@@ -1657,6 +1679,160 @@ async function loadExploreServiceFilter(){
   }catch(e){console.warn('loadExploreServiceFilter',e);}
 }
 
+// La acompañante declara su zona. El navegador entrega la coordenada exacta,
+// pero el backend la redondea antes de guardarla: el punto real no se almacena.
+function estadoZonaMapa(p){
+  const est=document.getElementById('cp-geo-estado');
+  const quitar=document.getElementById('cp-geo-quitar');
+  const tiene=p&&p.latitude!=null&&p.longitude!=null;
+  if(est)est.textContent=tiene?'Zona declarada. Apareces en el mapa.':'Sin zona declarada. No apareces en el mapa.';
+  if(quitar)quitar.style.display=tiene?'':'none';
+}
+
+function fijarZonaMapa(btn){
+  if(!navigator.geolocation){
+    showToast('Sin ubicación','Tu navegador no permite compartir la ubicación.');
+    return;
+  }
+  btn.disabled=true; btn.textContent='Ubicando…';
+  navigator.geolocation.getCurrentPosition(
+    async pos=>{
+      try{
+        const p=await apiPut('/api/companions/me',{latitude:pos.coords.latitude,longitude:pos.coords.longitude});
+        estadoZonaMapa(p);
+        showToast('Zona guardada','Ya apareces en el mapa como zona aproximada.');
+      }catch(e){
+        showToast('No se pudo guardar',e.message||'Inténtalo de nuevo.');
+      }finally{
+        btn.disabled=false; btn.textContent='📍 Usar mi ubicación actual';
+      }
+    },
+    err=>{
+      btn.disabled=false; btn.textContent='📍 Usar mi ubicación actual';
+      showToast('Ubicación no disponible',err.code===1?'Diste permiso denegado.':'No se pudo obtener tu ubicación.');
+    },
+    {enableHighAccuracy:false,timeout:10000,maximumAge:300000}
+  );
+}
+
+async function quitarZonaMapa(btn){
+  btn.disabled=true;
+  try{
+    const p=await apiPut('/api/companions/me',{latitude:null,longitude:null});
+    estadoZonaMapa(p);
+    showToast('Zona quitada','Dejaste de aparecer en el mapa.');
+  }catch(e){
+    showToast('No se pudo quitar',e.message||'Inténtalo de nuevo.');
+  }finally{ btn.disabled=false; }
+}
+
+// ────────────────────────────
+//  MAPA DE CERCANÍA
+//  Leaflet sobre OpenStreetMap: sin API key ni cuota. La posición del cliente
+//  se pide al navegador y no sale de él; las acompañantes se dibujan como un
+//  círculo de zona porque el backend solo guarda una coordenada aproximada.
+// ────────────────────────────
+let _mapa=null, _mapaCapa=null;
+
+function activarMapaCercania(btn){
+  const wrap=document.getElementById('mapa-wrap');
+  if(!wrap)return;
+
+  if(wrap.style.display!=='none'){
+    wrap.style.display='none';
+    if(btn)btn.textContent='📍 Cerca de mí';
+    return;
+  }
+  if(!navigator.geolocation){
+    showToast('Sin ubicación','Tu navegador no permite compartir la ubicación.');
+    return;
+  }
+  if(typeof L==='undefined'){
+    showToast('Mapa no disponible','No se pudo cargar el mapa. Revisa tu conexión.');
+    return;
+  }
+
+  if(btn){btn.disabled=true;btn.textContent='Ubicando…';}
+  navigator.geolocation.getCurrentPosition(
+    async pos=>{
+      if(btn){btn.disabled=false;btn.textContent='Ocultar mapa';}
+      wrap.style.display='';
+      await pintarMapaCercania(pos.coords.latitude,pos.coords.longitude);
+    },
+    err=>{
+      if(btn){btn.disabled=false;btn.textContent='📍 Cerca de mí';}
+      const motivo=err.code===1
+        ? 'Diste permiso denegado. Habilítalo en el candado de la barra de direcciones.'
+        : 'No se pudo obtener tu ubicación. Inténtalo de nuevo.';
+      showToast('Ubicación no disponible',motivo);
+    },
+    {enableHighAccuracy:false,timeout:10000,maximumAge:300000}
+  );
+}
+
+async function pintarMapaCercania(lat,lng){
+  const cont=document.getElementById('mapa-cerca');
+  if(!cont)return;
+
+  if(!_mapa){
+    _mapa=L.map(cont,{scrollWheelZoom:false}).setView([lat,lng],13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      maxZoom:18,
+      attribution:'&copy; OpenStreetMap',
+    }).addTo(_mapa);
+  }else{
+    _mapa.setView([lat,lng],13);
+  }
+  // El contenedor estaba oculto al crearse: sin esto Leaflet calcula mal el alto.
+  setTimeout(()=>_mapa.invalidateSize(),50);
+
+  if(_mapaCapa)_mapaCapa.remove();
+  _mapaCapa=L.layerGroup().addTo(_mapa);
+
+  L.circleMarker([lat,lng],{radius:7,color:'#c4a66e',fillColor:'#c4a66e',fillOpacity:.9})
+    .bindPopup('Estás aquí').addTo(_mapaCapa);
+
+  let lista=[];
+  try{
+    lista=await apiGet(`/api/companions?lat=${lat}&lng=${lng}`);
+  }catch(e){
+    showToast('Error',e.message||'No se pudo cargar el catálogo.');
+    return;
+  }
+
+  const conZona=lista.filter(c=>c.latitude!=null&&c.longitude!=null);
+  conZona.forEach(c=>{
+    const libre=disponibleAhora(c);
+    L.circle([c.latitude,c.longitude],{
+      radius:800,
+      color:libre?'#4a9966':'#8a7a5c',
+      fillColor:libre?'#4a9966':'#8a7a5c',
+      fillOpacity:.18,
+      weight:1,
+    }).bindPopup(
+      `<strong>${c.displayName||'Acompañante'}</strong><br>`+
+      `${c.distanceKm!=null?`a ${c.distanceKm} km de ti<br>`:''}`+
+      `${fmtPrice(c.pricePerHour)}<br>`+
+      `<span style="color:${libre?'#4a9':'#8a7a5c'}">${libre?'Disponible ahora':'No disponible ahora'}</span><br>`+
+      `<a href="#" onclick="closeMapaPopup();openCompanionDetail('${c.id}');return false" style="color:var(--gold)">Ver perfil →</a>`
+    ).addTo(_mapaCapa);
+  });
+
+  // La grilla pasa a estar ordenada por cercanía.
+  const grid=document.getElementById('explore-grid');
+  if(grid&&lista.length){
+    grid.innerHTML=lista.map(mapApiCompanion).map(companionCard).join('');
+  }
+  const cuenta=document.getElementById('explore-count');
+  if(cuenta)cuenta.textContent=String(lista.length);
+
+  if(!conZona.length){
+    showToast('Sin zonas declaradas','Ninguna acompañante ha fijado su zona todavía, así que el mapa solo muestra tu posición.');
+  }
+}
+
+function closeMapaPopup(){ if(_mapa)_mapa.closePopup(); }
+
 async function buildExploreGrid(){
   const c=document.getElementById('explore-grid');
   if(!c)return;
@@ -1665,6 +1841,8 @@ async function buildExploreGrid(){
     const data=await apiGet('/api/companions');
     const list=data.length?data.map(mapApiCompanion):COMPANIONS;
     c.innerHTML=list.map(companionCard).join('');
+    const cuenta=document.getElementById('explore-count');
+    if(cuenta)cuenta.textContent=String(list.length);
   }catch{
     c.innerHTML=COMPANIONS.map(companionCard).join('');
   }
@@ -1683,7 +1861,7 @@ function companionCard(c){
     </div>
     <div class="companion-card-body">
       <div class="companion-card-name">${c.name}${c.verified?`<span class="badge-verified badge" style="font-size:.55rem">✦</span>`:''}</div>
-      <div class="companion-card-loc">📍 ${c.loc}</div>
+      <div class="companion-card-loc">📍 ${c.loc}${c.dist!=null?` · a ${c.dist} km`:''}</div>
       <div class="companion-card-tags">${c.tags.map(t=>`<span class="companion-card-tag">${t}</span>`).join('')}</div>
       <div class="companion-card-footer">
         <div class="companion-card-price">${c.price}<span>/hr</span></div>
@@ -2269,6 +2447,7 @@ async function loadCompanionProfile(){
     // Video links
     const vl=document.getElementById('cp-video-links');
     if(vl)vl.value=(p.videoLinks||[]).join('\n');
+    estadoZonaMapa(p);
     // Status card
     const sl=document.getElementById('cp-status-lines');
     if(sl)sl.innerHTML=`
