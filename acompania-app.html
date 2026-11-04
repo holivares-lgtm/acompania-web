@@ -938,7 +938,7 @@ tbody tr:last-child td{border-bottom:none}
       <div class="wizard-steps"><div class="wizard-step done"><div class="wizard-step-circle">✓</div><div class="wizard-step-label">Detalles</div></div><div class="wizard-step active"><div class="wizard-step-circle">2</div><div class="wizard-step-label">Servicios</div></div><div class="wizard-step"><div class="wizard-step-circle">3</div><div class="wizard-step-label">Presupuesto</div></div><div class="wizard-step"><div class="wizard-step-circle">4</div><div class="wizard-step-label">Confirmar</div></div></div>
       <div class="grid-2" style="align-items:start">
         <div>
-          <div class="form-section"><div class="form-section-title">Detalles del encuentro</div><div class="form-grid"><div class="input-wrap"><label class="input-label">Fecha</label><input class="input" type="date" value="2025-05-23"></div><div class="input-wrap"><label class="input-label">Hora inicio</label><input class="input" type="time" value="20:00"></div><div class="input-wrap"><label class="input-label">Duración</label><select class="input" id="req-dur" onchange="updatePP()"><option value="2">2 horas</option><option value="3" selected>3 horas</option><option value="4">4 horas</option><option value="5">5 horas</option></select></div><div class="input-wrap"><label class="input-label">Género buscado</label><select class="input"><option>Femenino</option><option>Masculino</option><option>Cualquiera</option></select></div></div></div>
+          <div class="form-section"><div class="form-section-title">Detalles del encuentro</div><div class="form-grid"><div class="input-wrap"><label class="input-label">Fecha</label><input class="input" type="date" id="req-date"></div><div class="input-wrap"><label class="input-label">Hora inicio</label><input class="input" type="time" value="20:00"></div><div class="input-wrap"><label class="input-label">Duración</label><select class="input" id="req-dur" onchange="updatePP()"><option value="2">2 horas</option><option value="3" selected>3 horas</option><option value="4">4 horas</option><option value="5">5 horas</option></select></div><div class="input-wrap"><label class="input-label">Género buscado</label><select class="input"><option>Femenino</option><option>Masculino</option><option>Cualquiera</option></select></div></div></div>
           <div class="form-section"><div class="form-section-title">Ubicación</div><div class="form-grid"><div class="input-wrap"><label class="input-label">Comuna</label><select class="input"><option>Las Condes</option><option>Providencia</option><option>Vitacura</option><option>Ñuñoa</option></select></div><div class="input-wrap"><label class="input-label">Lugar específico</label><input class="input" placeholder="Restaurante, evento..."></div></div></div>
           <div class="form-section"><div class="form-section-title">Servicios requeridos</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem"><label class="service-checkbox"><input type="checkbox" checked><span>Cena en restaurante</span></label><label class="service-checkbox"><input type="checkbox"><span>Evento social</span></label><label class="service-checkbox"><input type="checkbox"><span>Cóctel</span></label><label class="service-checkbox"><input type="checkbox"><span>Gala</span></label><label class="service-checkbox"><input type="checkbox"><span>Cena de negocios</span></label><label class="service-checkbox"><input type="checkbox"><span>Salida cultural</span></label></div></div>
           <div class="form-section"><div class="form-section-title">Precio y cupón</div><div class="form-grid"><div class="input-wrap"><label class="input-label">Precio/hr (CLP)</label><input class="input" type="number" value="25000" id="req-price" oninput="updatePP()"></div><div class="input-wrap"><label class="input-label">Cupón</label><input class="input" placeholder="GOLD10" id="req-coupon" oninput="updatePP()"></div></div></div>
@@ -1392,6 +1392,13 @@ const PAGES={
   'messages':'page-messages',
 };
 
+// Una solicitud abierta cuya fecha ya pasó está vencida: las acompañantes dejan
+// de verla (el backend ya no la devuelve), así que tampoco debe notificar ni
+// pedirle al cliente que elija postulante.
+function isRequestExpired(r){
+  return r.status==='OPEN'&&new Date(r.date).getTime()<=Date.now();
+}
+
 function navigateTo(name){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const id=PAGES[name];
@@ -1416,6 +1423,7 @@ function navigateTo(name){
   if(name==='messages')loadConversations();
   if(name==='companion-detail')loadCompanionDetail();
   if(name==='explore')loadExploreServiceFilter();
+  if(name==='create-request')initRequestDate();
 }
 
 function nav(page,btn){
@@ -1722,19 +1730,45 @@ async function submitRequest(){
   const dur=parseInt(document.getElementById('req-dur')?.value)||3;
   const dateEl=document.querySelector('#page-create-request input[type="date"]');
   const timeEl=document.querySelector('#page-create-request input[type="time"]');
-  const dateVal=dateEl?.value||new Date().toISOString().slice(0,10);
+  const dateVal=dateEl?.value;
   const timeVal=timeEl?.value||'20:00';
+  if(!dateVal){
+    showToast('Falta la fecha','Elige la fecha del encuentro.');
+    return;
+  }
+  const when=new Date(dateVal+'T'+timeVal);
+  if(when.getTime()<=Date.now()){
+    showToast('Fecha vencida','El encuentro debe ser en una fecha futura.');
+    return;
+  }
   try{
     await apiPost('/api/requests',{
-      date:new Date(dateVal+'T'+timeVal).toISOString(),
+      date:when.toISOString(),
       duration:dur,
       priceOffer:price,
       coupon:document.getElementById('req-coupon')?.value||undefined,
     });
   }catch(e){
-    console.warn('Request save failed:',e.message);
+    showToast('No se pudo crear la solicitud',e.message||'Intenta de nuevo.');
+    return;
   }
   openModal('modal-request-ok');
+}
+
+// El formulario no deja elegir una fecha pasada: la vigencia de una solicitud
+// es su propia fecha de encuentro, y al vencer deja de mostrarse.
+function initRequestDate(){
+  const el=document.getElementById('req-date');
+  if(!el)return;
+  const pad=n=>String(n).padStart(2,'0');
+  const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const hoy=new Date();
+  el.min=iso(hoy);
+  if(!el.value||el.value<el.min){
+    const manana=new Date(hoy);
+    manana.setDate(hoy.getDate()+1);
+    el.value=iso(manana);
+  }
 }
 
 // ────────────────────────────
@@ -1807,7 +1841,7 @@ async function loadClientRequests(){
     const statusBadge={OPEN:'badge-gold',CONFIRMED:'badge-green',COMPLETED:'badge-gray',CANCELLED:'badge-red'};
 
     // notif: count requests with new applicants
-    const withApplicants=data.filter(r=>r.status==='OPEN'&&r.applicants?.length>0);
+    const withApplicants=data.filter(r=>r.status==='OPEN'&&!isRequestExpired(r)&&r.applicants?.length>0);
     updateClientNotifBadge(withApplicants.length);
 
     el.innerHTML=data.map(r=>{
@@ -1843,7 +1877,11 @@ async function loadClientRequests(){
             </div>`;
           }).join('')}
         </div>`:
-        (r.status==='OPEN'?`<div style="margin-top:.75rem;font-size:.75rem;color:var(--text3)">Esperando postulantes…</div>`:'');
+        (r.status==='OPEN'
+          ? (isRequestExpired(r)
+              ? `<div style="margin-top:.75rem;font-size:.75rem;color:var(--text3)">Venció sin postulantes. Crea una nueva con otra fecha.</div>`
+              : `<div style="margin-top:.75rem;font-size:.75rem;color:var(--text3)">Esperando postulantes…</div>`)
+          : '');
 
       return`<div class="request-card" style="margin-bottom:.9rem">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:.4rem">
@@ -1857,7 +1895,7 @@ async function loadClientRequests(){
             </div>
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.4rem;flex-shrink:0">
-            <span class="badge ${statusBadge[r.status]||'badge-gray'}">${statusLabel[r.status]||r.status}</span>
+            <span class="badge ${isRequestExpired(r)?'badge-red':(statusBadge[r.status]||'badge-gray')}">${isRequestExpired(r)?'Vencida':(statusLabel[r.status]||r.status)}</span>
             ${appsBadge}
           </div>
         </div>
@@ -2502,7 +2540,7 @@ async function refreshNotifBadge(){
       setNotifBadge(reqs.filter(r=>!r.alreadyApplied).length);
     } else {
       const reqs=await apiGet('/api/requests/mine');
-      const withNew=reqs.filter(r=>r.status==='OPEN'&&(r.applicants||[]).some(a=>a.status==='PENDING')).length;
+      const withNew=reqs.filter(r=>r.status==='OPEN'&&!isRequestExpired(r)&&(r.applicants||[]).some(a=>a.status==='PENDING')).length;
       setNotifBadge(withNew);
     }
   }catch{}
@@ -2526,7 +2564,7 @@ async function loadNotifications(){
         </div>`).join('');
     } else {
       const reqs=await apiGet('/api/requests/mine').catch(()=>[]);
-      const withApps=reqs.filter(r=>r.status==='OPEN'&&(r.applicants||[]).some(a=>a.status==='PENDING'));
+      const withApps=reqs.filter(r=>r.status==='OPEN'&&!isRequestExpired(r)&&(r.applicants||[]).some(a=>a.status==='PENDING'));
       if(hdr)hdr.textContent=withApps.length?`${withApps.length} con postulantes` : '';
       if(!withApps.length){
         body.innerHTML='<div style="padding:1.5rem;text-align:center;font-size:.8rem;color:var(--text3)">Sin notificaciones nuevas.</div>';
