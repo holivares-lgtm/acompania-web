@@ -259,6 +259,13 @@ tbody tr:last-child td{border-bottom:none}
 
 /* AVAILABILITY */
 .availability-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:.4rem}
+.avail-table{display:grid;grid-template-columns:3.4rem repeat(7,1fr);gap:3px;font-size:.6rem}
+.avail-head{text-align:center;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;padding:.2rem 0}
+.avail-hour{color:var(--text4);display:flex;align-items:center;justify-content:flex-end;padding-right:.35rem;font-variant-numeric:tabular-nums}
+.avail-cell{height:22px;border-radius:3px;border:1px solid var(--gold-border);background:var(--bg3);transition:all var(--t)}
+.avail-cell.on{background:rgba(74,153,102,.22);border-color:rgba(74,153,102,.45)}
+.avail-cell.editable{cursor:pointer}
+.avail-cell.editable:hover{border-color:var(--gold-border2)}
 .avail-day{text-align:center}
 .avail-day-label{font-size:.6rem;color:var(--text3);letter-spacing:.05em;text-transform:uppercase;margin-bottom:.35rem}
 .avail-slot{height:30px;border-radius:3px;border:1px solid var(--gold-border);background:var(--bg3);cursor:pointer;transition:all var(--t);display:flex;align-items:center;justify-content:center;font-size:.62rem;color:var(--text4);margin-bottom:3px}
@@ -925,15 +932,7 @@ tbody tr:last-child td{border-bottom:none}
       </div>
       <div id="dtab-avail" class="tab-content" style="display:none">
         <div class="section-eyebrow" style="margin-bottom:.9rem">Disponibilidad semanal</div>
-        <div class="availability-grid" style="margin-bottom:1.25rem">
-          <div class="avail-day"><div class="avail-day-label">Lun</div><div class="avail-slot">—</div><div class="avail-slot available">18-22</div></div>
-          <div class="avail-day"><div class="avail-day-label">Mar</div><div class="avail-slot">—</div><div class="avail-slot available">18-22</div></div>
-          <div class="avail-day"><div class="avail-day-label">Mié</div><div class="avail-slot">—</div><div class="avail-slot">—</div></div>
-          <div class="avail-day"><div class="avail-day-label">Jue</div><div class="avail-slot">—</div><div class="avail-slot available">18-23</div></div>
-          <div class="avail-day"><div class="avail-day-label">Vie</div><div class="avail-slot">—</div><div class="avail-slot available">19-24</div></div>
-          <div class="avail-day"><div class="avail-day-label">Sáb</div><div class="avail-slot busy">13-16</div><div class="avail-slot available">19-24</div></div>
-          <div class="avail-day"><div class="avail-day-label">Dom</div><div class="avail-slot available">13-18</div><div class="avail-slot">—</div></div>
-        </div>
+        <div id="detail-avail-grid" style="margin-bottom:1.25rem"></div>
       </div>
       <div id="dtab-reviews" class="tab-content" style="display:none">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
@@ -1268,16 +1267,12 @@ tbody tr:last-child td{border-bottom:none}
         <!-- TAB: Disponibilidad -->
         <div id="cp-avail" style="display:none">
           <div class="form-section-title" style="margin-bottom:1rem">Ventanas de disponibilidad</div>
-          <div class="availability-grid" style="margin-bottom:1.25rem">
-            <div class="avail-day"><div class="avail-day-label">Lun</div><div class="avail-slot" onclick="toggleSlot(this)">—</div><div class="avail-slot available" onclick="toggleSlot(this)">18-22</div></div>
-            <div class="avail-day"><div class="avail-day-label">Mar</div><div class="avail-slot" onclick="toggleSlot(this)">—</div><div class="avail-slot available" onclick="toggleSlot(this)">18-22</div></div>
-            <div class="avail-day"><div class="avail-day-label">Mié</div><div class="avail-slot" onclick="toggleSlot(this)">—</div><div class="avail-slot" onclick="toggleSlot(this)">—</div></div>
-            <div class="avail-day"><div class="avail-day-label">Jue</div><div class="avail-slot" onclick="toggleSlot(this)">—</div><div class="avail-slot available" onclick="toggleSlot(this)">18-23</div></div>
-            <div class="avail-day"><div class="avail-day-label">Vie</div><div class="avail-slot" onclick="toggleSlot(this)">—</div><div class="avail-slot available" onclick="toggleSlot(this)">19-24</div></div>
-            <div class="avail-day"><div class="avail-day-label">Sáb</div><div class="avail-slot busy" onclick="toggleSlot(this)">13-16</div><div class="avail-slot available" onclick="toggleSlot(this)">19-24</div></div>
-            <div class="avail-day"><div class="avail-day-label">Dom</div><div class="avail-slot available" onclick="toggleSlot(this)">13-18</div><div class="avail-slot" onclick="toggleSlot(this)">—</div></div>
+          <div id="cp-avail-grid" style="margin-bottom:1rem"></div>
+          <div style="display:flex;align-items:center;gap:.9rem;flex-wrap:wrap">
+            <button class="btn btn-gold btn-sm" onclick="saveAvailability(this)">Guardar disponibilidad</button>
+            <span id="cp-avail-status" style="font-size:.72rem;color:var(--text3)"></span>
           </div>
-          <div style="font-size:.72rem;color:var(--text3)">Haz clic en un bloque para activarlo o desactivarlo.</div>
+          <div style="font-size:.72rem;color:var(--text3);margin-top:.75rem">Haz clic en un bloque de 2 horas para activarlo o desactivarlo.</div>
         </div>
 
         <!-- TAB: Fotos & Videos -->
@@ -1444,7 +1439,7 @@ function navigateTo(name){
     if(cpTabs){cpTabs.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===0));}
     ['cp-services','cp-avail','cp-photos'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
     const ci=document.getElementById('cp-info');if(ci)ci.style.display='';
-    loadCompanionProfile();loadCompanionPhotos();
+    loadCompanionProfile();loadCompanionPhotos();loadAvailabilityEditor();
   }
   if(name==='companion-dashboard')loadCompanionDashboard();
   if(name==='companion-requests')loadCompanionRequests();
@@ -2129,6 +2124,9 @@ async function loadCompanionDetail(){
     ]);
     const c=companions.find(x=>x.id===id);
     if(!c){set('detail-name','Perfil no encontrado');return;}
+
+    // Disponibilidad real de la acompañante (antes era una grilla fija en el HTML)
+    pintarDisponibilidad(document.getElementById('detail-avail-grid'),(full&&full.availability)||[],false);
 
     // Fotos del book. La pestaña se esconde si no hay ninguna publicada.
     const pg=document.getElementById('detail-photo-grid');
@@ -3285,11 +3283,99 @@ function switchSettingsTab(btn,targetId){
     if(el!==target&&el.id)el.style.display='none';
   });
   target.style.display='block';
+  if(targetId==='cp-avail')loadAvailabilityEditor();
 }
 
-function toggleSlot(el){
-  el.classList.toggle('available');
-  el.textContent=el.classList.contains('available')?el.textContent||'—':'—';
+// ────────────────────────────
+//  DISPONIBILIDAD
+//  Semana de bloques de 2 horas, de 00:00 a 24:00. La grilla antes estaba
+//  escrita a mano en el HTML y no se guardaba en ninguna parte; el endpoint
+//  PUT /api/companions/me/availability existía sin que nadie lo llamara.
+// ────────────────────────────
+const DIAS_SEMANA=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+const BLOQUE_HORAS=2;
+const BLOQUES_DIA=24/BLOQUE_HORAS;
+
+function etiquetaBloque(i){
+  const dosDigitos=n=>String(n).padStart(2,'0');
+  return `${dosDigitos(i*BLOQUE_HORAS)}-${dosDigitos((i+1)*BLOQUE_HORAS)}`;
+}
+
+// Los tramos guardados pueden no calzar con los bloques de 2 horas (por
+// ejemplo 18-23): se marca todo bloque que se solape con alguno.
+function bloquesActivos(slots){
+  const activos=new Set();
+  (slots||[]).forEach(s=>{
+    for(let i=0;i<BLOQUES_DIA;i++){
+      const ini=i*BLOQUE_HORAS, fin=ini+BLOQUE_HORAS;
+      if(s.slotStart<fin&&s.slotEnd>ini)activos.add(`${s.dayOfWeek}-${i}`);
+    }
+  });
+  return activos;
+}
+
+function pintarDisponibilidad(cont,slots,editable){
+  if(!cont)return;
+  const activos=bloquesActivos(slots);
+  let html='<div class="avail-table"><div></div>'+DIAS_SEMANA.map(d=>`<div class="avail-head">${d}</div>`).join('');
+  for(let i=0;i<BLOQUES_DIA;i++){
+    html+=`<div class="avail-hour">${etiquetaBloque(i)}</div>`;
+    for(let d=0;d<7;d++){
+      const on=activos.has(`${d}-${i}`);
+      html+=`<div class="avail-cell${on?' on':''}${editable?' editable':''}" data-dia="${d}" data-bloque="${i}"${editable?' onclick="this.classList.toggle(\'on\')"':''} title="${DIAS_SEMANA[d]} ${etiquetaBloque(i)}"></div>`;
+    }
+  }
+  cont.innerHTML=html+'</div>';
+}
+
+async function loadAvailabilityEditor(){
+  const cont=document.getElementById('cp-avail-grid');
+  if(!cont||!authToken)return;
+  try{
+    const perfil=await apiGet('/api/companions/me');
+    pintarDisponibilidad(cont,perfil.availability||[],true);
+  }catch(e){
+    pintarDisponibilidad(cont,[],true);
+  }
+}
+
+async function saveAvailability(btn){
+  const cont=document.getElementById('cp-avail-grid');
+  const estado=document.getElementById('cp-avail-status');
+  if(!cont)return;
+
+  // Bloques contiguos del mismo día se graban como un solo tramo.
+  const porDia={};
+  cont.querySelectorAll('.avail-cell.on').forEach(c=>{
+    const d=Number(c.dataset.dia);
+    (porDia[d]=porDia[d]||[]).push(Number(c.dataset.bloque));
+  });
+
+  const slots=[];
+  Object.entries(porDia).forEach(([d,bloques])=>{
+    bloques.sort((a,b)=>a-b);
+    let ini=bloques[0], prev=bloques[0];
+    for(let k=1;k<=bloques.length;k++){
+      const b=bloques[k];
+      if(b!==prev+1){
+        slots.push({dayOfWeek:Number(d),slotStart:ini*BLOQUE_HORAS,slotEnd:(prev+1)*BLOQUE_HORAS});
+        ini=b;
+      }
+      prev=b;
+    }
+  });
+
+  if(btn){btn.disabled=true;btn.textContent='Guardando…';}
+  if(estado)estado.textContent='';
+  try{
+    await apiPut('/api/companions/me/availability',{slots});
+    if(estado)estado.textContent=slots.length?`${slots.length} tramo${slots.length>1?'s':''} guardado${slots.length>1?'s':''}.`:'Sin disponibilidad declarada.';
+    showToast('Disponibilidad guardada','Los clientes ya ven tus horarios.');
+  }catch(e){
+    showToast('No se pudo guardar',e.message||'Inténtalo de nuevo.');
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='Guardar disponibilidad';}
+  }
 }
 
 // ────────────────────────────
