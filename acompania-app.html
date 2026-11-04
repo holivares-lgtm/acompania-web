@@ -896,6 +896,7 @@ tbody tr:last-child td{border-bottom:none}
       <div class="tabs">
         <button class="tab active" onclick="switchTab(this,'dtab-about')">Sobre mí</button>
         <button class="tab" onclick="switchTab(this,'dtab-services')">Servicios</button>
+        <button id="detail-photos-tab" class="tab" onclick="switchTab(this,'dtab-photos')">Fotos</button>
         <button class="tab" onclick="switchTab(this,'dtab-avail')">Disponibilidad</button>
         <button id="detail-reviews-tab" class="tab" onclick="switchTab(this,'dtab-reviews')">Reseñas</button>
       </div>
@@ -905,6 +906,10 @@ tbody tr:last-child td{border-bottom:none}
           <div><div class="form-section-title" style="margin-bottom:.9rem">Información</div><div id="detail-info-lines" style="display:flex;flex-direction:column;gap:.55rem"></div></div>
         </div>
       </div>
+      <div id="dtab-photos" class="tab-content" style="display:none">
+        <div id="detail-photo-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.75rem"></div>
+      </div>
+
       <div id="dtab-services" class="tab-content" style="display:none">
         <div id="detail-services-wrap" class="grid-3"></div>
       </div>
@@ -1616,6 +1621,7 @@ function mapApiCompanion(c){
     rating:c.rating?c.rating.toFixed(1):'5.0',
     avail:c.isActive,
     verified:c.identityVerified,
+    img:c.avatarUrl||c.photos?.[0]?.url||null,
   };
 }
 
@@ -1660,7 +1666,7 @@ function companionCard(c){
   if(c.id)window._compData[c.id]=c;
   return`<div class="companion-card" onclick="openCompanionDetail('${c.id||''}')">
     <div class="companion-card-img">
-      <div class="avatar avatar-xl${c.verified?' avatar-verified-ring':''}">${c.init}</div>
+      <div class="avatar avatar-xl${c.verified?' avatar-verified-ring':''}"${c.img?` style="background:url('${c.img}') center/cover no-repeat"`:''}>${c.img?'':c.init}</div>
       <div class="companion-card-avail">
         <div class="status-dot ${c.avail?'status-available':'status-busy'}"></div>
         ${c.avail?'Disponible':'Ocupada hoy'}
@@ -2054,13 +2060,24 @@ async function loadCompanionDetail(){
   if(!id){set('detail-name','Perfil no disponible');return;}
   try{
     // Fetch companion data, services and reviews in parallel
-    const [companions,allServices,reviews]=await Promise.all([
+    const [companions,allServices,reviews,full]=await Promise.all([
       apiGet('/api/companions'),
       fetch(API_BASE+'/api/services').then(r=>r.json()).catch(()=>[]),
       fetch(API_BASE+`/api/reviews/profile/${id}`).then(r=>r.json()).catch(()=>[]),
+      // el listado no trae el book: hay que pedir el perfil completo
+      fetch(API_BASE+`/api/companions/${id}`).then(r=>r.json()).catch(()=>null),
     ]);
     const c=companions.find(x=>x.id===id);
     if(!c){set('detail-name','Perfil no encontrado');return;}
+
+    // Fotos del book. La pestaña se esconde si no hay ninguna publicada.
+    const pg=document.getElementById('detail-photo-grid');
+    const pt=document.getElementById('detail-photos-tab');
+    const fotos=(full&&Array.isArray(full.photos))?full.photos:[];
+    if(pg)pg.innerHTML=fotos.length
+      ? fotos.map(f=>`<div style="aspect-ratio:3/4;border-radius:var(--r);border:1px solid var(--gold-border);background:url('${f.url}') center/cover no-repeat"></div>`).join('')
+      : '<div style="color:var(--text3);font-size:.8rem;padding:1.5rem 0">Sin fotos publicadas.</div>';
+    if(pt)pt.style.display=fotos.length?'':'none';
 
     // Header
     const av=document.getElementById('detail-avatar');
